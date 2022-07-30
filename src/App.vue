@@ -17,11 +17,11 @@ export default {
 <style>
 body{
         font-size: 2rem;
-        background-color: #A3A292;
+        background-color: #f2ea7c;
 }
 
 div{
-        background-color:#A3A292;
+        background-color:#eeeaca;
 }
 
 input{
