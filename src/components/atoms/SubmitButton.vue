@@ -1,11 +1,18 @@
 <template>
-        <button v-on="onSubmitCallback">GENERUJ</button>
+        <button >GENERUJ</button>
 </template>
 
 <script>
 export default {
-        props: ['onSubmitCallback'],
+        props: ['onSubmitCallback', 'inputsData'],
         setup() {
+        },
+        methods: {
+                submitData(value) {
+                        console.log(value);
+                        this.$emit('submit', value);
+                },
+
         },
 };
 </script>

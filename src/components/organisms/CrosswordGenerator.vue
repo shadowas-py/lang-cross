@@ -1,9 +1,15 @@
 <template>
         <div class='wrapper-csw-generator'>
                 <h3>GENERATOR SIATKI</h3>
-                        <GeneratorField
-                        v-for="field in fields" :key="field" :field="field"/>
-                <SubmitButton/>
+                <GeneratorField
+                v-for="(field, id) in fields" :key="id"
+                :field="field"
+                @inputValue="getValue"/>
+
+                <SubmitButton
+                :v-on:click="submitData"
+                :onSubmitCallback="setValue"
+                :inputsData="fieldsValues"/>
         </div>
 </template>
 
@@ -19,24 +25,39 @@ export default {
                                 label: 'szerokość',
                                 maxValue: 30,
                                 type: 'number',
-                                defaultValue: 15,
+                                value: 15,
                         }, {
                                 name: 'height-input',
                                 label: 'wysokość',
                                 maxValue: 30,
                                 type: 'number',
-                                defaultValue: 15,
+                                value: 10,
                         }, {
                                 name: 'color-input',
                                 label: 'kolor',
                                 maxValue: 30,
                                 type: 'color',
-                                defaultValue: '#F1F1F1',
+                                value: '#F1F1F1',
                         },
 
                         ],
                 };
         },
+        methods: {
+                submitData(e) {
+                        console.log(this.inputValue, 'iv');
+                        console.log(e, 'event');
+                },
+        },
+        computed: {
+                fieldsValues() {
+                        return this.fields;
+                },
+        },
         components: { GeneratorField, SubmitButton },
+        beforeUpdate() {
+                console.log('value', this.value);
+                this.$emit('inputValue', this.value);
+        },
 };
 </script>

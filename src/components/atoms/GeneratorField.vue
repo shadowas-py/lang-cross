@@ -1,7 +1,11 @@
-<!-- eslint-disable vuejs-accessibility/form-control-has-label -->
 <template>
         <label :for="field.label">{{field.label}}:
-                <input :class='field.name' :type='field.type' :value='field.defaultValue'/>
+                <input
+                :class='field.name'
+                :type='field.type'
+                v-model="fieldLocal.value"
+                v-on:change='inputValue'/>
+
         </label>
 </template>
 
@@ -10,13 +14,16 @@ export default {
         props: ['field'],
         setup() {
                 return {
-                        // class: this.field.name,
                 };
         },
         beforeMount() {
-                // this.class = this.field.name;
-                console.log(this.field);
-                console.log(this.class);
+        },
+        computed: {
+                fieldLocal: {
+                        get() {
+                                return this.field;
+                        },
+                },
         },
 };
 </script>
