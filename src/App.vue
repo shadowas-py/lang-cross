@@ -1,30 +1,36 @@
 <template>
   <nav>
-    <router-link to="/">Home</router-link> |
-    <router-link to="/about">About</router-link>
+    <div to="/" class='main-title'>Kreator Krzyżówkek </div>
   </nav>
-  <router-view/>
+  <router-view :TILE_SIZE_PX='TILE_SIZE_PX'/>
 </template>
+<script>
+export default {
+        setup() {
+                return {
+                        TILE_SIZE_PX: 40,
+                };
+        },
+};
+</script>
 
 <style>
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
+body{
+        font-size: 2rem;
+        background-color: #A3A292;
 }
 
-nav {
-  padding: 30px;
+div{
+        background-color:#A3A292;
 }
 
-nav a {
-  font-weight: bold;
-  color: #2c3e50;
-}
+input{
 
-nav a.router-link-exact-active {
-  color: #42b983;
+        background-color: #F1F1F1;
+}
+.main-title{
+        text-align: center;
+        padding: 20px;
+        margin-bottom: 20px;
 }
 </style>
