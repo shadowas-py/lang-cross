@@ -13,6 +13,7 @@ import CrosswordGenerator from '@/components/organisms/CrosswordGenerator.vue';
 import CrosswordGrid from '@/components/organisms/CrosswordGrid.vue';
 
 export default {
+  name: 'HomeView',
   props: ['TILE_SIZE_PX'],
   data() {
     return {
@@ -27,10 +28,9 @@ export default {
     },
     generateCswGrid(val) {
       [this.cswWidth, this.cswHeight, this.cswColor] = val;
-      this.cswElementVisible = true;
+      this.setCswVisible();
     },
   },
-  name: 'HomeView',
   components: {
     CrosswordGrid,
     CrosswordGenerator,
