@@ -30,11 +30,9 @@ export default {
                 generateCswGrid(val) {
                         [this.cswWidth, this.cswHeight, this.cswColor] = val;
                         this.cswElementVisible = true;
-                        console.log('generate');
                 },
 
         },
-        // props: ['csw_width', 'csw_height'],
         name: 'HomeView',
         components: {
                 CrosswordTemplate,
