@@ -1,7 +1,10 @@
 <template>
   <div
     class="csw-wrapper"
-    :style="{ width: `${wrapperWidth}px`, height: `${cswHeight * TILE_SIZE_PX}` }"
+    :style="{
+      width: `${cswWrapperWidth}px`,
+      height: `${cswWrapperHeight}px`,
+    }"
   >
     <CrosswordRow v-for="i in cswHeight" :key="i" :cswWidth="cswWidth" />
   </div>
@@ -13,16 +16,14 @@ import CrosswordRow from '@/components/molecules/CrosswordRow.vue';
 export default {
   setup() {},
   props: ['cswWidth', 'cswHeight', 'TILE_SIZE_PX'],
-  components: {
-    CrosswordRow,
-  },
+  components: { CrosswordRow },
   computed: {
-    wrapperWidth() {
+    cswWrapperWidth() {
       // For each field, I have to subtract twice its border.
       return this.cswWidth * this.TILE_SIZE_PX - this.cswWidth * 2;
     },
-    wrapperHeight() {
-      return this.height * this.TILE_SIZE_PX;
+    cswWrapperHeight() {
+      return this.cswHeight * this.TILE_SIZE_PX;
     },
   },
 };

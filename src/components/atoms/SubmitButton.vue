@@ -6,15 +6,15 @@
 export default {
   props: ['inputsData'],
   setup() {
-    return { cswTemplateParams: [] };
+    return { cswGridParams: [] };
   },
   methods: {
     submitData() {
       console.log('submit');
       this.inputsData.forEach((element) => {
-        this.cswTemplateParams.push(element.value);
+        this.cswGridParams.push(element.value);
       });
-      this.$emit('cswTemplateParams', this.cswTemplateParams);
+      this.$emit('cswGridParams', this.cswGridParams);
     },
   },
 };

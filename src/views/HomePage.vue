@@ -1,15 +1,15 @@
 <template>
   <CrosswordGrid
-    v-if="cswElementVisible"
+    v-if="cswGridVisible"
     :cswWidth="cswWidth"
     :cswHeight="cswHeight"
     :TILE_SIZE_PX="TILE_SIZE_PX"
   />
-  <CrosswordGenerator @cswTemplateParams="generateCswGrid" />
+  <GridGeneratorForm @cswGridParams="generateCswGrid" />
 </template>
 
 <script>
-import CrosswordGenerator from '@/components/organisms/CrosswordGenerator.vue';
+import GridGeneratorForm from '@/components/organisms/GridGeneratorForm.vue';
 import CrosswordGrid from '@/components/organisms/CrosswordGrid.vue';
 
 export default {
@@ -19,21 +19,21 @@ export default {
     return {
       cswWidth: 15,
       cswHeight: 15,
-      cswElementVisible: false,
+      cswGridVisible: false,
     };
   },
   methods: {
-    setCswVisible() {
-      this.cswVisible = true;
+    setCswGridVisible() {
+      this.cswGridVisible = true;
     },
     generateCswGrid(val) {
       [this.cswWidth, this.cswHeight, this.cswColor] = val;
-      this.setCswVisible();
+      this.setCswGridVisible();
     },
   },
   components: {
     CrosswordGrid,
-    CrosswordGenerator,
+    GridGeneratorForm,
   },
 };
 </script>

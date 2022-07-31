@@ -1,9 +1,9 @@
 <template>
   <div class="wrapper-csw-generator">
     <h3 class="csw-gen-title">GENERATOR SIATKI</h3>
-    <GeneratorField v-for="(field, id) in fields" :key="id" :field="field" @inputValue="getValue" />
+    <GeneratorField v-for="(field, i) in inputFields" :key="i" :field="field" />
 
-    <SubmitButton :inputsData="fieldsValues" @cswTemplateParams="emitCswParams" />
+    <SubmitButton :inputsData="inputFields" @cswGridParams="emitCswParams" />
   </div>
 </template>
 
@@ -14,7 +14,7 @@ import SubmitButton from '@/components/atoms/SubmitButton.vue';
 export default {
   setup() {
     return {
-      fields: [
+      inputFields: [
         {
           name: 'width-input',
           label: 'szerokość',
@@ -40,19 +40,8 @@ export default {
     };
   },
   methods: {
-    getValue(val) {
-      return val;
-    },
-    getCrosswordGridParams(val) {
-      return val;
-    },
     emitCswParams(val) {
-      this.$emit('cswTemplateParams', val);
-    },
-  },
-  computed: {
-    fieldsValues() {
-      return this.fields;
+      this.$emit('cswGridParams', val);
     },
   },
   components: { GeneratorField, SubmitButton },
