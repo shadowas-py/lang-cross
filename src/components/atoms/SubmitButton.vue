@@ -1,16 +1,20 @@
 <template>
-        <button >GENERUJ</button>
+        <button v-on:click="submitData">GENERUJ</button>
 </template>
 
 <script>
 export default {
-        props: ['onSubmitCallback', 'inputsData'],
+        props: ['inputsData'],
         setup() {
+                return { cswTemplateParams: [] };
         },
         methods: {
-                submitData(value) {
-                        console.log(value);
-                        this.$emit('submit', value);
+                submitData() {
+                        console.log('submit');
+                        this.inputsData.forEach((element) => {
+                                this.cswTemplateParams.push(element.value);
+                        });
+                        this.$emit('cswTemplateParams', this.cswTemplateParams);
                 },
 
         },

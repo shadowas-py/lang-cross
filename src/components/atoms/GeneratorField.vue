@@ -4,7 +4,7 @@
                 :class='field.name'
                 :type='field.type'
                 v-model="fieldLocal.value"
-                v-on:change='inputValue'/>
+                v-on:change='emitValue'/>
 
         </label>
 </template>
@@ -16,13 +16,16 @@ export default {
                 return {
                 };
         },
-        beforeMount() {
-        },
         computed: {
                 fieldLocal: {
                         get() {
                                 return this.field;
                         },
+                },
+        },
+        methods: {
+                emitValue() {
+                        this.$emit('inputValue', this.fieldLocal.value);
                 },
         },
 };

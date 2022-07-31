@@ -7,9 +7,10 @@
                 @inputValue="getValue"/>
 
                 <SubmitButton
-                :v-on:click="submitData"
-                :onSubmitCallback="setValue"
-                :inputsData="fieldsValues"/>
+                :inputsData="fieldsValues"
+                @cswTemplateParams="emitCswParams"
+                />
+
         </div>
 </template>
 
@@ -44,10 +45,32 @@ export default {
                 };
         },
         methods: {
-                submitData(e) {
-                        console.log(this.inputValue, 'iv');
-                        console.log(e, 'event');
+                getValue(val) {
+                        return val;
                 },
+                getCrosswordTemplateParams(val) {
+                        return val;
+                },
+                emitCswParams(val) {
+                        console.log('emit', val);
+                        this.$emit('cswTemplateParams', val);
+                },
+                // emitCswTemplateParams(val) {
+                //         console.log('emit', val);
+                //         this.$emit('cswTemplateParams', val);
+                // generateCswTemplate(val) {
+                //         this.fields.map((element, index) => {
+                //                 this.fields[index] = element;
+                //                 return this.fields;
+                //         }, val);
+                //         this.setCswVisible();
+                // },
+                // submitData() {
+                //         // eslint-disable-next-line no-plusplus
+                //         for (let i = 0; i < 3; i++) {
+                //                 console.log(this.fieldsValues[i].value);
+                //         }
+                // },
         },
         computed: {
                 fieldsValues() {
@@ -55,9 +78,5 @@ export default {
                 },
         },
         components: { GeneratorField, SubmitButton },
-        beforeUpdate() {
-                console.log('value', this.value);
-                this.$emit('inputValue', this.value);
-        },
 };
 </script>
