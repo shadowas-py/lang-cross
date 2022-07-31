@@ -1,17 +1,10 @@
 <template>
-        <div class='wrapper-csw-generator'>
-                <h3>GENERATOR SIATKI</h3>
-                <GeneratorField
-                v-for="(field, id) in fields" :key="id"
-                :field="field"
-                @inputValue="getValue"/>
+  <div class="wrapper-csw-generator">
+    <h3 class="csw-gen-title">GENERATOR SIATKI</h3>
+    <GeneratorField v-for="(field, id) in fields" :key="id" :field="field" @inputValue="getValue" />
 
-                <SubmitButton
-                :inputsData="fieldsValues"
-                @cswTemplateParams="emitCswParams"
-                />
-
-        </div>
+    <SubmitButton :inputsData="fieldsValues" @cswTemplateParams="emitCswParams" />
+  </div>
 </template>
 
 <script>
@@ -19,47 +12,49 @@ import GeneratorField from '@/components/atoms/GeneratorField.vue';
 import SubmitButton from '@/components/atoms/SubmitButton.vue';
 
 export default {
-        setup() {
-                return {
-                        fields: [{
-                                name: 'width-input',
-                                label: 'szerokość',
-                                maxValue: 30,
-                                type: 'number',
-                                value: 15,
-                        }, {
-                                name: 'height-input',
-                                label: 'wysokość',
-                                maxValue: 30,
-                                type: 'number',
-                                value: 10,
-                        }, {
-                                name: 'color-input',
-                                label: 'kolor',
-                                maxValue: 30,
-                                type: 'color',
-                                value: '#F1F1F1',
-                        },
-
-                        ],
-                };
+  setup() {
+    return {
+      fields: [
+        {
+          name: 'width-input',
+          label: 'szerokość',
+          maxValue: 30,
+          type: 'number',
+          value: 15,
         },
-        methods: {
-                getValue(val) {
-                        return val;
-                },
-                getCrosswordTemplateParams(val) {
-                        return val;
-                },
-                emitCswParams(val) {
-                        this.$emit('cswTemplateParams', val);
-                },
+        {
+          name: 'height-input',
+          label: 'wysokość',
+          maxValue: 30,
+          type: 'number',
+          value: 10,
         },
-        computed: {
-                fieldsValues() {
-                        return this.fields;
-                },
+        {
+          name: 'color-input',
+          label: 'kolor',
+          maxValue: 30,
+          type: 'color',
+          value: '#F1F1F1',
         },
-        components: { GeneratorField, SubmitButton },
+      ],
+    };
+  },
+  methods: {
+    getValue(val) {
+      return val;
+    },
+    getCrosswordGridParams(val) {
+      return val;
+    },
+    emitCswParams(val) {
+      this.$emit('cswTemplateParams', val);
+    },
+  },
+  computed: {
+    fieldsValues() {
+      return this.fields;
+    },
+  },
+  components: { GeneratorField, SubmitButton },
 };
 </script>

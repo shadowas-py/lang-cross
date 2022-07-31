@@ -1,9 +1,9 @@
 /* eslint-disable import/prefer-default-export */
 
-export function submitAndEmit(data, obj) {
-        const submitedData = [];
-        data.forEach((element) => {
-                submitedData.push(element.value);
-        });
-        obj.$emit('submitedData', submitedData);
+export function submitAndEmit(data, component) {
+  const submitedData = [];
+  data.forEach((element) => {
+    submitedData.push(element.value);
+  });
+  component.$emit('submitedData', submitedData);
 }
