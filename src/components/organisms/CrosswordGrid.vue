@@ -6,7 +6,7 @@
       height: `${cswWrapperHeight}px`,
     }"
   >
-    <CrosswordRow v-for="i in cswHeight" :key="i" :cswWidth="cswWidth" />
+    <CrosswordRow v-for="i in cswHeight" :key="i" :cswWidth="cswWidth" :cswColor="cswColor" />
   </div>
 </template>
 
@@ -15,7 +15,7 @@ import CrosswordRow from '@/components/molecules/CrosswordRow.vue';
 
 export default {
   setup() {},
-  props: ['cswWidth', 'cswHeight', 'TILE_SIZE_PX'],
+  props: ['cswWidth', 'cswHeight', 'TILE_SIZE_PX', 'cswColor'],
   components: { CrosswordRow },
   computed: {
     cswWrapperWidth() {
@@ -23,7 +23,9 @@ export default {
       return this.cswWidth * this.TILE_SIZE_PX - this.cswWidth * 2;
     },
     cswWrapperHeight() {
-      return this.cswHeight * this.TILE_SIZE_PX;
+      // Maybe i dont need to compute this,
+      // because its style dont need height property to render container properly
+      return this.cswHeight * this.TILE_SIZE_PX - this.cswHeight * 2;
     },
   },
 };

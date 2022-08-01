@@ -3,6 +3,7 @@
     v-if="cswGridVisible"
     :cswWidth="cswWidth"
     :cswHeight="cswHeight"
+    :cswColor="cswColor"
     :TILE_SIZE_PX="TILE_SIZE_PX"
   />
   <GridGeneratorForm @cswGridParams="generateCswGrid" />
@@ -20,6 +21,7 @@ export default {
       cswWidth: 15,
       cswHeight: 15,
       cswGridVisible: false,
+      cswColor: '#9595FF',
     };
   },
   methods: {
