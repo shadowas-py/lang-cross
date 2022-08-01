@@ -3,7 +3,7 @@
     <h3 class="csw-gen-title">GENERATOR SIATKI</h3>
     <GeneratorField v-for="(field, i) in inputFields" :key="i" :field="field" />
 
-    <SubmitButton :inputsData="inputFields" @cswGridParams="emitCswParams" />
+    <SubmitButton :inputFields="inputFields" @cswGridParams="emitCswParams" />
   </div>
 </template>
 

@@ -4,14 +4,13 @@
 
 <script>
 export default {
-  props: ['inputsData'],
+  props: ['inputFields'],
   setup() {
     return { cswGridParams: [] };
   },
   methods: {
     submitData() {
-      console.log('submit');
-      this.inputsData.forEach((element) => {
+      this.inputFields.forEach((element) => {
         this.cswGridParams.push(element.value);
       });
       this.$emit('cswGridParams', this.cswGridParams);
