@@ -1,12 +1,7 @@
 <template>
   <label :for="field.label"
     >{{ field.label }}:
-    <input
-      :class="field.name"
-      :type="field.type"
-      v-model="fieldLocal.value"
-      v-on:change="emitValue"
-    />
+    <input :class="field.name" :type="field.type" v-model="inputEl.value" v-on:change="emitValue" />
   </label>
 </template>
 
@@ -17,15 +12,16 @@ export default {
     return {};
   },
   computed: {
-    fieldLocal: {
+    inputEl: {
+      // I dont know how to set ONLY field.value to <input> value without copying the whole object.
       get() {
         return this.field;
       },
     },
   },
   methods: {
-    emitValue() {
-      this.$emit('inputValue', this.fieldLocal.value);
+    emitValue(val) {
+      this.$emit('inputValue', val);
     },
   },
 };
