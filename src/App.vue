@@ -6,9 +6,7 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
-
-const TILE_SIZE_PX = ref(40);
+const TILE_SIZE_PX = 40;
 </script>
 
 <style>

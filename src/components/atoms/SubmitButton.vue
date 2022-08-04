@@ -3,19 +3,17 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
-
 const props = defineProps({ inputFields: Array });
 const emit = defineEmits(['onCswGridParams']);
 
-const cswGridParams = ref([]);
+let cswGridParams = $ref([]);
 
 const submitData = () => {
   props.inputFields.forEach((element) => {
-    cswGridParams.value.push(element.value);
+    cswGridParams.push(element.value);
   });
   emit('onCswGridParams', cswGridParams);
-  cswGridParams.value = [];
+  cswGridParams = [];
 };
 </script>
 

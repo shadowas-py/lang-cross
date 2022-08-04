@@ -10,11 +10,10 @@
 <script setup>
 import GeneratorField from '@/components/atoms/GeneratorField.vue';
 import SubmitButton from '@/components/atoms/SubmitButton.vue';
-import { ref } from 'vue';
 
 const emit = defineEmits(['onCswGridParams']);
 
-const inputFields = ref([
+const inputFields = $ref([
   {
     name: 'width-input',
     label: 'szerokość',
@@ -39,6 +38,6 @@ const inputFields = ref([
 ]);
 
 function emitCswParams(data) {
-  emit('onCswGridParams', data.value);
+  emit('onCswGridParams', data);
 }
 </script>

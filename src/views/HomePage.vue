@@ -10,23 +10,22 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
 import GridGeneratorForm from '@/components/organisms/GridGeneratorForm.vue';
 import CrosswordGrid from '@/components/organisms/CrosswordGrid.vue';
 
 const props = defineProps({ TILE_SIZE_PX: Number });
 
-const cswWidth = ref(15);
-const cswHeight = ref(15);
-const cswGridVisible = ref(false);
-const cswColor = ref('#9595FF');
+let cswWidth = $ref(15);
+let cswHeight = $ref(15);
+let cswGridVisible = $ref(false);
+let cswColor = $ref('#9595FF');
 
 function setCswGridVisible() {
-  cswGridVisible.value = true;
+  cswGridVisible = true;
 }
 
 function generateCswGrid(val) {
-  [cswWidth.value, cswHeight.value, cswColor.value] = val;
+  [cswWidth, cswHeight, cswColor] = val;
   setCswGridVisible();
 }
 </script>
