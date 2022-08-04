@@ -2,21 +2,19 @@
   <button v-on:click="submitData">GENERUJ</button>
 </template>
 
-<script>
-export default {
-  props: ['inputFields'],
-  setup() {
-    return { cswGridParams: [] };
-  },
-  methods: {
-    submitData() {
-      this.inputFields.forEach((element) => {
-        this.cswGridParams.push(element.value);
-      });
-      this.$emit('cswGridParams', this.cswGridParams);
-    },
-  },
-};
+<script setup>
+import { ref, emit } from 'vue';
+
+const props = defineProps(['inputFields']);
+
+const cswGridParams = ref([]);
+
+function submitData() {
+  props.inputFields.forEach((element) => {
+    cswGridParams.value.push(element.value);
+  });
+  emit('cswGridParams', cswGridParams);
+}
 </script>
 
 <style scoped>

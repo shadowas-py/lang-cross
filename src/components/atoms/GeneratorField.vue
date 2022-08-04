@@ -5,26 +5,26 @@
   </label>
 </template>
 
-<script>
-export default {
-  props: ['field'],
-  setup() {
-    return {};
+<script setup>
+import { computed, emit } from 'vue';
+
+const props = defineProps({ field: Object });
+
+// const cswWrapperHeight = computed(
+//   () => props.cswHeight * props.TILE_SIZE_PX - props.cswHeight * 2,
+//   // Maybe i dont need to compute this,
+//   // because its style dont need height property to render container properly
+// );
+
+const inputEl = computed({
+  get() {
+    return props.field;
   },
-  computed: {
-    inputEl: {
-      // I dont know how to set ONLY field.value to <input> value without copying the whole object.
-      get() {
-        return this.field;
-      },
-    },
-  },
-  methods: {
-    emitValue(val) {
-      this.$emit('inputValue', val);
-    },
-  },
-};
+});
+
+function emitValue(val) {
+  emit('inputValue', val);
+}
 </script>
 
 <style scoped>

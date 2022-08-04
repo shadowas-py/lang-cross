@@ -5,14 +5,8 @@
   <router-view :TILE_SIZE_PX="TILE_SIZE_PX" />
 </template>
 
-<script>
-export default {
-  setup() {
-    return {
-      TILE_SIZE_PX: 40,
-    };
-  },
-};
+<script setup>
+const TILE_SIZE_PX = 40;
 </script>
 
 <style>

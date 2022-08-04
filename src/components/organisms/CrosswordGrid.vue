@@ -6,29 +6,34 @@
       height: `${cswWrapperHeight}px`,
     }"
   >
-    <CrosswordRow v-for="i in cswHeight" :key="i" :cswWidth="cswWidth" :cswColor="cswColor" />
+    <CrosswordRow
+      v-for="i in cswHeight"
+      :key="i"
+      :cswWidth="props.cswWidth"
+      :cswColor="props.cswColor"
+    />
   </div>
 </template>
 
-<script>
+<script setup>
 import CrosswordRow from '@/components/molecules/CrosswordRow.vue';
+import { computed } from 'vue';
 
-export default {
-  setup() {},
-  props: ['cswWidth', 'cswHeight', 'TILE_SIZE_PX', 'cswColor'],
-  components: { CrosswordRow },
-  computed: {
-    cswWrapperWidth() {
-      // For each field, I have to subtract twice its border.
-      return this.cswWidth * this.TILE_SIZE_PX - this.cswWidth * 2;
-    },
-    cswWrapperHeight() {
-      // Maybe i dont need to compute this,
-      // because its style dont need height property to render container properly
-      return this.cswHeight * this.TILE_SIZE_PX - this.cswHeight * 2;
-    },
-  },
-};
+const props = defineProps({
+  cswWidth: Number,
+  cswHeight: Number,
+  TILE_SIZE_PX: Number,
+  cswColor: String,
+});
+const cswWrapperWidth = computed(
+  () => props.cswWidth * props.TILE_SIZE_PX - props.cswWidth * 2,
+  // For each field, I have to subtract twice its border.
+);
+const cswWrapperHeight = computed(
+  () => props.cswHeight * props.TILE_SIZE_PX - props.cswHeight * 2,
+  // Maybe i dont need to compute this,
+  // because its style dont need height property to render container properly
+);
 </script>
 
 <style>

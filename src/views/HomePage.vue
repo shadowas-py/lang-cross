@@ -9,33 +9,24 @@
   <GridGeneratorForm @cswGridParams="generateCswGrid" />
 </template>
 
-<script>
+<script setup>
+import { ref } from 'vue';
 import GridGeneratorForm from '@/components/organisms/GridGeneratorForm.vue';
 import CrosswordGrid from '@/components/organisms/CrosswordGrid.vue';
 
-export default {
-  name: 'HomeView',
-  props: ['TILE_SIZE_PX'],
-  data() {
-    return {
-      cswWidth: 15,
-      cswHeight: 15,
-      cswGridVisible: false,
-      cswColor: '#9595FF',
-    };
-  },
-  methods: {
-    setCswGridVisible() {
-      this.cswGridVisible = true;
-    },
-    generateCswGrid(val) {
-      [this.cswWidth, this.cswHeight, this.cswColor] = val;
-      this.setCswGridVisible();
-    },
-  },
-  components: {
-    CrosswordGrid,
-    GridGeneratorForm,
-  },
-};
+// const TILE_SIZE_PX = ref('');
+
+let cswWidth = ref(15);
+let cswHeight = ref(15);
+let cswGridVisible = ref(false);
+let cswColor = ref('#9595FF');
+
+function setCswGridVisible() {
+  cswGridVisible = true;
+}
+
+function generateCswGrid(val) {
+  [cswWidth, cswHeight, cswColor] = val;
+  setCswGridVisible();
+}
 </script>

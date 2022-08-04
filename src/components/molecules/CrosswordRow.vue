@@ -1,15 +1,13 @@
 <template>
-  <CrosswordTile v-for="i in cswWidth" :key="i" :style="{ backgroundColor: cswColor }" />
+  <CrosswordTile
+    v-for="i in props.cswWidth"
+    :key="i"
+    :style="{ backgroundColor: props.cswColor }"
+  />
 </template>
 
-<script>
+<script setup>
 import CrosswordTile from '@/components/atoms/CrosswordTile.vue';
 
-export default {
-  setup() {},
-  props: ['cswWidth', 'cswColor'],
-  components: {
-    CrosswordTile,
-  },
-};
+const props = defineProps({ cswWidth: Number, cswColor: String });
 </script>

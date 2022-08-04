@@ -2,11 +2,7 @@
   <input value="x" maxlength="1" class="tile" />
 </template>
 
-<script>
-export default {
-  setup() {},
-};
-</script>
+<script setup></script>
 
 <style scoped>
 .tile {
