@@ -4,9 +4,9 @@
     :cswWidth="cswWidth"
     :cswHeight="cswHeight"
     :cswColor="cswColor"
-    :TILE_SIZE_PX="TILE_SIZE_PX"
+    :TILE_SIZE_PX="props.TILE_SIZE_PX"
   />
-  <GridGeneratorForm @cswGridParams="generateCswGrid" />
+  <GridGeneratorForm @onCswGridParams="generateCswGrid" />
 </template>
 
 <script setup>
@@ -14,19 +14,19 @@ import { ref } from 'vue';
 import GridGeneratorForm from '@/components/organisms/GridGeneratorForm.vue';
 import CrosswordGrid from '@/components/organisms/CrosswordGrid.vue';
 
-// const TILE_SIZE_PX = ref('');
+const props = defineProps({ TILE_SIZE_PX: Number });
 
-let cswWidth = ref(15);
-let cswHeight = ref(15);
-let cswGridVisible = ref(false);
-let cswColor = ref('#9595FF');
+const cswWidth = ref(15);
+const cswHeight = ref(15);
+const cswGridVisible = ref(false);
+const cswColor = ref('#9595FF');
 
 function setCswGridVisible() {
-  cswGridVisible = true;
+  cswGridVisible.value = true;
 }
 
 function generateCswGrid(val) {
-  [cswWidth, cswHeight, cswColor] = val;
+  [cswWidth.value, cswHeight.value, cswColor.value] = val;
   setCswGridVisible();
 }
 </script>

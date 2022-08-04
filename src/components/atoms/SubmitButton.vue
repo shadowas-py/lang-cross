@@ -3,18 +3,20 @@
 </template>
 
 <script setup>
-import { ref, emit } from 'vue';
+import { ref } from 'vue';
 
-const props = defineProps(['inputFields']);
+const props = defineProps({ inputFields: Array });
+const emit = defineEmits(['onCswGridParams']);
 
 const cswGridParams = ref([]);
 
-function submitData() {
+const submitData = () => {
   props.inputFields.forEach((element) => {
     cswGridParams.value.push(element.value);
   });
-  emit('cswGridParams', cswGridParams);
-}
+  emit('onCswGridParams', cswGridParams);
+  cswGridParams.value = [];
+};
 </script>
 
 <style scoped>

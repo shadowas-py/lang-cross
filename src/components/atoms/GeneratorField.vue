@@ -6,15 +6,10 @@
 </template>
 
 <script setup>
-import { computed, emit } from 'vue';
+import { computed } from 'vue';
 
 const props = defineProps({ field: Object });
-
-// const cswWrapperHeight = computed(
-//   () => props.cswHeight * props.TILE_SIZE_PX - props.cswHeight * 2,
-//   // Maybe i dont need to compute this,
-//   // because its style dont need height property to render container properly
-// );
+const emit = defineEmits(['onInputValue']);
 
 const inputEl = computed({
   get() {
@@ -22,8 +17,8 @@ const inputEl = computed({
   },
 });
 
-function emitValue(val) {
-  emit('inputValue', val);
+function emitValue(e) {
+  emit('onInputValue', e.target.value);
 }
 </script>
 
