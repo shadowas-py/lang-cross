@@ -1,25 +1,13 @@
 <template>
   <label :for="field.label"
     >{{ field.label }}:
-    <input :class="field.name" :type="field.type" v-model="inputEl.value" v-on:change="emitValue" />
+    <input :class="field.name" :type="field.type" v-model="localField.value" />
   </label>
 </template>
 
 <script setup>
-import { computed } from 'vue';
-
 const props = defineProps({ field: Object });
-const emit = defineEmits(['onInputValue']);
-
-const inputEl = computed({
-  get() {
-    return props.field;
-  },
-});
-
-function emitValue(e) {
-  emit('onInputValue', e.target.value);
-}
+const localField = $ref(props.field);
 </script>
 
 <style scoped>

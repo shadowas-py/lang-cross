@@ -17,7 +17,6 @@
 
 <script setup>
 import CrosswordRow from '@/components/molecules/CrosswordRow.vue';
-import { computed } from 'vue';
 
 const props = defineProps({
   cswWidth: Number,
@@ -25,11 +24,11 @@ const props = defineProps({
   TILE_SIZE_PX: Number,
   cswColor: String,
 });
-const cswWrapperWidth = computed(
+const cswWrapperWidth = $computed(
   () => props.cswWidth * props.TILE_SIZE_PX - props.cswWidth * 2,
   // For each field, I have to subtract twice its border.
 );
-const cswWrapperHeight = computed(
+const cswWrapperHeight = $computed(
   () => props.cswHeight * props.TILE_SIZE_PX - props.cswHeight * 2,
   // Maybe i dont need to compute this,
   // because its style dont need height property to render container properly

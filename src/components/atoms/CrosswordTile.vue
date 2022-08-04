@@ -1,5 +1,5 @@
 <template>
-  <input value="x" maxlength="1" class="tile" />
+  <input value="" maxlength="1" class="tile" />
 </template>
 
 <script setup></script>
