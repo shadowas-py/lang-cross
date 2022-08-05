@@ -11,6 +11,7 @@
       :key="i"
       :cswWidth="props.cswWidth"
       :cswColor="props.cswColor"
+      :rowNumber="i"
     />
   </div>
 </template>

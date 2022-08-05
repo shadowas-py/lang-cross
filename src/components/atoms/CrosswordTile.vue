@@ -1,10 +1,14 @@
 <template>
-  <input value="" maxlength="1" class="tile" />
+  <input value="" maxlength="1" :class="classNames" />
 </template>
 
-<script setup></script>
+<script setup>
+const props = defineProps({ colNumber: Number });
 
-<style scoped>
+const classNames = $computed(() => `tile col-${props.colNumber}`);
+</script>
+
+<style>
 .tile {
   box-sizing: border-box;
   width: 40px;
@@ -15,4 +19,10 @@
   text-align: center;
   outline: none;
 }
+/* .col-1 {
+  background-color: yellow;
+}
+.row-2 {
+  background-color: red;
+} */
 </style>
