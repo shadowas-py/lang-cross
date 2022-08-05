@@ -7,6 +7,7 @@
 
 <script setup>
 const props = defineProps({ field: Object });
+
 const localField = $ref(props.field);
 </script>
 

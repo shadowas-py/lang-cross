@@ -1,11 +1,14 @@
 <template>
-  <input value="" maxlength="1" :class="classNames" />
+  <input value="" maxlength="1" :class="classNames" @input="upper($event)" />
 </template>
 
 <script setup>
-const props = defineProps({ colNumber: Number });
+const props = defineProps({ colNumber: Number, value: String });
 
 const classNames = $computed(() => `tile col-${props.colNumber}`);
+function upper(e) {
+  e.target.value = e.target.value.toUpperCase();
+}
 </script>
 
 <style>
