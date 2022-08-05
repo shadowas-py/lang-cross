@@ -5,6 +5,7 @@
       width: `${cswWrapperWidth}px`,
       height: `${cswWrapperHeight}px`,
     }"
+    @input="$event.target.nextElementSibling.focus()"
   >
     <CrosswordRow
       v-for="i in cswHeight"
@@ -25,6 +26,7 @@ const props = defineProps({
   TILE_SIZE_PX: Number,
   cswColor: String,
 });
+
 const cswWrapperWidth = $computed(
   () => props.cswWidth * props.TILE_SIZE_PX - props.cswWidth * 2,
   // For each field, I have to subtract twice its border.
