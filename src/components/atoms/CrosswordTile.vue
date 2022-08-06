@@ -12,6 +12,8 @@ function upper(e) {
 </script>
 
 <style>
+@import url('https://fonts.googleapis.com/css2?family=Patrick+Hand&display=swap');
+
 .tile {
   box-sizing: border-box;
   width: 40px;
@@ -21,11 +23,21 @@ function upper(e) {
   margin: -1px;
   text-align: center;
   outline: none;
+  font-weight: bold;
+  font-size: 1.8rem;
+  font-family: 'Patrick Hand', cursive, Arial, Helvetica, sans-serif;
+  caret-color: transparent;
+  color: darkblue;
 }
-/* .col-1 {
-  background-color: yellow;
+
+.tile:focus {
+  background-color: skyblue;
 }
-.row-2 {
-  background-color: red;
-} */
+
+.tile:focus + .tile {
+  background-image: url('@/static/images/arrow.png');
+  background-size: 90%;
+  background-position: center;
+  background-repeat: no-repeat;
+}
 </style>
