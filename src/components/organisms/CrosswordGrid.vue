@@ -10,8 +10,8 @@
     <CrosswordRow
       v-for="i in cswHeight"
       :key="i"
-      :cswWidth="props.cswWidth"
-      :cswColor="props.cswColor"
+      :cswWidth="cswWidth"
+      :cswColor="cswColor"
       :rowNumber="i"
     />
   </div>
@@ -40,6 +40,7 @@ const cswWrapperHeight = $computed(
 
 <style>
 .csw-wrapper {
+  box-sizing: border-box;
   display: flex;
   align-items: center;
   flex-wrap: wrap;
