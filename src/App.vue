@@ -2,12 +2,10 @@
   <nav>
     <div to="/" class="main-title">CROSS| |LANG</div>
   </nav>
-  <router-view :TILE_SIZE_REM="TILE_SIZE_REM" />
+  <router-view />
 </template>
 
-<script setup>
-const TILE_SIZE_REM = 4;
-</script>
+<script setup></script>
 
 <style>
 :root {

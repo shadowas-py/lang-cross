@@ -1,8 +1,16 @@
 <template>
-  <input value="" maxlength="1" :class="classNames" @input="upper($event)" />
+  <input
+    value=""
+    maxlength="1"
+    :class="classNames"
+    @input="upper($event)"
+    :style="{ width: `${F_TILE_SIZE_REM}`, height: `${F_TILE_SIZE_REM}` }"
+  />
 </template>
 
 <script setup>
+import { F_TILE_SIZE_REM } from '@/constants';
+
 const props = defineProps({ colNumber: Number, value: String });
 
 const classNames = $computed(() => `tile col-${props.colNumber}`);
@@ -12,13 +20,10 @@ function upper(e) {
 </script>
 
 <style>
-/* Ustawić SIZE w property inputa? */
 @import url('https://fonts.googleapis.com/css2?family=Patrick+Hand&display=swap');
 
 .tile {
   box-sizing: border-box;
-  width: 40px;
-  height: 40px;
   border: 1px solid black;
   text-align: center;
   outline: none;
