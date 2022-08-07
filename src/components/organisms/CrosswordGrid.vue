@@ -2,11 +2,11 @@
   <div class="csw-grid-wrapper">
     <div
       class="csw-grid"
+      @input="focusNextSibling"
       :style="{
         width: `${cswWrapperWidth}rem`,
         height: `${cswWrapperHeight}rem`,
       }"
-      @input="$event.target.nextElementSibling.focus()"
     >
       <CrosswordRow
         v-for="i in cswHeight"
@@ -28,16 +28,12 @@ const props = defineProps({
   cswHeight: Number,
   cswColor: String,
 });
+const cswWrapperWidth = $computed(() => props.cswWidth * TILE_SIZE_REM);
+const cswWrapperHeight = $computed(() => props.cswHeight * TILE_SIZE_REM);
 
-const cswWrapperWidth = $computed(
-  () => props.cswWidth * TILE_SIZE_REM,
-  // For each field, I have to subtract twice its border.
-);
-const cswWrapperHeight = $computed(
-  () => props.cswHeight * TILE_SIZE_REM,
-  // Maybe i dont need to compute this,
-  // because its style dont need height property to render container properly
-);
+function focusNextSibling(e) {
+  e.target.nextElementSibling.focus();
+}
 </script>
 
 <style scoped>
