@@ -28,11 +28,11 @@ const props = defineProps({
 });
 
 const cswWrapperWidth = $computed(
-  () => props.cswWidth * props.TILE_SIZE_PX - props.cswWidth * 2,
+  () => props.cswWidth * props.TILE_SIZE_PX,
   // For each field, I have to subtract twice its border.
 );
 const cswWrapperHeight = $computed(
-  () => props.cswHeight * props.TILE_SIZE_PX - props.cswHeight * 2,
+  () => props.cswHeight * props.TILE_SIZE_PX,
   // Maybe i dont need to compute this,
   // because its style dont need height property to render container properly
 );
@@ -40,11 +40,13 @@ const cswWrapperHeight = $computed(
 
 <style>
 .csw-wrapper {
-  box-sizing: border-box;
+  border: 5px solid black;
+  box-sizing: content-box;
   display: flex;
   align-items: center;
   flex-wrap: wrap;
   margin: 0 auto auto;
   width: fit-content;
+  /* border-collapse: collapse; */
 }
 </style>

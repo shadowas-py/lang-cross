@@ -1,5 +1,5 @@
 <template>
-  <div class="`csw-row`">
+  <div class="csw-row">
     <CrosswordTile v-for="i in props.cswWidth" :key="i" :class="className" :colNumber="i" />
   </div>
 </template>
@@ -15,3 +15,8 @@ const props = defineProps({
 
 const className = $computed(() => `row-${props.rowNumber}`);
 </script>
+<style scoped>
+/* .csw-row {
+  border-collapse: collapse;
+} */
+</style>
