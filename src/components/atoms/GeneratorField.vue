@@ -13,12 +13,12 @@ const localField = $ref(props.field);
 
 <style scoped>
 * {
-  font-size: 1.3rem;
+  font-size: 2rem;
 }
 .color-input {
   background-color: black;
 }
-input {
-  margin: 0.5rem;
+label:first-of-type {
+  margin-left: 6rem;
 }
 </style>

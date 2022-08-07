@@ -2,8 +2,8 @@
   <div
     class="csw-wrapper"
     :style="{
-      width: `${cswWrapperWidth}px`,
-      height: `${cswWrapperHeight}px`,
+      width: `${cswWrapperWidth}rem`,
+      height: `${cswWrapperHeight}rem`,
     }"
     @input="$event.target.nextElementSibling.focus()"
   >
@@ -23,30 +23,28 @@ import CrosswordRow from '@/components/molecules/CrosswordRow.vue';
 const props = defineProps({
   cswWidth: Number,
   cswHeight: Number,
-  TILE_SIZE_PX: Number,
+  TILE_SIZE_REM: Number,
   cswColor: String,
 });
 
 const cswWrapperWidth = $computed(
-  () => props.cswWidth * props.TILE_SIZE_PX,
+  () => Math.ceil(props.cswWidth * props.TILE_SIZE_REM),
   // For each field, I have to subtract twice its border.
 );
 const cswWrapperHeight = $computed(
-  () => props.cswHeight * props.TILE_SIZE_PX,
+  () => props.cswHeight * props.TILE_SIZE_REM,
   // Maybe i dont need to compute this,
   // because its style dont need height property to render container properly
 );
 </script>
 
-<style>
+<style scoped>
 .csw-wrapper {
-  border: 5px solid black;
+  border: 0.2rem solid black;
   box-sizing: content-box;
   display: flex;
-  align-items: center;
   flex-wrap: wrap;
   margin: 0 auto auto;
   width: fit-content;
-  /* border-collapse: collapse; */
 }
 </style>
