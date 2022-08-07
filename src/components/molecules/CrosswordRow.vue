@@ -15,8 +15,4 @@ const props = defineProps({
 
 const className = $computed(() => `row-${props.rowNumber}`);
 </script>
-<style scoped>
-/* .csw-row {
-  border-collapse: collapse;
-} */
-</style>
+<style scoped></style>

@@ -1,5 +1,5 @@
 <template>
-  <div class="wrapper-csw-generator">
+  <div class="csw-generator-wrapper">
     <h3 class="csw-gen-title">GENERATOR SIATKI</h3>
     <GeneratorField v-for="(field, i) in inputFields" :key="i" :field="field" />
 
@@ -41,3 +41,9 @@ function emitCswParams(data) {
   emit('onCswGridParams', data);
 }
 </script>
+
+<style scoped>
+.csw-generator-wrapper * {
+  vertical-align: -webkit-baseline-middle;
+}
+</style>
