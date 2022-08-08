@@ -1,9 +1,9 @@
 <template>
   <input
+    @click="selectContent"
     value=""
     maxlength="1"
     :class="classNames"
-    @input="convertToUpperCase"
     :style="{ width: `${F_TILE_SIZE_REM}`, height: `${F_TILE_SIZE_REM}` }"
   />
 </template>
@@ -14,8 +14,8 @@ import { F_TILE_SIZE_REM } from '@/constants';
 const props = defineProps({ colNumber: Number, value: String });
 
 const classNames = $computed(() => `tile col-${props.colNumber}`);
-function convertToUpperCase(e) {
-  e.target.value = e.target.value.toUpperCase();
+function selectContent(e) {
+  e.target.select();
 }
 </script>
 

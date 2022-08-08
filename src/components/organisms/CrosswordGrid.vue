@@ -2,7 +2,7 @@
   <div class="csw-grid-wrapper">
     <div
       class="csw-grid"
-      @input="focusNextSibling"
+      @input="handleInputLetter"
       :style="{
         width: `${cswWrapperWidth}rem`,
         height: `${cswWrapperHeight}rem`,
@@ -31,8 +31,14 @@ const props = defineProps({
 const cswWrapperWidth = $computed(() => props.cswWidth * TILE_SIZE_REM);
 const cswWrapperHeight = $computed(() => props.cswHeight * TILE_SIZE_REM);
 
-function focusNextSibling(e) {
-  e.target.nextElementSibling.focus();
+function handleInputLetter(e) {
+  if (e.data) {
+    e.target.value = e.data.toUpperCase();
+  }
+  if (e.target.nextElementSibling) {
+    e.target.nextElementSibling.focus();
+    e.target.nextElementSibling.select();
+  }
 }
 </script>
 
