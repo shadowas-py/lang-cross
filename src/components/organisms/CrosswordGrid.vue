@@ -1,8 +1,10 @@
+<!-- eslint-disable vuejs-accessibility/click-events-have-key-events -->
 <template>
   <div class="csw-grid-wrapper">
     <div
       class="csw-grid"
       @input="handleInputLetter"
+      @click="toggleWritingDirection"
       :style="{
         width: `${cswWrapperWidth}rem`,
         height: `${cswWrapperHeight}rem`,
@@ -23,6 +25,8 @@
 import CrosswordRow from '@/components/molecules/CrosswordRow.vue';
 import { TILE_SIZE_REM } from '@/constants';
 
+let isHorizontal = $ref(true);
+let prevTargetTile = $ref(null);
 const props = defineProps({
   cswWidth: Number,
   cswHeight: Number,
@@ -39,6 +43,13 @@ function handleInputLetter(e) {
     e.target.nextElementSibling.focus();
     e.target.nextElementSibling.select();
   }
+}
+
+function toggleWritingDirection(e) {
+  if (prevTargetTile === e.target) {
+    isHorizontal = !isHorizontal;
+  }
+  prevTargetTile = e.target;
 }
 </script>
 

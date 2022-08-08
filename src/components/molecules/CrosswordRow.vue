@@ -1,6 +1,12 @@
 <template>
   <div class="csw-row">
-    <CrosswordTile v-for="i in props.cswWidth" :key="i" :class="className" :colNumber="i" />
+    <CrosswordTile
+      v-for="i in props.cswWidth"
+      :key="i"
+      :class="className"
+      :colNumber="i"
+      :cswColor="props.cswColor"
+    />
   </div>
 </template>
 

@@ -1,21 +1,44 @@
 <template>
   <input
     @click="selectContent"
+    @blur="tileStyleHander($event, 'selected-sibling', 'REMOVE')"
+    @focus="tileStyleHander($event, 'selected-sibling', 'ADD')"
     value=""
     maxlength="1"
     :class="classNames"
     :style="{ width: `${F_TILE_SIZE_REM}`, height: `${F_TILE_SIZE_REM}` }"
   />
+      <!-- backgroundColor: `${props.cswColor}` -->
 </template>
 
 <script setup>
 import { F_TILE_SIZE_REM } from '@/constants';
 
-const props = defineProps({ colNumber: Number, value: String });
+const props = defineProps({ colNumber: Number, value: String, cswColor: String });
 
 const classNames = $computed(() => `tile col-${props.colNumber}`);
+
 function selectContent(e) {
   e.target.select();
+}
+
+function tileStyleHander(e, name, action) {
+  let nextEl = e.target.nextElementSibling;
+  while (nextEl) {
+    switch (action) {
+    case 'ADD': {
+      nextEl.classList.add(name);
+      break;
+    }
+    case 'REMOVE': {
+      nextEl.classList.remove(name);
+      break;
+    }
+    default:
+      throw Error('wrong action');
+    }
+    nextEl = nextEl.nextElementSibling;
+  }
 }
 </script>
 
@@ -39,7 +62,7 @@ function selectContent(e) {
   background-color: cadetblue;
   border: 2px solid red;
 }
-.tile:focus ~ .tile {
+/* .tile:focus ~ .tile {
   background-color: powderblue;
 }
 .tile:focus + .tile {
@@ -47,5 +70,8 @@ function selectContent(e) {
   background-size: 90%;
   background-position: center;
   background-repeat: no-repeat;
+} */
+.selected-sibling {
+  background-color: blueviolet;
 }
 </style>
