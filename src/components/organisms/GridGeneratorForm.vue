@@ -48,10 +48,18 @@ function emitCswParams(data) {
 </script>
 
 <style scoped>
+.csw-gen-title {
+  font-size:2rem;
+  margin:0.6rem;
+  margin-left:3.6rem;
+}
+
 .csw-generator-wrapper {
+  /* display: flex; */
+  /* flex-wrap:wrap; */
   border: 1px solid black;
   width: 80vw;
-  margin: 2.5rem auto;
+  margin: 2.4rem auto;
   min-height:10vh;
 }
 </style>
