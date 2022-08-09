@@ -22,9 +22,7 @@ const submitData = () => {
   box-sizing: border-box;
   background-color: burlywood;
   font-weight: bold;
-  padding: 0.6rem;
-  margin: 1rem;
-  border: 0.2rem solid black;
+  border: 1px solid black;
   height: 3.5rem;
   width: 9rem;
 }
@@ -37,7 +35,7 @@ const submitData = () => {
 .submit-btn:active {
   background-color: black;
   color: coral;
-  font-size: 1.2rem;
+  font-size: 1.6rem;
   box-shadow: 0px 0px 2px 0.4rem rgba(0, 0, 0, 0.75);
 }
 </style>
