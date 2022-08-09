@@ -13,17 +13,28 @@
 
 <script setup>
 import { F_TILE_SIZE_REM } from '@/constants';
+import { inject } from 'vue';
 
 const props = defineProps({ colNumber: Number, value: String, cswColor: String });
-
+const { getIsHorizontal } = inject('isHorizontal');
 const classNames = $computed(() => `tile col-${props.colNumber}`);
 
 function selectContent(e) {
   e.target.select();
 }
 
+function selectNextSibling(el) {
+  return el.nextElementSibling;
+}
+
+function selectNextNthElement(el) {
+  console.log(el.id);
+  return el;
+}
+
 function tileStyleHander(e, name, action) {
-  let nextEl = e.target.nextElementSibling;
+  const selectingNextElement = getIsHorizontal ? selectNextSibling : selectNextNthElement;
+  let nextEl = selectingNextElement(e.target);
   while (nextEl) {
     switch (action) {
     case 'ADD': {
@@ -37,7 +48,7 @@ function tileStyleHander(e, name, action) {
     default:
       throw Error('wrong action');
     }
-    nextEl = nextEl.nextElementSibling;
+    nextEl = selectingNextElement(nextEl);
   }
 }
 </script>

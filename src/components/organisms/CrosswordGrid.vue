@@ -3,8 +3,8 @@
   <div class="csw-grid-wrapper">
     <div
       class="csw-grid"
-      @input="handleInputLetter"
       @click="toggleWritingDirection"
+      @input="handleInputLetter"
       :style="{
         width: `${cswWrapperWidth}rem`,
         height: `${cswWrapperHeight}rem`,
@@ -24,9 +24,8 @@
 <script setup>
 import CrosswordRow from '@/components/molecules/CrosswordRow.vue';
 import { TILE_SIZE_REM } from '@/constants';
+import { provide } from 'vue';
 
-let isHorizontal = $ref(true);
-let prevTargetTile = $ref(null);
 const props = defineProps({
   cswWidth: Number,
   cswHeight: Number,
@@ -34,6 +33,9 @@ const props = defineProps({
 });
 const cswWrapperWidth = $computed(() => props.cswWidth * TILE_SIZE_REM);
 const cswWrapperHeight = $computed(() => props.cswHeight * TILE_SIZE_REM);
+
+let isHorizontal = $ref(true);
+let prevTargetTile = $ref(null);
 
 function handleInputLetter(e) {
   if (e.data) {
@@ -46,11 +48,19 @@ function handleInputLetter(e) {
 }
 
 function toggleWritingDirection(e) {
+  console.log(isHorizontal, 'NEED_CHANGE??', prevTargetTile, e.target);
   if (prevTargetTile === e.target) {
     isHorizontal = !isHorizontal;
+    console.log(isHorizontal, 'CHANGED');
   }
   prevTargetTile = e.target;
 }
+
+const getIsHorizontal = () => isHorizontal;
+provide('isHorizontal', {
+  getIsHorizontal,
+});
+
 </script>
 
 <style scoped>
