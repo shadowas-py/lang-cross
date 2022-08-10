@@ -48,7 +48,7 @@ function handleInputLetter(e) {
 }
 
 function toggleWritingDirection(e) {
-  // console.log(isHorizontal, 'NEED_CHANGE??', prevTargetTile, e.target);
+  console.log(isHorizontal, 'NEED_CHANGE??', prevTargetTile, e.target);
   if (prevTargetTile === e.target) {
     isHorizontal = !isHorizontal;
     // console.log(isHorizontal, 'CHANGED');
@@ -59,6 +59,11 @@ function toggleWritingDirection(e) {
 const getIsHorizontal = () => isHorizontal;
 provide('isHorizontal', {
   getIsHorizontal,
+});
+
+const getPrevTargetTile = () => prevTargetTile;
+provide('prevTargetTile', {
+  getPrevTargetTile,
 });
 
 </script>

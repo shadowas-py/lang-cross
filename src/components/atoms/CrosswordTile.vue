@@ -1,7 +1,8 @@
 <template>
   <input
-    @focus="tileStyleHander($event, 'selected-sibling', 'ADD')"
-    @blur="tileStyleHander($event, 'selected-sibling', 'REMOVE')"
+    @focus="addStyle($event, 'selected-sibling')"
+    @blur="removeStyle($event, 'selected-sibling')"
+    @click="handleDirection($event,'selected-sibling')"
     value=""
     maxlength="1"
     :class="classNames"
@@ -16,6 +17,7 @@ import { F_TILE_SIZE_REM } from '@/constants';
 import { inject } from 'vue';
 
 const { getIsHorizontal } = inject('isHorizontal');
+const { getPrevTargetTile } = inject('prevTargetTile');
 // const isHorizontal = getIsHorizontal();
 // let prevIsHorizontal = true;
 const props = defineProps({
@@ -28,22 +30,6 @@ const props = defineProps({
 const classNames = $computed(() => `tile col-${props.colNumber}`);
 const elementId = $computed(() => `${props.colNumber}-${props.rowNumber}`);
 
-// function addStyle(e, name) {
-//   const selectNextElement = isHorizontal() ? selectNextSibling : selectNextNthElement;
-//   let nextEl = selectNextElement(e.target);
-//   while (nextEl) {
-//     nextEl.classList.add(name);
-//     nextEl = selectNextElement(nextEl);
-//   }
-// }
-// function clearStyle(e, name) {
-//   const selectNextElement = isHorizontal() ? selectNextSibling : selectNextNthElement;
-//   let nextEl = selectNextElement(e.target);
-//   while (nextEl) {
-//     nextEl.classList.remove(name);
-//     nextEl = selectNextElement(nextEl);
-//   }
-// }
 // function selectContent(e) {
 //   e.target.select();
 // }
@@ -60,27 +46,57 @@ function selectNextNthElement(el) {
   return null;
 }
 
-function tileStyleHander(e, name, action) {
-  const selectingNextElement = getIsHorizontal() ? selectNextSibling : selectNextNthElement;
-  let nextEl = selectingNextElement(e.target);
+async function addStyle(e, name) {
+  const selectNextElement = await getIsHorizontal() ? selectNextSibling : selectNextNthElement;
+  let nextEl = selectNextElement(e.target);
+  // console.log('add', getIsHorizontal());
   while (nextEl) {
-    switch (action) {
-    case 'ADD': {
-      console.log('ADD');
-      nextEl.classList.add(name);
-      break;
-    }
-    case 'REMOVE': {
-      console.log('REMOVE');
-      nextEl.classList.remove(name);
-      break;
-    }
-    default:
-      throw Error('wrong action');
-    }
-    nextEl = selectingNextElement(nextEl);
+    nextEl.classList.add(name);
+    nextEl = selectNextElement(nextEl);
   }
 }
+async function removeStyle(e, name) {
+  const selectNextElement = await getIsHorizontal() ? selectNextSibling : selectNextNthElement;
+  let nextEl = selectNextElement(e.target);
+  // console.log('remove', getIsHorizontal());
+  while (nextEl) {
+    nextEl.classList.remove(name);
+    nextEl = selectNextElement(nextEl);
+  }
+}
+
+function handleDirection(e, name) {
+  getIsHorizontal();
+  console.log(getIsHorizontal(), 'PREF VALUIE OR ACTUAL?');
+  if (getPrevTargetTile() === e.target) {
+    // console.log('remove after click', getIsHorizontal());
+    removeStyle(e, name);
+    // console.log('add after click', getIsHorizontal());
+    addStyle(e, name);
+  }
+}
+
+// function tileStyleHander(e, name, action) {
+//   const selectingNextElement = getIsHorizontal() ? selectNextSibling : selectNextNthElement;
+//   let nextEl = selectingNextElement(e.target);
+//   while (nextEl) {
+//     switch (action) {
+//     case 'ADD': {
+//       console.log('ADD');
+//       nextEl.classList.add(name);
+//       break;
+//     }
+//     case 'REMOVE': {
+//       console.log('REMOVE');
+//       nextEl.classList.remove(name);
+//       break;
+//     }
+//     default:
+//       throw Error('wrong action');
+//     }
+//     nextEl = selectingNextElement(nextEl);
+//   }
+// }
 </script>
 
 <style>
