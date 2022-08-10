@@ -2,7 +2,7 @@
   <input
     @focus="addStyle($event, 'selected-sibling')"
     @blur="removeStyle($event, 'selected-sibling')"
-    @click="handleDirection($event,'selected-sibling')"
+    @click.prevent="handleDirection($event,'selected-sibling')"
     value=""
     maxlength="1"
     :class="classNames"
@@ -46,8 +46,8 @@ function selectNextNthElement(el) {
   return null;
 }
 
-async function addStyle(e, name) {
-  const selectNextElement = await getIsHorizontal() ? selectNextSibling : selectNextNthElement;
+function addStyle(e, name) {
+  const selectNextElement = getIsHorizontal() ? selectNextSibling : selectNextNthElement;
   let nextEl = selectNextElement(e.target);
   // console.log('add', getIsHorizontal());
   while (nextEl) {
@@ -55,8 +55,8 @@ async function addStyle(e, name) {
     nextEl = selectNextElement(nextEl);
   }
 }
-async function removeStyle(e, name) {
-  const selectNextElement = await getIsHorizontal() ? selectNextSibling : selectNextNthElement;
+function removeStyle(e, name) {
+  const selectNextElement = getIsHorizontal() ? selectNextSibling : selectNextNthElement;
   let nextEl = selectNextElement(e.target);
   // console.log('remove', getIsHorizontal());
   while (nextEl) {
