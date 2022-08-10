@@ -3,7 +3,7 @@
   <div class="csw-grid-wrapper">
     <div
       class="csw-grid"
-      @input="handleInputLetter"
+      @input="handleInputLetters"
       :style="{
         width: `${cswWrapperWidth}rem`,
         height: `${cswWrapperHeight}rem`,
@@ -37,7 +37,7 @@ const cswWrapperHeight = $computed(() => props.cswHeight * TILE_SIZE_REM);
 let isHorizontal = $ref(true);
 let prevTargetTile = $ref(null);
 
-function handleInputLetter(e) {
+function handleInputLetters(e) {
   if (e.data) {
     e.target.value = e.data.toUpperCase();
   }
@@ -48,10 +48,8 @@ function handleInputLetter(e) {
 }
 
 function toggleWritingDirection(target) {
-  console.log(isHorizontal, 'NEED_CHANGE??', prevTargetTile, target);
   if (prevTargetTile === target) {
     isHorizontal = !isHorizontal;
-    console.log(isHorizontal, 'CHANGED IN PARENT');
   }
   prevTargetTile = target;
 }

@@ -17,6 +17,7 @@
 <script setup>
 import { F_TILE_SIZE_REM } from '@/constants';
 import { inject } from 'vue';
+import { selectNextNthElement, selectNextSibling } from '@/utils/Select';
 
 const { getIsHorizontal } = inject('isHorizontal');
 const { getPrevTargetTile } = inject('prevTargetTile');
@@ -34,18 +35,6 @@ const elementId = $computed(() => `${props.colNumber}-${props.rowNumber}`);
 
 function selectContent(e) {
   e.target.select();
-}
-
-function selectNextSibling(el) {
-  return el.nextElementSibling;
-}
-
-function selectNextNthElement(el) {
-  const colNr = el.id.split('-')[0] - 1;
-  if (el.parentElement.nextElementSibling) {
-    return el.parentElement.nextElementSibling.children[colNr];
-  }
-  return null;
 }
 
 function addStyle(e, name) {
