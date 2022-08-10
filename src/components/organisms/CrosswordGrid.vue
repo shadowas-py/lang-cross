@@ -47,13 +47,13 @@ function handleInputLetter(e) {
   }
 }
 
-function toggleWritingDirection(e, prevTarget = prevTargetTile) {
-  console.log(isHorizontal, 'NEED_CHANGE??', prevTargetTile, e.target);
-  if (prevTarget === e.target) {
+function toggleWritingDirection(target) {
+  console.log(isHorizontal, 'NEED_CHANGE??', prevTargetTile, target);
+  if (prevTargetTile === target) {
     isHorizontal = !isHorizontal;
     console.log(isHorizontal, 'CHANGED IN PARENT');
   }
-  prevTargetTile = e.target;
+  prevTargetTile = target;
 }
 
 const getIsHorizontal = () => isHorizontal;
@@ -65,7 +65,6 @@ const getPrevTargetTile = () => prevTargetTile;
 provide('prevTargetTile', {
   getPrevTargetTile,
 });
-
 </script>
 
 <style scoped>

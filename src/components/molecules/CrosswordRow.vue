@@ -7,12 +7,18 @@
       :colNumber="i"
       :rowNumber="props.rowNumber"
       :cswColor="props.cswColor"
+      @updateIsHorizontal="passEmit"
     />
   </div>
 </template>
 
 <script setup>
 import CrosswordTile from '@/components/atoms/CrosswordTile.vue';
+
+const emit = defineEmits(['updateIsHorizontal']);
+function passEmit(data) {
+  emit('updateIsHorizontal', data);
+}
 
 const props = defineProps({
   cswWidth: Number,

@@ -1,8 +1,10 @@
 <template>
   <input
-    @focus="addStyle($event, 'selected-sibling')"
+    @focus="
+      addStyle($event, 'selected-sibling');
+      selectContent($event)"
     @blur="removeStyle($event, 'selected-sibling')"
-    @click="handleDirection($event,'selected-sibling')"
+    @click="handleDirection($event, 'selected-sibling')"
     value=""
     maxlength="1"
     :class="classNames"
@@ -18,8 +20,7 @@ import { inject } from 'vue';
 
 const { getIsHorizontal } = inject('isHorizontal');
 const { getPrevTargetTile } = inject('prevTargetTile');
-// const isHorizontal = getIsHorizontal();
-// let prevIsHorizontal = true;
+
 const props = defineProps({
   colNumber: Number,
   rowNumber: Number,
@@ -31,9 +32,9 @@ const emit = defineEmits(['updateIsHorizontal']);
 const classNames = $computed(() => `tile col-${props.colNumber}`);
 const elementId = $computed(() => `${props.colNumber}-${props.rowNumber}`);
 
-// function selectContent(e) {
-//   e.target.select();
-// }
+function selectContent(e) {
+  e.target.select();
+}
 
 function selectNextSibling(el) {
   return el.nextElementSibling;
@@ -65,38 +66,12 @@ function removeStyle(e, name) {
 }
 
 function handleDirection(e, name) {
+  removeStyle(e, name);
   emit('updateIsHorizontal', e.target);
-  getIsHorizontal();
-  console.log(getIsHorizontal(), 'PREF VALUIE OR ACTUAL?');
   if (getPrevTargetTile() === e.target) {
-    // console.log('remove after click', getIsHorizontal());
-    removeStyle(e, name);
-    // console.log('add after click', getIsHorizontal());
     addStyle(e, name);
   }
 }
-
-// function tileStyleHander(e, name, action) {
-//   const selectingNextElement = getIsHorizontal() ? selectNextSibling : selectNextNthElement;
-//   let nextEl = selectingNextElement(e.target);
-//   while (nextEl) {
-//     switch (action) {
-//     case 'ADD': {
-//       console.log('ADD');
-//       nextEl.classList.add(name);
-//       break;
-//     }
-//     case 'REMOVE': {
-//       console.log('REMOVE');
-//       nextEl.classList.remove(name);
-//       break;
-//     }
-//     default:
-//       throw Error('wrong action');
-//     }
-//     nextEl = selectingNextElement(nextEl);
-//   }
-// }
 </script>
 
 <style>
@@ -119,15 +94,6 @@ function handleDirection(e, name) {
   background-color: cadetblue;
   border: 2px solid red;
 }
-/* .tile:focus ~ .tile {
-  background-color: powderblue;
-}
-.tile:focus + .tile {
-  background-image: url('@/static/images/arrow.png');
-  background-size: 90%;
-  background-position: center;
-  background-repeat: no-repeat;
-} */
 .selected-sibling {
   background-color: blueviolet;
 }
