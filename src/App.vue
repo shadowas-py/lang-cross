@@ -11,9 +11,17 @@
 :root {
   font-size: 10px;
 }
+*{
+  margin:0;
+  padding:0;
+  box-sizing: border-box;
+}
+#app{
+  height:100vh;
+  width:100vw;
+}
 body {
-  background-color: #f2ea7c;
-  font-size: 2rem;
+  background-color: black;
 }
 div {
   background-color: #eeeaca;
