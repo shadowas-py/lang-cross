@@ -25,6 +25,7 @@
 import CrosswordRow from '@/components/molecules/CrosswordRow.vue';
 import { TILE_SIZE_REM } from '@/constants';
 import { provide } from 'vue';
+import { selectNextNthElement, selectNextSibling } from '@/utils/Select';
 
 const props = defineProps({
   cswWidth: Number,
@@ -41,9 +42,11 @@ function handleInputLetters(e) {
   if (e.data) {
     e.target.value = e.data.toUpperCase();
   }
-  if (e.target.nextElementSibling) {
-    e.target.nextElementSibling.focus();
-    e.target.nextElementSibling.select();
+  const selectNext = isHorizontal ? selectNextSibling : selectNextNthElement;
+  const nextEl = selectNext(e.target);
+  if (nextEl) {
+    nextEl.focus();
+    nextEl.select();
   }
 }
 
