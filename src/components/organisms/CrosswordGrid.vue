@@ -48,10 +48,10 @@ function handleInputLetter(e) {
 }
 
 function toggleWritingDirection(e) {
-  console.log(isHorizontal, 'NEED_CHANGE??', prevTargetTile, e.target);
+  // console.log(isHorizontal, 'NEED_CHANGE??', prevTargetTile, e.target);
   if (prevTargetTile === e.target) {
     isHorizontal = !isHorizontal;
-    console.log(isHorizontal, 'CHANGED');
+    // console.log(isHorizontal, 'CHANGED');
   }
   prevTargetTile = e.target;
 }

@@ -1,47 +1,77 @@
 <template>
   <input
-    @click="selectContent"
-    @blur="tileStyleHander($event, 'selected-sibling', 'REMOVE')"
     @focus="tileStyleHander($event, 'selected-sibling', 'ADD')"
+    @blur="tileStyleHander($event, 'selected-sibling', 'REMOVE')"
     value=""
     maxlength="1"
     :class="classNames"
+    :id="elementId"
     :style="{ width: `${F_TILE_SIZE_REM}`, height: `${F_TILE_SIZE_REM}` }"
   />
-      <!-- backgroundColor: `${props.cswColor}` -->
+  <!-- backgroundColor: `${props.cswColor}` -->
 </template>
 
 <script setup>
 import { F_TILE_SIZE_REM } from '@/constants';
 import { inject } from 'vue';
 
-const props = defineProps({ colNumber: Number, value: String, cswColor: String });
 const { getIsHorizontal } = inject('isHorizontal');
-const classNames = $computed(() => `tile col-${props.colNumber}`);
+// const isHorizontal = getIsHorizontal();
+// let prevIsHorizontal = true;
+const props = defineProps({
+  colNumber: Number,
+  rowNumber: Number,
+  value: String,
+  cswColor: String,
+});
 
-function selectContent(e) {
-  e.target.select();
-}
+const classNames = $computed(() => `tile col-${props.colNumber}`);
+const elementId = $computed(() => `${props.colNumber}-${props.rowNumber}`);
+
+// function addStyle(e, name) {
+//   const selectNextElement = isHorizontal() ? selectNextSibling : selectNextNthElement;
+//   let nextEl = selectNextElement(e.target);
+//   while (nextEl) {
+//     nextEl.classList.add(name);
+//     nextEl = selectNextElement(nextEl);
+//   }
+// }
+// function clearStyle(e, name) {
+//   const selectNextElement = isHorizontal() ? selectNextSibling : selectNextNthElement;
+//   let nextEl = selectNextElement(e.target);
+//   while (nextEl) {
+//     nextEl.classList.remove(name);
+//     nextEl = selectNextElement(nextEl);
+//   }
+// }
+// function selectContent(e) {
+//   e.target.select();
+// }
 
 function selectNextSibling(el) {
   return el.nextElementSibling;
 }
 
 function selectNextNthElement(el) {
-  console.log(el.id);
-  return el;
+  const colNr = el.id.split('-')[0] - 1;
+  if (el.parentElement.nextElementSibling) {
+    return el.parentElement.nextElementSibling.children[colNr];
+  }
+  return null;
 }
 
 function tileStyleHander(e, name, action) {
-  const selectingNextElement = getIsHorizontal ? selectNextSibling : selectNextNthElement;
+  const selectingNextElement = getIsHorizontal() ? selectNextSibling : selectNextNthElement;
   let nextEl = selectingNextElement(e.target);
   while (nextEl) {
     switch (action) {
     case 'ADD': {
+      console.log('ADD');
       nextEl.classList.add(name);
       break;
     }
     case 'REMOVE': {
+      console.log('REMOVE');
       nextEl.classList.remove(name);
       break;
     }
