@@ -3,7 +3,6 @@
   <div class="csw-grid-wrapper">
     <div
       class="csw-grid"
-      @click="toggleWritingDirection"
       @input="handleInputLetter"
       :style="{
         width: `${cswWrapperWidth}rem`,
@@ -16,6 +15,7 @@
         :cswWidth="cswWidth"
         :cswColor="cswColor"
         :rowNumber="i"
+        @updateIsHorizontal="toggleWritingDirection"
       />
     </div>
   </div>
@@ -47,9 +47,9 @@ function handleInputLetter(e) {
   }
 }
 
-function toggleWritingDirection(e) {
+function toggleWritingDirection(e, prevTarget = prevTargetTile) {
   console.log(isHorizontal, 'NEED_CHANGE??', prevTargetTile, e.target);
-  if (prevTargetTile === e.target) {
+  if (prevTarget === e.target) {
     isHorizontal = !isHorizontal;
     console.log(isHorizontal, 'CHANGED IN PARENT');
   }

@@ -2,7 +2,7 @@
   <input
     @focus="addStyle($event, 'selected-sibling')"
     @blur="removeStyle($event, 'selected-sibling')"
-    @click.prevent="handleDirection($event,'selected-sibling')"
+    @click="handleDirection($event,'selected-sibling')"
     value=""
     maxlength="1"
     :class="classNames"
@@ -26,6 +26,7 @@ const props = defineProps({
   value: String,
   cswColor: String,
 });
+const emit = defineEmits(['updateIsHorizontal']);
 
 const classNames = $computed(() => `tile col-${props.colNumber}`);
 const elementId = $computed(() => `${props.colNumber}-${props.rowNumber}`);
@@ -49,7 +50,6 @@ function selectNextNthElement(el) {
 function addStyle(e, name) {
   const selectNextElement = getIsHorizontal() ? selectNextSibling : selectNextNthElement;
   let nextEl = selectNextElement(e.target);
-  // console.log('add', getIsHorizontal());
   while (nextEl) {
     nextEl.classList.add(name);
     nextEl = selectNextElement(nextEl);
@@ -58,7 +58,6 @@ function addStyle(e, name) {
 function removeStyle(e, name) {
   const selectNextElement = getIsHorizontal() ? selectNextSibling : selectNextNthElement;
   let nextEl = selectNextElement(e.target);
-  // console.log('remove', getIsHorizontal());
   while (nextEl) {
     nextEl.classList.remove(name);
     nextEl = selectNextElement(nextEl);
@@ -66,6 +65,7 @@ function removeStyle(e, name) {
 }
 
 function handleDirection(e, name) {
+  emit('updateIsHorizontal', e.target);
   getIsHorizontal();
   console.log(getIsHorizontal(), 'PREF VALUIE OR ACTUAL?');
   if (getPrevTargetTile() === e.target) {
