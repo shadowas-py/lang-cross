@@ -1,23 +1,36 @@
 <template>
   <input
-    @click="selectContent"
-    @blur="tileStyleHander($event, 'selected-sibling', 'REMOVE')"
-    @focus="tileStyleHander($event, 'selected-sibling', 'ADD')"
+    @focus="
+      addStyle($event, 'selected-sibling');
+      selectContent($event)"
+    @blur="removeStyle($event, 'selected-sibling')"
+    @click="handleDirection($event, 'selected-sibling')"
     value=""
     maxlength="1"
     :class="classNames"
+    :id="elementId"
     :style="{ width: `${F_TILE_SIZE_REM}`, height: `${F_TILE_SIZE_REM}` }"
   />
-      <!-- backgroundColor: `${props.cswColor}` -->
+  <!-- backgroundColor: `${props.cswColor}` -->
 </template>
 
 <script setup>
 import { F_TILE_SIZE_REM } from '@/constants';
 import { inject } from 'vue';
 
-const props = defineProps({ colNumber: Number, value: String, cswColor: String });
 const { getIsHorizontal } = inject('isHorizontal');
+const { getPrevTargetTile } = inject('prevTargetTile');
+
+const props = defineProps({
+  colNumber: Number,
+  rowNumber: Number,
+  value: String,
+  cswColor: String,
+});
+const emit = defineEmits(['updateIsHorizontal']);
+
 const classNames = $computed(() => `tile col-${props.colNumber}`);
+const elementId = $computed(() => `${props.colNumber}-${props.rowNumber}`);
 
 function selectContent(e) {
   e.target.select();
@@ -28,27 +41,35 @@ function selectNextSibling(el) {
 }
 
 function selectNextNthElement(el) {
-  console.log(el.id);
-  return el;
+  const colNr = el.id.split('-')[0] - 1;
+  if (el.parentElement.nextElementSibling) {
+    return el.parentElement.nextElementSibling.children[colNr];
+  }
+  return null;
 }
 
-function tileStyleHander(e, name, action) {
-  const selectingNextElement = getIsHorizontal ? selectNextSibling : selectNextNthElement;
-  let nextEl = selectingNextElement(e.target);
+function addStyle(e, name) {
+  const selectNextElement = getIsHorizontal() ? selectNextSibling : selectNextNthElement;
+  let nextEl = selectNextElement(e.target);
   while (nextEl) {
-    switch (action) {
-    case 'ADD': {
-      nextEl.classList.add(name);
-      break;
-    }
-    case 'REMOVE': {
-      nextEl.classList.remove(name);
-      break;
-    }
-    default:
-      throw Error('wrong action');
-    }
-    nextEl = selectingNextElement(nextEl);
+    nextEl.classList.add(name);
+    nextEl = selectNextElement(nextEl);
+  }
+}
+function removeStyle(e, name) {
+  const selectNextElement = getIsHorizontal() ? selectNextSibling : selectNextNthElement;
+  let nextEl = selectNextElement(e.target);
+  while (nextEl) {
+    nextEl.classList.remove(name);
+    nextEl = selectNextElement(nextEl);
+  }
+}
+
+function handleDirection(e, name) {
+  removeStyle(e, name);
+  emit('updateIsHorizontal', e.target);
+  if (getPrevTargetTile() === e.target) {
+    addStyle(e, name);
   }
 }
 </script>
@@ -73,15 +94,6 @@ function tileStyleHander(e, name, action) {
   background-color: cadetblue;
   border: 2px solid red;
 }
-/* .tile:focus ~ .tile {
-  background-color: powderblue;
-}
-.tile:focus + .tile {
-  background-image: url('@/static/images/arrow.png');
-  background-size: 90%;
-  background-position: center;
-  background-repeat: no-repeat;
-} */
 .selected-sibling {
   background-color: blueviolet;
 }
