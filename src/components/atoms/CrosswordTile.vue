@@ -63,7 +63,7 @@ function handleDirection(e, name) {
 }
 </script>
 
-<style>
+<style scoped>
 @import url('https://fonts.googleapis.com/css2?family=Patrick+Hand&display=swap');
 
 .tile {
@@ -77,13 +77,17 @@ function handleDirection(e, name) {
   caret-color: black;
   color: darkblue;
   -webkit-appearance: none;
+  cursor:default;
 }
-
+.tile:hover {
+  background-color: var(--hover-tile)
+}
 .tile:focus {
-  background-color: cadetblue;
-  border: 2px solid red;
+  background-color: var(--selected-tile);
+  border: 2px solid var(--selected-tile-border);
 }
 .selected-sibling {
-  background-color: blueviolet;
+  background-color: var(--selected-sibling);
 }
+
 </style>

@@ -18,9 +18,10 @@ const submitData = () => {
 </script>
 
 <style scoped>
+@import url('https://fonts.googleapis.com/css2?family=Nunito&family=Roboto+Mono:wght@300;500&family=Roboto+Slab&display=swap');
+
 span {
   display: flex;
-  /* vertical-align: sub; */
   justify-content: center;
   align-items: center;
   height: 100%;
@@ -30,16 +31,17 @@ span:active {
 }
 
 .submit-btn {
-  padding: 0.2em, 0.5em;
   box-sizing: border-box;
   background-color: burlywood;
   font-weight: bold;
+  font-family: 'Roboto Slab', serif;
   border: 1px solid black;
   height: 3.5rem;
   width: 9rem;
   cursor: pointer;
-  margin: 1.2rem 0.6rem;
   right: 100px;
+  margin: 0.2rem auto;
+  /* font-family: 'Nunito', sans-serif; */
 }
 .submit-btn:hover {
   background-color: coral;
@@ -51,7 +53,6 @@ span:active {
 .submit-btn:active {
   color: black;
   outline-color: brown;
-  font-weight: normal;
   letter-spacing: 0.3rem;
   box-shadow: 0.1rem -0.1rem 0.8rem 0.4rem rgba(0, 0, 0, 1);
 }

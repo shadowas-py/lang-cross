@@ -12,16 +12,33 @@ const localField = $ref(props.field);
 </script>
 
 <style scoped>
+
 * {
-  font-size: 1.6rem;
+  font-size: 1.8rem;
 }
-label {
-  margin: 0.6rem;
+label{
+  margin:0.2rem;
+  font-family: 'Nunito', sans-serif;
 }
-input{
-  margin-top: 0.2rem;
+input {
+  font-family: 'Roboto Mono', monospace;
+  width: 6rem;
+  margin:0.2rem;
+  vertical-align:-5%;
+  border-color: var(--border-color-light);
+  border-style: none;
+  box-shadow: 0 0 1rem saddlebrown;
+  border-radius: 0.5rem;
 }
 .color-input {
-  background-color: black;
+  margin:0.1rem;
+  padding: 0.4rem;
+  width: 3rem;
+  height:3rem;
+  overflow:hidden;
+  border-radius:50%;
+  vertical-align:-50%;
+  background-color: currentColor;
 }
+
 </style>
