@@ -1,9 +1,14 @@
 <template>
-  <div class="wrapper-csw-generator">
+  <div class="csw-generator-wrapper">
     <h3 class="csw-gen-title">GENERATOR SIATKI</h3>
     <GeneratorField v-for="(field, i) in inputFields" :key="i" :field="field" />
 
-    <SubmitButton :inputFields="inputFields" @onCswGridParams="emitCswParams" />
+    <SubmitButton
+      :inputFields="inputFields"
+      @onCswGridParams="emitCswParams"
+      class="generator-submit-btn"
+      id="grid-generator-submit-btn"
+    />
   </div>
 </template>
 
@@ -41,3 +46,25 @@ function emitCswParams(data) {
   emit('onCswGridParams', data);
 }
 </script>
+
+<style scoped>
+.csw-gen-title {
+  font-size:3.2rem;
+  text-align: center;
+  width:100%;
+  margin-bottom:0.6rem;
+  line-height: 3.2rem;
+  font-family: 'Patrick Hand', cursive;
+}
+
+.csw-generator-wrapper {
+  display: flex;
+  flex-wrap:wrap;
+  align-items: baseline;
+  padding:1rem;
+  border: 1px solid black;
+  width: 80vw;
+  margin: 2.4rem auto;
+  min-height:10vh;
+}
+</style>

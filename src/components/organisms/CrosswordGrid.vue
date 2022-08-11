@@ -1,46 +1,84 @@
+<!-- eslint-disable vuejs-accessibility/click-events-have-key-events -->
 <template>
-  <div
-    class="csw-wrapper"
-    :style="{
-      width: `${cswWrapperWidth}px`,
-      height: `${cswWrapperHeight}px`,
-    }"
-  >
-    <CrosswordRow
-      v-for="i in cswHeight"
-      :key="i"
-      :cswWidth="props.cswWidth"
-      :cswColor="props.cswColor"
-    />
+  <div class="csw-grid-wrapper">
+    <div
+      class="csw-grid"
+      @input="handleInputLetters"
+      :style="{
+        width: `${cswWrapperWidth}rem`,
+        height: `${cswWrapperHeight}rem`,
+      }"
+    >
+      <CrosswordRow
+        v-for="i in cswHeight"
+        :key="i"
+        :cswWidth="cswWidth"
+        :cswColor="cswColor"
+        :rowNumber="i"
+        @updateIsHorizontal="toggleWritingDirection"
+      />
+    </div>
   </div>
 </template>
 
 <script setup>
 import CrosswordRow from '@/components/molecules/CrosswordRow.vue';
+import { TILE_SIZE_REM } from '@/constants';
+import { provide } from 'vue';
+import { selectNextNthElement, selectNextSibling } from '@/utils/Select';
 
 const props = defineProps({
   cswWidth: Number,
   cswHeight: Number,
-  TILE_SIZE_PX: Number,
   cswColor: String,
 });
-const cswWrapperWidth = $computed(
-  () => props.cswWidth * props.TILE_SIZE_PX - props.cswWidth * 2,
-  // For each field, I have to subtract twice its border.
-);
-const cswWrapperHeight = $computed(
-  () => props.cswHeight * props.TILE_SIZE_PX - props.cswHeight * 2,
-  // Maybe i dont need to compute this,
-  // because its style dont need height property to render container properly
-);
+const cswWrapperWidth = $computed(() => props.cswWidth * TILE_SIZE_REM);
+const cswWrapperHeight = $computed(() => props.cswHeight * TILE_SIZE_REM);
+
+let isHorizontal = $ref(true);
+let prevTargetTile = $ref(null);
+
+function handleInputLetters(e) {
+  if (e.data) {
+    e.target.value = e.data.toUpperCase();
+  }
+  const selectNext = isHorizontal ? selectNextSibling : selectNextNthElement;
+  const nextEl = selectNext(e.target);
+  if (nextEl) {
+    nextEl.focus();
+    nextEl.select();
+  }
+}
+
+function toggleWritingDirection(target) {
+  if (prevTargetTile === target) {
+    isHorizontal = !isHorizontal;
+  }
+  prevTargetTile = target;
+}
+
+const getIsHorizontal = () => isHorizontal;
+provide('isHorizontal', {
+  getIsHorizontal,
+});
+
+const getPrevTargetTile = () => prevTargetTile;
+provide('prevTargetTile', {
+  getPrevTargetTile,
+});
 </script>
 
-<style>
-.csw-wrapper {
+<style scoped>
+.csw-grid {
+  box-sizing: border-box;
   display: flex;
-  align-items: center;
   flex-wrap: wrap;
-  margin: 0 auto auto;
+  margin: 0;
   width: fit-content;
+}
+.csw-grid-wrapper {
+  width: fit-content;
+  margin: 0 auto auto;
+  border: 0.2rem solid black;
 }
 </style>

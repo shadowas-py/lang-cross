@@ -4,7 +4,6 @@
     :cswWidth="cswWidth"
     :cswHeight="cswHeight"
     :cswColor="cswColor"
-    :TILE_SIZE_PX="props.TILE_SIZE_PX"
   />
   <GridGeneratorForm @onCswGridParams="generateCswGrid" />
 </template>
@@ -12,8 +11,6 @@
 <script setup>
 import GridGeneratorForm from '@/components/organisms/GridGeneratorForm.vue';
 import CrosswordGrid from '@/components/organisms/CrosswordGrid.vue';
-
-const props = defineProps({ TILE_SIZE_PX: Number });
 
 let cswWidth = $ref(15);
 let cswHeight = $ref(15);

@@ -1,5 +1,5 @@
 <template>
-  <button v-on:click="submitData">GENERUJ</button>
+  <button v-on:click="submitData" class="submit-btn"><span id="span">GENERUJ</span></button>
 </template>
 
 <script setup>
@@ -18,18 +18,42 @@ const submitData = () => {
 </script>
 
 <style scoped>
-button {
+@import url('https://fonts.googleapis.com/css2?family=Nunito&family=Roboto+Mono:wght@300;500&family=Roboto+Slab&display=swap');
+
+span {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+}
+span:active {
+  transform: rotate(10deg);
+}
+
+.submit-btn {
   box-sizing: border-box;
   background-color: burlywood;
   font-weight: bold;
-  padding: 0.4rem;
+  font-family: 'Roboto Slab', serif;
+  border: 1px solid black;
+  height: 3.5rem;
+  width: 9rem;
+  cursor: pointer;
+  right: 100px;
+  margin: 0.2rem auto;
+  /* font-family: 'Nunito', sans-serif; */
 }
-button:hover {
+.submit-btn:hover {
   background-color: coral;
+  outline: 2px ridge coral;
+  color: black;
+  box-shadow: 0px 0px 2px 0.4rem rgba(0, 0, 0, 0.5);
 }
-button:active {
-  background-color: black;
-  color: coral;
-  border: 0px solid black;
+
+.submit-btn:active {
+  color: black;
+  outline-color: brown;
+  letter-spacing: 0.3rem;
+  box-shadow: 0.1rem -0.1rem 0.8rem 0.4rem rgba(0, 0, 0, 1);
 }
 </style>
