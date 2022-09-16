@@ -1,4 +1,4 @@
-<template>
+<!-- <template>
   <div class="csw-row" :id="rowId">
     <CrosswordTile
       v-for="i in props.cswWidth"
@@ -28,4 +28,4 @@ const props = defineProps({
 const className = $computed(() => `row-${props.rowNumber}`);
 const rowId = $computed(() => `csw-row-${props.rowNumber}`);
 </script>
-<style scoped></style>
+<style scoped></style> -->

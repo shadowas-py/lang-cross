@@ -1,10 +1,5 @@
 <template>
   <input
-    @focus="
-      addStyle($event, 'selected-sibling');
-      selectContent($event)"
-    @blur="removeStyle($event, 'selected-sibling')"
-    @click="handleDirection($event, 'selected-sibling')"
     value=""
     maxlength="1"
     :class="classNames"
@@ -12,55 +7,26 @@
     :style="{ width: `${F_TILE_SIZE_REM}`, height: `${F_TILE_SIZE_REM}` }"
   />
   <!-- backgroundColor: `${props.cswColor}` -->
+
+  <!-- @focus="
+      addStyle($event, 'selected-sibling');
+      selectContent($event);
+    "
+    @blur="removeStyle($event, 'selected-sibling')"
+    @click="handleDirection($event, 'selected-sibling')" -->
 </template>
 
 <script setup>
 import { F_TILE_SIZE_REM } from '@/constants';
-import { inject } from 'vue';
-import { selectNextNthElement, selectNextSibling } from '@/utils/Select';
-
-const { getIsHorizontal } = inject('isHorizontal');
-const { getPrevTargetTile } = inject('prevTargetTile');
 
 const props = defineProps({
   colNumber: Number,
   rowNumber: Number,
   value: String,
-  cswColor: String,
 });
-const emit = defineEmits(['updateIsHorizontal']);
 
 const classNames = $computed(() => `tile col-${props.colNumber}`);
-const elementId = $computed(() => `${props.colNumber}-${props.rowNumber}`);
-
-function selectContent(e) {
-  e.target.select();
-}
-
-function addStyle(e, name) {
-  const selectNextElement = getIsHorizontal() ? selectNextSibling : selectNextNthElement;
-  let nextEl = selectNextElement(e.target);
-  while (nextEl) {
-    nextEl.classList.add(name);
-    nextEl = selectNextElement(nextEl);
-  }
-}
-function removeStyle(e, name) {
-  const selectNextElement = getIsHorizontal() ? selectNextSibling : selectNextNthElement;
-  let nextEl = selectNextElement(e.target);
-  while (nextEl) {
-    nextEl.classList.remove(name);
-    nextEl = selectNextElement(nextEl);
-  }
-}
-
-function handleDirection(e, name) {
-  removeStyle(e, name);
-  emit('updateIsHorizontal', e.target);
-  if (getPrevTargetTile() === e.target) {
-    addStyle(e, name);
-  }
-}
+const elementId = $computed(() => `${props.colNumber}-${props.rowNumber}-tile`);
 </script>
 
 <style scoped>
@@ -77,10 +43,10 @@ function handleDirection(e, name) {
   caret-color: black;
   color: darkblue;
   -webkit-appearance: none;
-  cursor:default;
+  cursor: default;
 }
 .tile:hover {
-  background-color: var(--hover-tile)
+  background-color: var(--hover-tile);
 }
 .tile:focus {
   background-color: var(--selected-tile);
@@ -89,5 +55,4 @@ function handleDirection(e, name) {
 .selected-sibling {
   background-color: var(--selected-sibling);
 }
-
 </style>
