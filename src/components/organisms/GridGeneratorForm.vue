@@ -49,22 +49,22 @@ function emitCswParams(data) {
 
 <style scoped>
 .csw-gen-title {
-  font-size:3.2rem;
+  font-size: 3.2rem;
   text-align: center;
-  width:100%;
-  margin-bottom:0.6rem;
+  width: 100%;
+  margin-bottom: 0.6rem;
   line-height: 3.2rem;
   font-family: 'Patrick Hand', cursive;
 }
 
 .csw-generator-wrapper {
   display: flex;
-  flex-wrap:wrap;
+  flex-wrap: wrap;
   align-items: baseline;
-  padding:1rem;
+  padding: 1rem;
   border: 1px solid black;
   width: 80vw;
   margin: 2.4rem auto;
-  min-height:10vh;
+  min-height: 10vh;
 }
 </style>
