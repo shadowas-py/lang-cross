@@ -6,14 +6,6 @@
     :id="elementId"
     :style="{ width: `${F_TILE_SIZE_REM}`, height: `${F_TILE_SIZE_REM}` }"
   />
-  <!-- backgroundColor: `${props.cswColor}` -->
-
-  <!-- @focus="
-      addStyle($event, 'selected-sibling');
-      selectContent($event);
-    "
-    @blur="removeStyle($event, 'selected-sibling')"
-    @click="handleDirection($event, 'selected-sibling')" -->
 </template>
 
 <script setup>
@@ -52,7 +44,7 @@ const elementId = $computed(() => `${props.colNumber}-${props.rowNumber}-tile`);
   background-color: var(--selected-tile);
   border: 2px solid var(--selected-tile-border);
 }
-.selected-sibling {
+.direction-marking-tile {
   background-color: var(--selected-sibling);
 }
 </style>

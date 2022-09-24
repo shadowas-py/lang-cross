@@ -1,4 +1,3 @@
-<!-- eslint-disable vuejs-accessibility/click-events-have-key-events -->
 <template>
   <div class="csw-grid-wrapper">
     <div
@@ -16,25 +15,18 @@
           :colNumber="col"
           :rowNumber="row"
           @click="onTileClick($event)"
+          @focus="displayWritingDirection($event.target, 'direction-marking-tile')"
+          @blur="stopDisplayingWritingDirection($event.target, 'direction-marking-tile')"
         />
       </div>
-      <!-- <CrosswordRow
-        v-for="i in cswHeight"
-        :key="i"
-        :cswWidth="cswWidth"
-        :cswColor="cswColor"
-        :rowNumber="i"
-        @updateIsHorizontal="toggleWritingDirection"
-      /> -->
     </div>
   </div>
 </template>
 
 <script setup>
-// import CrosswordRow from '@/components/molecules/CrosswordRow.vue';
 import { TILE_SIZE_REM } from '@/constants';
 import { computed, ref } from 'vue';
-import { selectNextNthElement, selectNextSibling } from '@/utils/Select';
+import { selectNextNthElement, selectNextSibling } from '@/utils/select';
 import CrosswordTile from '../atoms/CrosswordTile.vue';
 
 const props = defineProps({
@@ -48,16 +40,34 @@ const cswWrapperHeight = computed(() => props.cswHeight * TILE_SIZE_REM);
 const isHorizontal = ref(true);
 const lastTargetTile = ref(null);
 
+// STYLE HANDLERS
+function displayWritingDirection(target, name) {
+  const selectNextElement = isHorizontal.value ? selectNextSibling : selectNextNthElement;
+  let nextEl = selectNextElement(target);
+  while (nextEl) {
+    nextEl.classList.add(name);
+    nextEl = selectNextElement(nextEl);
+  }
+}
+function stopDisplayingWritingDirection(target, name) {
+  const selectNextElement = isHorizontal.value ? selectNextSibling : selectNextNthElement;
+  let nextEl = selectNextElement(target);
+  while (nextEl) {
+    nextEl.classList.remove(name);
+    nextEl = selectNextElement(nextEl);
+  }
+}
+
 // SELECTION HANDLERS
 function onTileClick(e) {
   if (lastTargetTile.value === e.target) {
+    stopDisplayingWritingDirection(e.target, 'direction-marking-tile');
     isHorizontal.value = !isHorizontal.value;
+    displayWritingDirection(e.target, 'direction-marking-tile');
   }
   lastTargetTile.value = e.target;
   e.target.select();
-  console.log('IS HORIZONTAL?', isHorizontal.value);
 }
-
 function onInputLetter(e) {
   if (e.data) {
     e.target.value = e.data.toUpperCase();
@@ -70,34 +80,6 @@ function onInputLetter(e) {
     nextEl.select();
   }
 }
-// STYLE HANDLERS
-// eslint-disable-next-line no-unused-vars
-function addStyleClass(e, name) {
-  const selectNextElement = isHorizontal.value ? selectNextSibling : selectNextNthElement;
-  let nextEl = selectNextElement(e.target);
-  while (nextEl) {
-    nextEl.classList.add(name);
-    nextEl = selectNextElement(nextEl);
-  }
-}
-// eslint-disable-next-line no-unused-vars
-function removeStyleClass(e, name) {
-  const selectNextElement = isHorizontal.value ? selectNextSibling : selectNextNthElement;
-  let nextEl = selectNextElement(e.target);
-  while (nextEl) {
-    nextEl.classList.remove(name);
-    nextEl = selectNextElement(nextEl);
-  }
-}
-
-// eslint-disable-next-line no-unused-vars
-// function handleDirection(e, name) {
-//   console.log('handle direction');
-//   removeStyleClass(e, name);
-//   if (getPrevTargetTile() === e.target) {
-//     addStyleClass(e, name);
-//   }
-// }
 </script>
 
 <style scoped>
