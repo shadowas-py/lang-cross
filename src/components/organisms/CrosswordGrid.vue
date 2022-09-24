@@ -14,9 +14,15 @@
           :key="`${col}-${row}`"
           :colNumber="col"
           :rowNumber="row"
-          @click="onTileClick($event)"
-          @focus="displayWritingDirection($event.target, 'direction-marking-tile')"
-          @blur="stopDisplayingWritingDirection($event.target, 'direction-marking-tile')"
+          @mousedown="onTileClick($event)"
+          @focus="
+            displayWritingDirection($event.target, 'direction-marking-tile'),
+              selectTile($event.target)
+          "
+          @blur="
+            stopDisplayingWritingDirection($event.target, 'direction-marking-tile'),
+              (selectedTile = null)
+          "
         />
       </div>
     </div>
@@ -38,7 +44,7 @@ const cswWrapperWidth = computed(() => props.cswWidth * TILE_SIZE_REM);
 const cswWrapperHeight = computed(() => props.cswHeight * TILE_SIZE_REM);
 
 const isHorizontal = ref(true);
-const lastTargetTile = ref(null);
+const selectedTile = ref(null);
 
 // STYLE HANDLERS
 function displayWritingDirection(target, name) {
@@ -49,6 +55,7 @@ function displayWritingDirection(target, name) {
     nextEl = selectNextElement(nextEl);
   }
 }
+
 function stopDisplayingWritingDirection(target, name) {
   const selectNextElement = isHorizontal.value ? selectNextSibling : selectNextNthElement;
   let nextEl = selectNextElement(target);
@@ -59,14 +66,17 @@ function stopDisplayingWritingDirection(target, name) {
 }
 
 // SELECTION HANDLERS
+function selectTile(targetTile) {
+  selectedTile.value = targetTile;
+  targetTile.select();
+}
+
 function onTileClick(e) {
-  if (lastTargetTile.value === e.target) {
+  if (selectedTile.value === e.target) {
     stopDisplayingWritingDirection(e.target, 'direction-marking-tile');
     isHorizontal.value = !isHorizontal.value;
     displayWritingDirection(e.target, 'direction-marking-tile');
   }
-  lastTargetTile.value = e.target;
-  e.target.select();
 }
 function onInputLetter(e) {
   if (e.data) {
@@ -76,8 +86,6 @@ function onInputLetter(e) {
   const nextEl = selectNext(e.target);
   if (nextEl) {
     nextEl.focus();
-    lastTargetTile.value = nextEl;
-    nextEl.select();
   }
 }
 </script>
