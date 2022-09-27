@@ -25,6 +25,7 @@
           "
         />
       </div>
+      <p>{{ lookedWordLength }}</p>
     </div>
   </div>
 </template>
@@ -46,13 +47,19 @@ const cswWrapperHeight = computed(() => props.cswHeight * TILE_SIZE_REM);
 const isHorizontal = ref(true);
 const selectedTile = ref(null);
 
+// pass this to dedicated component
+// const lookedWordLength = computed(()=> selectedTile)
+const lookedWordLength = ref(0);
+
 // STYLE HANDLERS
 function displayWritingDirection(target, name) {
+  lookedWordLength.value = 1;
   const selectNextElement = isHorizontal.value ? selectNextSibling : selectNextNthElement;
   let nextEl = selectNextElement(target);
   while (nextEl) {
     nextEl.classList.add(name);
     nextEl = selectNextElement(nextEl);
+    lookedWordLength.value += 1;
   }
 }
 
