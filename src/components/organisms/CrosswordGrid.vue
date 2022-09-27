@@ -14,7 +14,9 @@
           :key="`${col}-${row}`"
           :colNumber="col"
           :rowNumber="row"
-          @mousedown="onTileClick($event)"
+          @mousedown.left="onTileClick($event)"
+          @contextmenu.prevent
+          @mousedown.middle.prevent
           @focus="
             displayWritingDirection($event.target, 'direction-marking-tile'),
               selectTile($event.target)
@@ -67,6 +69,7 @@ function stopDisplayingWritingDirection(target, name) {
 
 // SELECTION HANDLERS
 function selectTile(targetTile) {
+  console.log('ON TILE CLICK middle');
   selectedTile.value = targetTile;
   targetTile.select();
 }

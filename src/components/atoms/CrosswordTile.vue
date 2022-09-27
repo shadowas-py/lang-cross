@@ -2,14 +2,18 @@
   <input
     value=""
     maxlength="1"
+    :readonly="isTileLocked"
     :class="classNames"
     :id="elementId"
     :style="{ width: `${F_TILE_SIZE_REM}`, height: `${F_TILE_SIZE_REM}` }"
+    @mousedown.right.prevent="changeTileStatus($event.target)"
+    @contextmenu.prevent
   />
 </template>
 
 <script setup>
 import { F_TILE_SIZE_REM } from '@/constants';
+import { computed, ref } from 'vue';
 
 const props = defineProps({
   colNumber: Number,
@@ -17,8 +21,21 @@ const props = defineProps({
   value: String,
 });
 
-const classNames = $computed(() => `tile col-${props.colNumber}`);
-const elementId = $computed(() => `${props.colNumber}-${props.rowNumber}-tile`);
+const classNames = computed(() => `tile col-${props.colNumber}`);
+const elementId = computed(() => `${props.colNumber}-${props.rowNumber}-tile`);
+
+const tileStatus = ref('active');
+const isTileLocked = computed(() => tileStatus.value === 'locked');
+
+function changeTileStatus(target) {
+  tileStatus.value = tileStatus.value === 'active' ? 'locked' : 'active';
+  console.log(tileStatus.value);
+  if (tileStatus.value === 'active') {
+    target.classList.remove('locked-tile');
+  } else {
+    target.classList.add('locked-tile');
+  }
+}
 </script>
 
 <style scoped>
@@ -26,7 +43,7 @@ const elementId = $computed(() => `${props.colNumber}-${props.rowNumber}-tile`);
 
 .tile {
   box-sizing: border-box;
-  border: 1px solid black;
+  border: 1px dotted rgb(150, 150, 150);
   text-align: center;
   outline: none;
   font-weight: bold;
@@ -46,5 +63,8 @@ const elementId = $computed(() => `${props.colNumber}-${props.rowNumber}-tile`);
 }
 .direction-marking-tile {
   background-color: var(--selected-sibling);
+}
+.locked-tile.tile {
+  background-color: black;
 }
 </style>
