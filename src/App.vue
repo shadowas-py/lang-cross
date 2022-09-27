@@ -19,7 +19,7 @@
   --main-color: #eeeaca;
   --input-background-color: #f1f1f1;
   --border-color-light: rgb(240, 207, 86);
-  --hover-tile: rgba(156, 255, 207,0.5);
+  --hover-tile: rgba(156, 255, 207, 0.5);
 }
 * {
   margin: 0;

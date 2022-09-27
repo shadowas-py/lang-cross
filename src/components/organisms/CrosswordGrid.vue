@@ -48,13 +48,20 @@ const cswWrapperHeight = computed(() => props.cswHeight * TILE_SIZE_REM);
 const isHorizontal = ref(true);
 const selectedTile = ref(null);
 
+// SETTERS
+function toggleWritingDirection() {
+  isHorizontal.value = !isHorizontal.value;
+}
+
 // STYLE HANDLERS
 function displayWritingDirection(target, name) {
   const selectNextElement = isHorizontal.value ? selectNextSibling : selectNextNthElement;
   let nextEl = selectNextElement(target);
-  while (nextEl) {
-    nextEl.classList.add(name);
-    nextEl = selectNextElement(nextEl);
+  if (!target.readOnly) {
+    while (nextEl && !nextEl.readOnly) {
+      nextEl.classList.add(name);
+      nextEl = selectNextElement(nextEl);
+    }
   }
 }
 
@@ -69,16 +76,20 @@ function stopDisplayingWritingDirection(target, name) {
 
 // SELECTION HANDLERS
 function selectTile(targetTile) {
-  console.log('ON TILE CLICK middle');
-  selectedTile.value = targetTile;
-  targetTile.select();
+  if (!targetTile.readOnly) {
+    selectedTile.value = targetTile;
+    targetTile.select();
+  }
 }
 
 function onTileClick(e) {
-  if (selectedTile.value === e.target) {
+  if (selectedTile.value === e.target && !e.target.readOnly) {
     stopDisplayingWritingDirection(e.target, 'direction-marking-tile');
-    isHorizontal.value = !isHorizontal.value;
+    toggleWritingDirection();
     displayWritingDirection(e.target, 'direction-marking-tile');
+  } else if (e.target.readOnly) {
+    stopDisplayingWritingDirection(e.target, 'direction-marking-tile');
+    console.log('selected LOCKED', e.target.value);
   }
 }
 function onInputLetter(e) {
@@ -87,7 +98,7 @@ function onInputLetter(e) {
   }
   const selectNext = isHorizontal.value ? selectNextSibling : selectNextNthElement;
   const nextEl = selectNext(e.target);
-  if (nextEl) {
+  if (nextEl && !nextEl.readOnly) {
     nextEl.focus();
   }
 }
