@@ -40,7 +40,7 @@ const cswWrapperHeight = computed(() => props.cswHeight * TILE_SIZE_REM);
 
 const selectedTile = ref(null);
 const isHorizontal = ref(true);
-const getNextTile = computed(() => (isHorizontal.value ? selectNextNthElement : selectNextSibling));
+const getNextTile = computed(() => (isHorizontal.value ? selectNextSibling : selectNextNthElement));
 
 // pass this to dedicated component
 const highlightedTilesLength = ref(0);
@@ -51,13 +51,6 @@ function toggleWritingDirection() {
 }
 // STYLE HANDLERS
 
-// function displayWritingDirection(customTile = null) {
-//   let nextTile = getNextTile.value(customTile || selectedTile.value);
-//   while (nextTile && !nextTile.readOnly) {
-//     nextTile.classList.add('direction-marking-tile');
-//     nextTile = getNextTile.value(nextTile);
-//   }
-// }
 function displayWritingDirection() {
   highlightedTilesLength.value = 1;
   let nextTile = getNextTile.value(selectedTile.value);
@@ -67,18 +60,18 @@ function displayWritingDirection() {
 
     nextTile.classList.add('direction-marking-tile');
     nextTile = getNextTile.value(nextTile);
-    // console.log(nextTile);
     console.log('DISPLAY 2', nextTile ? [nextTile.readOnly, nextTile.readonly] : undefined);
   }
 }
 
 function stopDisplayWritingDirection(customTile = null) {
   let nextTile = getNextTile.value(customTile || selectedTile.value);
-  if (customTile) {
+  if (customTile && customTile.classList.contains('direction-marking-tile')) {
+    console.log(customTile.classList);
     highlightedTilesLength.value -= 1;
   }
-  while (nextTile) {
-    if (customTile) {
+  while (nextTile && !nextTile.classList.contains('locked-tile')) {
+    if (nextTile.classList.contains('direction-marking-tile')) {
       highlightedTilesLength.value -= 1;
     }
     nextTile.classList.remove('direction-marking-tile');
