@@ -23,6 +23,8 @@ const props = defineProps({
   value: String,
 });
 
+const emit = defineEmits(['setLocked', 'setActive']);
+
 const classNames = computed(() => `tile col-${props.colNumber}`);
 const elementId = computed(() => `${props.colNumber}-${props.rowNumber}-tile`);
 
@@ -34,8 +36,10 @@ function changeTileStatus(target) {
   console.log(tileStatus.value);
   if (tileStatus.value === 'active') {
     target.classList.remove('locked-tile');
+    emit('setActive', target);
   } else {
     target.classList.add('locked-tile');
+    emit('setLocked', target);
   }
 }
 </script>

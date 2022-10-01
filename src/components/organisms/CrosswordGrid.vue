@@ -15,6 +15,8 @@
           :key="`${col}-${row}`"
           :colNumber="col"
           :rowNumber="row"
+          @setLocked="stopDisplayWritingDirection"
+          @setActive="displayWritingDirection"
         />
       </div>
       <p>{{ highlightedTilesLength }}</p>
@@ -47,23 +49,20 @@ const highlightedTilesLength = ref(0);
 function toggleWritingDirection() {
   isHorizontal.value = !isHorizontal.value;
 }
-
 // STYLE HANDLERS
 
-function displayWritingDirection() {
+function displayWritingDirection(customTile = null) {
   highlightedTilesLength.value = 1;
-  let nextTile = getNextTile.value(selectedTile.value);
-  if (!nextTile.readOnly) {
-    while (nextTile) {
-      nextTile.classList.add('direction-marking-tile');
-      nextTile = getNextTile.value(nextTile);
-      highlightedTilesLength.value += 1;
-    }
+  let nextTile = getNextTile.value(customTile || selectedTile.value);
+  while (nextTile && !nextTile.readOnly) {
+    nextTile.classList.add('direction-marking-tile');
+    nextTile = getNextTile.value(nextTile);
+    highlightedTilesLength.value += 1;
   }
 }
 
-function stopDisplayWritingDirection() {
-  let nextTile = getNextTile.value(selectedTile.value);
+function stopDisplayWritingDirection(customTile = null) {
+  let nextTile = getNextTile.value(customTile || selectedTile.value);
   while (nextTile) {
     nextTile.classList.remove('direction-marking-tile');
     nextTile = getNextTile.value(nextTile);
@@ -72,8 +71,8 @@ function stopDisplayWritingDirection() {
 
 // SELECTION HANDLERS
 function setSelectedTile(targetTile) {
-  if (!targetTile.readOnly){
-  selectedTile.value = targetTile;
+  if (!targetTile.readOnly) {
+    selectedTile.value = targetTile;
   }
 }
 
@@ -83,7 +82,7 @@ function onTileClick(e) {
   }
 
   if (selectedTile.value === e.target) {
-    isHorizontal.value = !isHorizontal.value;
+    toggleWritingDirection();
   } else {
     setSelectedTile(e.target);
   }
