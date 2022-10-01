@@ -17,14 +17,14 @@
           :rowNumber="row"
         />
       </div>
-      <p>{{ lookedWordLength }}</p>
+      <p>{{ highlightedTilesLength }}</p>
     </div>
   </div>
 </template>
 
 <script setup>
 import { TILE_SIZE_REM } from '@/constants';
-import { computed, ref, watch } from 'vue';
+import { computed, ref } from 'vue';
 import { selectNextNthElement, selectNextSibling } from '@/utils/select';
 import CrosswordTile from '../atoms/CrosswordTile.vue';
 
@@ -41,21 +41,17 @@ const isHorizontal = ref(true);
 const getNextTile = computed(() => (isHorizontal.value ? selectNextNthElement : selectNextSibling));
 
 // pass this to dedicated component
-const lookedWordLength = ref(0);
+const highlightedTilesLength = ref(0);
 
-watch(
-  () => [getNextTile.value, selectedTile.value],
-  (newVal, oldVal) => {
-    console.log(newVal, 'work', oldVal);
-  },
-);
 // STYLE HANDLERS
 
 function displayWritingDirection() {
+  highlightedTilesLength.value = 1;
   let nextTile = getNextTile.value(selectedTile.value);
   while (nextTile) {
     nextTile.classList.add('direction-marking-tile');
     nextTile = getNextTile.value(nextTile);
+    highlightedTilesLength.value += 1;
   }
 }
 
