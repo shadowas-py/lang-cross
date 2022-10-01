@@ -24,7 +24,7 @@
 
 <script setup>
 import { TILE_SIZE_REM } from '@/constants';
-import { computed, ref } from 'vue';
+import { computed, ref, watch } from 'vue';
 import { selectNextNthElement, selectNextSibling } from '@/utils/select';
 import CrosswordTile from '../atoms/CrosswordTile.vue';
 
@@ -43,6 +43,12 @@ const getNextTile = computed(() => (isHorizontal.value ? selectNextNthElement : 
 // pass this to dedicated component
 const lookedWordLength = ref(0);
 
+watch(
+  () => [getNextTile.value, selectedTile.value],
+  (newVal, oldVal) => {
+    console.log(newVal, 'work', oldVal);
+  },
+);
 // STYLE HANDLERS
 
 function displayWritingDirection() {
