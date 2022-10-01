@@ -32,15 +32,12 @@ const tileStatus = ref('active');
 const isTileLocked = computed(() => tileStatus.value === 'locked');
 
 function toggleTileStatus(target) {
-  console.log('beforeEMIT', 'RO=', target.readOnly, tileStatus.value);
   tileStatus.value = tileStatus.value === 'active' ? 'locked' : 'active';
   if (tileStatus.value === 'active') {
     target.classList.remove('locked-tile');
-    console.log('EMIT', 'RO=', target.readOnly, tileStatus.value);
     emit('setActive', target);
   } else {
     target.classList.add('locked-tile');
-    console.log('EMIT', 'RO=', target.readOnly, tileStatus.value);
     emit('setLocked', target);
   }
 }

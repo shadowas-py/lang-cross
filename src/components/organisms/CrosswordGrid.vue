@@ -49,25 +49,21 @@ const highlightedTilesLength = ref(0);
 function toggleWritingDirection() {
   isHorizontal.value = !isHorizontal.value;
 }
-// STYLE HANDLERS
 
+// STYLE HANDLERS
 function displayWritingDirection() {
   highlightedTilesLength.value = 1;
   let nextTile = getNextTile.value(selectedTile.value);
-  console.log('DISPLAY', nextTile.readOnly, nextTile.readOnly, nextTile.isTileLocked);
   while (nextTile && !nextTile.classList.contains('locked-tile')) {
     highlightedTilesLength.value += 1;
-
     nextTile.classList.add('direction-marking-tile');
     nextTile = getNextTile.value(nextTile);
-    console.log('DISPLAY 2', nextTile ? [nextTile.readOnly, nextTile.readonly] : undefined);
   }
 }
 
 function stopDisplayWritingDirection(customTile = null) {
   let nextTile = getNextTile.value(customTile || selectedTile.value);
   if (customTile && customTile.classList.contains('direction-marking-tile')) {
-    console.log(customTile.classList);
     highlightedTilesLength.value -= 1;
   }
   while (nextTile && !nextTile.classList.contains('locked-tile')) {
