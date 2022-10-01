@@ -6,6 +6,8 @@
     :class="classNames"
     :id="elementId"
     :style="{ width: `${F_TILE_SIZE_REM}`, height: `${F_TILE_SIZE_REM}` }"
+    @focus="$event.target.select()"
+    @click="$event.target.select()"
     @mousedown.right.prevent="changeTileStatus($event.target)"
     @contextmenu.prevent
   />

@@ -2,7 +2,8 @@
   <div class="csw-grid-wrapper">
     <div
       class="csw-grid"
-      @input="onInputLetter"
+      @input="onInputLetter($event)"
+      @mousedown.left="onTileClick($event)"
       :style="{
         width: `${cswWrapperWidth}rem`,
         height: `${cswWrapperHeight}rem`,
@@ -14,19 +15,9 @@
           :key="`${col}-${row}`"
           :colNumber="col"
           :rowNumber="row"
-          @mousedown.left="onTileClick($event)"
-          @contextmenu.prevent
-          @mousedown.middle.prevent
-          @focus="
-            displayWritingDirection($event.target, 'direction-marking-tile'),
-              selectTile($event.target)
-          "
-          @blur="
-            stopDisplayingWritingDirection($event.target, 'direction-marking-tile'),
-              (selectedTile = null)
-          "
         />
       </div>
+      <p>{{ highlightedTilesLength }}</p>
     </div>
   </div>
 </template>
@@ -45,8 +36,12 @@ const props = defineProps({
 const cswWrapperWidth = computed(() => props.cswWidth * TILE_SIZE_REM);
 const cswWrapperHeight = computed(() => props.cswHeight * TILE_SIZE_REM);
 
-const isHorizontal = ref(true);
 const selectedTile = ref(null);
+const isHorizontal = ref(true);
+const getNextTile = computed(() => (isHorizontal.value ? selectNextNthElement : selectNextSibling));
+
+// pass this to dedicated component
+const highlightedTilesLength = ref(0);
 
 // SETTERS
 function toggleWritingDirection() {
@@ -54,52 +49,59 @@ function toggleWritingDirection() {
 }
 
 // STYLE HANDLERS
-function displayWritingDirection(target, name) {
-  const selectNextElement = isHorizontal.value ? selectNextSibling : selectNextNthElement;
-  let nextEl = selectNextElement(target);
-  if (!target.readOnly) {
-    while (nextEl && !nextEl.readOnly) {
-      nextEl.classList.add(name);
-      nextEl = selectNextElement(nextEl);
+
+function displayWritingDirection() {
+  highlightedTilesLength.value = 1;
+  let nextTile = getNextTile.value(selectedTile.value);
+  if (!nextTile.readOnly) {
+    while (nextTile) {
+      nextTile.classList.add('direction-marking-tile');
+      nextTile = getNextTile.value(nextTile);
+      highlightedTilesLength.value += 1;
     }
   }
 }
 
-function stopDisplayingWritingDirection(target, name) {
-  const selectNextElement = isHorizontal.value ? selectNextSibling : selectNextNthElement;
-  let nextEl = selectNextElement(target);
-  while (nextEl) {
-    nextEl.classList.remove(name);
-    nextEl = selectNextElement(nextEl);
+function stopDisplayWritingDirection() {
+  let nextTile = getNextTile.value(selectedTile.value);
+  while (nextTile) {
+    nextTile.classList.remove('direction-marking-tile');
+    nextTile = getNextTile.value(nextTile);
   }
 }
 
 // SELECTION HANDLERS
-function selectTile(targetTile) {
-  if (!targetTile.readOnly) {
-    selectedTile.value = targetTile;
-    targetTile.select();
+function setSelectedTile(targetTile) {
+  if (!targetTile.readOnly){
+  selectedTile.value = targetTile;
   }
 }
 
 function onTileClick(e) {
-  if (selectedTile.value === e.target && !e.target.readOnly) {
-    stopDisplayingWritingDirection(e.target, 'direction-marking-tile');
-    toggleWritingDirection();
-    displayWritingDirection(e.target, 'direction-marking-tile');
-  } else if (e.target.readOnly) {
-    stopDisplayingWritingDirection(e.target, 'direction-marking-tile');
-    console.log('selected LOCKED', e.target.value);
+  if (selectedTile.value) {
+    stopDisplayWritingDirection();
   }
+
+  if (selectedTile.value === e.target) {
+    isHorizontal.value = !isHorizontal.value;
+  } else {
+    setSelectedTile(e.target);
+  }
+
+  displayWritingDirection();
 }
+
 function onInputLetter(e) {
   if (e.data) {
     e.target.value = e.data.toUpperCase();
   }
-  const selectNext = isHorizontal.value ? selectNextSibling : selectNextNthElement;
-  const nextEl = selectNext(e.target);
-  if (nextEl && !nextEl.readOnly) {
-    nextEl.focus();
+
+  const nextTile = getNextTile.value(e.target);
+  if (nextTile && !nextTile.readOnly) {
+    nextTile.focus();
+    stopDisplayWritingDirection();
+    setSelectedTile(nextTile);
+    displayWritingDirection();
   }
 }
 </script>

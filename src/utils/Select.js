@@ -1,11 +1,14 @@
 export function selectNextNthElement(el) {
-  const colNr = el.id.split('-')[0] - 1;
-  if (el.parentElement.nextElementSibling) {
+  if (el && el.parentElement.nextElementSibling) {
+    const colNr = el.id.split('-')[0] - 1;
     return el.parentElement.nextElementSibling.children[colNr];
   }
   return null;
 }
 
 export function selectNextSibling(el) {
-  return el.nextElementSibling;
+  if (el) {
+    return el.nextElementSibling;
+  }
+  return null;
 }
