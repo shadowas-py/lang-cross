@@ -51,19 +51,36 @@ function toggleWritingDirection() {
 }
 // STYLE HANDLERS
 
-function displayWritingDirection(customTile = null) {
+// function displayWritingDirection(customTile = null) {
+//   let nextTile = getNextTile.value(customTile || selectedTile.value);
+//   while (nextTile && !nextTile.readOnly) {
+//     nextTile.classList.add('direction-marking-tile');
+//     nextTile = getNextTile.value(nextTile);
+//   }
+// }
+function displayWritingDirection() {
   highlightedTilesLength.value = 1;
-  let nextTile = getNextTile.value(customTile || selectedTile.value);
-  while (nextTile && !nextTile.readOnly) {
+  let nextTile = getNextTile.value(selectedTile.value);
+  console.log('DISPLAY', nextTile.readOnly, nextTile.readOnly, nextTile.isTileLocked);
+  while (nextTile && !nextTile.classList.contains('locked-tile')) {
+    highlightedTilesLength.value += 1;
+
     nextTile.classList.add('direction-marking-tile');
     nextTile = getNextTile.value(nextTile);
-    highlightedTilesLength.value += 1;
+    // console.log(nextTile);
+    console.log('DISPLAY 2', nextTile ? [nextTile.readOnly, nextTile.readonly] : undefined);
   }
 }
 
 function stopDisplayWritingDirection(customTile = null) {
   let nextTile = getNextTile.value(customTile || selectedTile.value);
+  if (customTile) {
+    highlightedTilesLength.value -= 1;
+  }
   while (nextTile) {
+    if (customTile) {
+      highlightedTilesLength.value -= 1;
+    }
     nextTile.classList.remove('direction-marking-tile');
     nextTile = getNextTile.value(nextTile);
   }

@@ -8,7 +8,7 @@
     :style="{ width: `${F_TILE_SIZE_REM}`, height: `${F_TILE_SIZE_REM}` }"
     @focus="$event.target.select()"
     @click="$event.target.select()"
-    @mousedown.right.prevent="changeTileStatus($event.target)"
+    @mousedown.right.prevent="toggleTileStatus($event.target)"
     @contextmenu.prevent
   />
 </template>
@@ -31,14 +31,16 @@ const elementId = computed(() => `${props.colNumber}-${props.rowNumber}-tile`);
 const tileStatus = ref('active');
 const isTileLocked = computed(() => tileStatus.value === 'locked');
 
-function changeTileStatus(target) {
+function toggleTileStatus(target) {
+  console.log('beforeEMIT', 'RO=', target.readOnly, tileStatus.value);
   tileStatus.value = tileStatus.value === 'active' ? 'locked' : 'active';
-  console.log(tileStatus.value);
   if (tileStatus.value === 'active') {
     target.classList.remove('locked-tile');
+    console.log('EMIT', 'RO=', target.readOnly, tileStatus.value);
     emit('setActive', target);
   } else {
     target.classList.add('locked-tile');
+    console.log('EMIT', 'RO=', target.readOnly, tileStatus.value);
     emit('setLocked', target);
   }
 }
