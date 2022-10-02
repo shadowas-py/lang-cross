@@ -59,4 +59,10 @@ function clearLocalStorage() {
     font-size: 1.5rem;
     margin: 0 3rem;
   }
+  #word-list-container {
+    max-height: 10rem;
+    background:darkslateblue;
+    color:white;
+    overflow:scroll;
+  }
 </style>

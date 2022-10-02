@@ -19,8 +19,9 @@
           @setActive="displayWritingDirection"
         />
       </div>
-      <p>{{ highlightedTilesLength }}</p>
     </div>
+    <p>{{ highlightedTilesLength }}</p>
+    <WordSearchEngine/>
   </div>
 </template>
 
@@ -28,6 +29,7 @@
 import { TILE_SIZE_REM } from '@/constants';
 import { computed, ref } from 'vue';
 import { selectNextNthElement, selectNextSibling } from '@/utils/select';
+import WordSearchEngine from '@/components/organisms/WordSearchEngine.vue';
 import CrosswordTile from '../atoms/CrosswordTile.vue';
 
 const props = defineProps({
