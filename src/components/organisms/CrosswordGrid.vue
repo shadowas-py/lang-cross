@@ -1,9 +1,11 @@
+<!-- eslint-disable vuejs-accessibility/click-events-have-key-events -->
 <template>
   <div class="csw-grid-wrapper">
     <div
       class="csw-grid"
       @input="onInputLetter($event)"
       @mousedown.left="onTileClick($event)"
+      @click.left="generateWordPattern"
       :style="{
         width: `${cswWrapperWidth}rem`,
         height: `${cswWrapperHeight}rem`,
@@ -20,8 +22,8 @@
         />
       </div>
     </div>
-    <p>{{ highlightedTilesLength }}</p>
-    <WordSearchEngine/>
+    <p>{{ highlightedTilesLength }}  {{regexPattern}}</p>
+    <WordSearchEngine :pattern="regexPattern"/>
   </div>
 </template>
 
@@ -46,10 +48,22 @@ const getNextTile = computed(() => (isHorizontal.value ? selectNextSibling : sel
 
 // pass this to dedicated component
 const highlightedTilesLength = ref(0);
+const regexPattern = ref();
 
 // SETTERS
 function toggleWritingDirection() {
   isHorizontal.value = !isHorizontal.value;
+}
+function generateWordPattern(e) {
+  // eslint-disable-next-line no-underscore-dangle
+  let pattern = '^.';
+  let nextTile = getNextTile.value(e.target);
+  while (nextTile) {
+    pattern += nextTile.value.toLowerCase() || '.';
+    nextTile = getNextTile.value(nextTile);
+  }
+  pattern += '$';
+  regexPattern.value = new RegExp(pattern);
 }
 
 // STYLE HANDLERS
@@ -125,5 +139,8 @@ function onInputLetter(e) {
   width: fit-content;
   margin: 0 auto auto;
   border: 0.2rem solid black;
+}
+p{
+  font-size: 2rem;
 }
 </style>

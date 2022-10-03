@@ -2,7 +2,6 @@
   <div>
     <button @click="clearLocalStorage">CLEAR</button>
     <button @click="getWordList">GET WORDS LIST</button>
-    <button @click="generateRegexPattern([null, null, 'a', 'b', null])">GENERATE REGEX</button>
     <div id="word-list-container">
       <ul v-if="wordList.length > 0" >
         <li v-for="word in wordList" :key="word">{{word}}</li>
@@ -16,7 +15,7 @@
 import fetchDictionary from '@/utils/fetch';
 import { ENG_DICTIONARY_URL } from '@/constants';
 import { ref, watch, watchEffect } from 'vue';
-import { generateRegexPattern } from '@/utils/generateRegexPattern';
+// import { generateRegexPattern } from '@/utils/generateRegexPattern';
 
 const wordList = ref([]);
 // FOR DEBUG
@@ -42,9 +41,14 @@ watchEffect(() => {
   saveDictionary();
 });
 
-const PATTERN = /^ma...$/;
+const props = defineProps({ pattern: RegExp });
+
+// const PATTERN = /^ma...$/;
+
+watch(() => props.pattern, () => { console.log(props.pattern, 'PATT'); });
+
 function getWordList() {
-  const res = JSON.parse(window.localStorage.getItem('engDict')).filter((word) => PATTERN.test(word));
+  const res = JSON.parse(window.localStorage.getItem('engDict')).filter((word) => props.pattern.test(word));
   wordList.value = res;
 }
 
