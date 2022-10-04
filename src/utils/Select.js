@@ -1,7 +1,7 @@
 export function selectNextNthElement(el) {
   if (el && el.parentElement.nextElementSibling) {
-    const colNr = el.id.split('-')[0] - 1;
-    return el.parentElement.nextElementSibling.children[colNr];
+    const colNum = el.id.split('-')[0] - 1;
+    return el.parentElement.nextElementSibling.children[colNum];
   }
   return null;
 }
