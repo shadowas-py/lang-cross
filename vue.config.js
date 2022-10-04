@@ -2,6 +2,7 @@
 
 module.exports = {
   transpileDependencies: true,
+  publicPath: '/lang-cross/',
   chainWebpack: (config) => {
     config.module
       .rule('vue')

@@ -3,8 +3,8 @@
     <button @click="clearLocalStorage">CLEAR</button>
     <button @click="getWordList">GET WORDS LIST</button>
     <div id="word-list-container">
-      <ul v-if="wordList.length > 0" >
-        <li v-for="word in wordList" :key="word">{{word}}</li>
+      <ul v-if="wordList.length > 0">
+        <li v-for="word in wordList" :key="word">{{ word }}</li>
       </ul>
       <p v-else>NOTHING TO SHOW</p>
     </div>
@@ -13,13 +13,16 @@
 
 <script setup>
 import fetchDictionary from '@/utils/fetch';
-import { ENG_DICTIONARY_URL } from '@/constants';
 import { ref, watch, watchEffect } from 'vue';
 
 // FETCHING DATA
 function saveDictionary() {
   if (!window.localStorage.getItem('engDict')) {
-    fetchDictionary(ENG_DICTIONARY_URL).then((res) => {
+    // github.com/shadowas-py/lang-cross.git
+    fetchDictionary(
+      'https://raw.githubusercontent.com/shadowas-py/lang-cross/gh-pages/exampleDict.txt',
+    ).then((res) => {
+      console.log(res);
       if (res) {
         window.localStorage.setItem('engDict', JSON.stringify(res));
       }
@@ -41,7 +44,12 @@ function getWordList() {
   wordList.value = res;
 }
 
-watch(() => props.pattern, () => { getWordList(); });
+watch(
+  () => props.pattern,
+  () => {
+    getWordList();
+  },
+);
 
 // FOR DEBUG
 function clearLocalStorage() {
@@ -50,14 +58,14 @@ function clearLocalStorage() {
 </script>
 
 <style scoped>
-  #word-list-container *{
-    font-size: 1.5rem;
-    margin: 0 3rem;
-  }
-  #word-list-container {
-    max-height: 10rem;
-    background:darkslateblue;
-    color:white;
-    overflow:scroll;
-  }
+#word-list-container * {
+  font-size: 1.5rem;
+  margin: 0 3rem;
+}
+#word-list-container {
+  max-height: 10rem;
+  background: darkslateblue;
+  color: white;
+  overflow: scroll;
+}
 </style>
