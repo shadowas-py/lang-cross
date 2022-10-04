@@ -2,6 +2,7 @@
 
 module.exports = {
   transpileDependencies: true,
+  publicPath: '/csw-sandbox/',
   chainWebpack: (config) => {
     config.module
       .rule('vue')
