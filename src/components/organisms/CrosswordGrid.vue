@@ -1,11 +1,9 @@
-<!-- eslint-disable vuejs-accessibility/click-events-have-key-events -->
 <template>
   <div class="csw-grid-wrapper">
     <div
       class="csw-grid"
       @input="onInputLetter($event)"
-      @mousedown.left="onTileClick($event)"
-      @click.left="generateWordPattern"
+      @mousedown.left="setSelectedTile($event.target)"
       :style="{
         width: `${cswWrapperWidth}rem`,
         height: `${cswWrapperHeight}rem`,
@@ -17,16 +15,22 @@
           :key="`${col}-${row}`"
           :colNumber="col"
           :rowNumber="row"
-          @setLocked="stopDisplayWritingDirection"
-          @setActive="displayWritingDirection"
+          @focus="$event.target.select()"
+          @mouseup.left="
+            ($event) => {
+              if (selectedTile === $event.target) {
+                $event.target.select();
+              }
+            }
+          "
         />
       </div>
     </div>
-    <p>{{ highlightedTilesLength }}  {{regexPattern}}</p>
-    <WordSearchEngine :pattern="regexPattern"/>
+    <p>^{{ charsSequence }}$</p>
+    <WordSearchEngine :pattern="regexPattern" />
   </div>
 </template>
-
+@setLocked="stopDisplayWritingDirection" @setActive="displayWritingDirection"
 <script setup>
 import { TILE_SIZE_REM } from '@/constants';
 import { computed, ref } from 'vue';
@@ -47,69 +51,80 @@ const isHorizontal = ref(true);
 const getNextTile = computed(() => (isHorizontal.value ? selectNextSibling : selectNextNthElement));
 
 // pass this to dedicated component
-const highlightedTilesLength = ref(0);
-const regexPattern = ref();
-
+const charsSequence = ref('');
+const regexPattern = ref(/./);
 // SETTERS
 function toggleWritingDirection() {
   isHorizontal.value = !isHorizontal.value;
 }
-function generateWordPattern(e) {
-  // eslint-disable-next-line no-underscore-dangle
-  let pattern = '^.';
-  let nextTile = getNextTile.value(e.target);
-  while (nextTile) {
-    pattern += nextTile.value.toLowerCase() || '.';
-    nextTile = getNextTile.value(nextTile);
-  }
-  pattern += '$';
-  regexPattern.value = new RegExp(pattern);
+
+function generateWordPattern(target) {
+  // eslint-disable-next-line no-useless-concat
+  charsSequence.value += target.value.toLowerCase() || '.';
+  // console.log(regexPattern.value);
+}
+
+function setRegexPattern() {
+  regexPattern.value = new RegExp(`^${charsSequence.value}$`);
 }
 
 // STYLE HANDLERS
-function displayWritingDirection() {
-  highlightedTilesLength.value = 1;
-  let nextTile = getNextTile.value(selectedTile.value);
+function toggleWritingDirectionDisplay(target) {
+  if (target.classList.contains('direction-marking-tile')) {
+    target.classList.remove('direction-marking-tile');
+  } else {
+    target.classList.add('direction-marking-tile');
+  }
+}
+
+// MAIN HANDLER
+function iterateInGrid(startTarget, callbacks) {
+  let nextTile = getNextTile.value(startTarget);
   while (nextTile && !nextTile.classList.contains('locked-tile')) {
-    highlightedTilesLength.value += 1;
-    nextTile.classList.add('direction-marking-tile');
+    for (let i = 0; i < callbacks.length; i += 1) {
+      callbacks[i](nextTile);
+    }
     nextTile = getNextTile.value(nextTile);
   }
 }
 
-function stopDisplayWritingDirection(customTile = null) {
-  let nextTile = getNextTile.value(customTile || selectedTile.value);
-  if (customTile && customTile.classList.contains('direction-marking-tile')) {
-    highlightedTilesLength.value -= 1;
-  }
-  while (nextTile && !nextTile.classList.contains('locked-tile')) {
-    if (nextTile.classList.contains('direction-marking-tile')) {
-      highlightedTilesLength.value -= 1;
-    }
-    nextTile.classList.remove('direction-marking-tile');
-    nextTile = getNextTile.value(nextTile);
-  }
-}
+// watch(isHorizontal, (newSelected, oldSelected) => {
+//   console.log(newSelected, oldSelected, 'WRITING DIR');
+//   iterateInGrid(selectedTile.value, [toggleWritingDirectionDisplay]);
+//   // iterateInGrid(selectedTile.value, [toggleWritingDirectionDisplay]);
+// });
+
+// watch(selectedTile, (newSelected, oldSelected) => {
+//   // console.log(newSelected, oldSelected, 'SELECTED');
+
+// });
 
 // SELECTION HANDLERS
 function setSelectedTile(targetTile) {
+  charsSequence.value = targetTile.value.toLowerCase() || '.';
   if (!targetTile.readOnly) {
-    selectedTile.value = targetTile;
+    if (targetTile === selectedTile.value) {
+      iterateInGrid(selectedTile.value, [
+        toggleWritingDirectionDisplay,
+      ]);
+      toggleWritingDirection();
+      iterateInGrid(selectedTile.value, [
+        generateWordPattern,
+        toggleWritingDirectionDisplay,
+      ]);
+      // regexPattern.value = new RegExp(pattern);
+    } else {
+      iterateInGrid(selectedTile.value, [
+        toggleWritingDirectionDisplay,
+      ]);
+      selectedTile.value = targetTile;
+      iterateInGrid(selectedTile.value, [
+        generateWordPattern,
+        toggleWritingDirectionDisplay,
+      ]);
+      setRegexPattern();
+    }
   }
-}
-
-function onTileClick(e) {
-  if (selectedTile.value) {
-    stopDisplayWritingDirection();
-  }
-
-  if (selectedTile.value === e.target) {
-    toggleWritingDirection();
-  } else {
-    setSelectedTile(e.target);
-  }
-
-  displayWritingDirection();
 }
 
 function onInputLetter(e) {
@@ -120,9 +135,7 @@ function onInputLetter(e) {
   const nextTile = getNextTile.value(e.target);
   if (nextTile && !nextTile.readOnly) {
     nextTile.focus();
-    stopDisplayWritingDirection();
     setSelectedTile(nextTile);
-    displayWritingDirection();
   }
 }
 </script>
@@ -140,7 +153,7 @@ function onInputLetter(e) {
   margin: 0 auto auto;
   border: 0.2rem solid black;
 }
-p{
+p {
   font-size: 2rem;
 }
 </style>

@@ -42,12 +42,11 @@ watchEffect(() => {
 });
 
 const props = defineProps({ pattern: RegExp });
-
-// const PATTERN = /^ma...$/;
-
+// FOR DEBUG
 watch(() => props.pattern, () => { console.log(props.pattern, 'PATT'); });
 
 function getWordList() {
+  console.log(JSON.parse(window.localStorage.getItem('engDict')));
   const res = JSON.parse(window.localStorage.getItem('engDict')).filter((word) => props.pattern.test(word));
   wordList.value = res;
 }
