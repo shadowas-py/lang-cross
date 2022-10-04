@@ -5,6 +5,5 @@ export function generateRegexPattern(charList) {
     pattern += ch || '.';
   });
   pattern = new RegExp(pattern);
-  console.log(pattern);
   return pattern;
 }

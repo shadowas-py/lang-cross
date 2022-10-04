@@ -26,7 +26,6 @@
         />
       </div>
     </div>
-    <p>^{{ charsSequence }}$</p>
     <WordSearchEngine :pattern="regexPattern" />
   </div>
 </template>
@@ -38,6 +37,16 @@ import { selectNextNthElement, selectNextSibling } from '@/utils/select';
 import WordSearchEngine from '@/components/organisms/WordSearchEngine.vue';
 import CrosswordTile from '../atoms/CrosswordTile.vue';
 
+// MAIN DATA
+const selectedTile = ref(null);
+const isHorizontal = ref(true);
+const getNextTile = computed(() => (isHorizontal.value ? selectNextSibling : selectNextNthElement));
+
+function toggleWritingDirection() {
+  isHorizontal.value = !isHorizontal.value;
+}
+
+// RENDERING
 const props = defineProps({
   cswWidth: Number,
   cswHeight: Number,
@@ -46,30 +55,7 @@ const props = defineProps({
 const cswWrapperWidth = computed(() => props.cswWidth * TILE_SIZE_REM);
 const cswWrapperHeight = computed(() => props.cswHeight * TILE_SIZE_REM);
 
-const selectedTile = ref(null);
-const isHorizontal = ref(true);
-const getNextTile = computed(() => (isHorizontal.value ? selectNextSibling : selectNextNthElement));
-
-// pass this to dedicated component
-const charsSequence = ref('');
-const regexPattern = ref(/./);
-// SETTERS
-function toggleWritingDirection() {
-  isHorizontal.value = !isHorizontal.value;
-}
-
-function generateWordPattern(target) {
-  // eslint-disable-next-line no-useless-concat
-  charsSequence.value += target.value.toLowerCase() || '.';
-  // console.log(regexPattern.value);
-}
-
-function setRegexPattern() {
-  regexPattern.value = new RegExp(`^${charsSequence.value}$`);
-}
-
-// STYLE HANDLERS
-function toggleWritingDirectionDisplay(target) {
+function toggleDisplayingWritingDirection(target) {
   if (target.classList.contains('direction-marking-tile')) {
     target.classList.remove('direction-marking-tile');
   } else {
@@ -77,8 +63,20 @@ function toggleWritingDirectionDisplay(target) {
   }
 }
 
-// MAIN HANDLER
-function iterateInGrid(startTarget, callbacks) {
+// WORD SEARCH ENGINE HANDLERS
+const charsSequence = ref('.');
+const regexPattern = ref(/.*/);
+
+function generatePreRegexPattern(target) {
+  charsSequence.value += target.value.toLowerCase() || '.';
+}
+
+function applyRegexPattern() {
+  regexPattern.value = new RegExp(`^${charsSequence.value}$`);
+}
+
+// MAIN FUNCTIONS
+function forEachActiveTileInLine(startTarget, callbacks) {
   let nextTile = getNextTile.value(startTarget);
   while (nextTile && !nextTile.classList.contains('locked-tile')) {
     for (let i = 0; i < callbacks.length; i += 1) {
@@ -88,42 +86,25 @@ function iterateInGrid(startTarget, callbacks) {
   }
 }
 
-// watch(isHorizontal, (newSelected, oldSelected) => {
-//   console.log(newSelected, oldSelected, 'WRITING DIR');
-//   iterateInGrid(selectedTile.value, [toggleWritingDirectionDisplay]);
-//   // iterateInGrid(selectedTile.value, [toggleWritingDirectionDisplay]);
-// });
-
-// watch(selectedTile, (newSelected, oldSelected) => {
-//   // console.log(newSelected, oldSelected, 'SELECTED');
-
-// });
-
-// SELECTION HANDLERS
 function setSelectedTile(targetTile) {
   charsSequence.value = targetTile.value.toLowerCase() || '.';
   if (!targetTile.readOnly) {
     if (targetTile === selectedTile.value) {
-      iterateInGrid(selectedTile.value, [
-        toggleWritingDirectionDisplay,
-      ]);
+      forEachActiveTileInLine(selectedTile.value, [toggleDisplayingWritingDirection]);
       toggleWritingDirection();
-      iterateInGrid(selectedTile.value, [
-        generateWordPattern,
-        toggleWritingDirectionDisplay,
+      forEachActiveTileInLine(selectedTile.value, [
+        generatePreRegexPattern,
+        toggleDisplayingWritingDirection,
       ]);
-      // regexPattern.value = new RegExp(pattern);
     } else {
-      iterateInGrid(selectedTile.value, [
-        toggleWritingDirectionDisplay,
-      ]);
+      forEachActiveTileInLine(selectedTile.value, [toggleDisplayingWritingDirection]);
       selectedTile.value = targetTile;
-      iterateInGrid(selectedTile.value, [
-        generateWordPattern,
-        toggleWritingDirectionDisplay,
+      forEachActiveTileInLine(selectedTile.value, [
+        generatePreRegexPattern,
+        toggleDisplayingWritingDirection,
       ]);
-      setRegexPattern();
     }
+    applyRegexPattern();
   }
 }
 

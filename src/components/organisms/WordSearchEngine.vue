@@ -15,23 +15,13 @@
 import fetchDictionary from '@/utils/fetch';
 import { ENG_DICTIONARY_URL } from '@/constants';
 import { ref, watch, watchEffect } from 'vue';
-// import { generateRegexPattern } from '@/utils/generateRegexPattern';
 
-const wordList = ref([]);
-// FOR DEBUG
-const isThereDict = ref(false);
-watch(isThereDict, () => {
-  if (isThereDict.value) {
-    // console.log(window.localStorage.getItem('engDict'));
-  }
-});
-
+// FETCHING DATA
 function saveDictionary() {
   if (!window.localStorage.getItem('engDict')) {
     fetchDictionary(ENG_DICTIONARY_URL).then((res) => {
       if (res) {
         window.localStorage.setItem('engDict', JSON.stringify(res));
-        isThereDict.value = true;
       }
     });
   }
@@ -41,15 +31,17 @@ watchEffect(() => {
   saveDictionary();
 });
 
+// DISPLAYING WORD-CLUES
+const wordList = ref([]);
+
 const props = defineProps({ pattern: RegExp });
-// FOR DEBUG
-watch(() => props.pattern, () => { console.log(props.pattern, 'PATT'); });
 
 function getWordList() {
-  console.log(JSON.parse(window.localStorage.getItem('engDict')));
   const res = JSON.parse(window.localStorage.getItem('engDict')).filter((word) => props.pattern.test(word));
   wordList.value = res;
 }
+
+watch(() => props.pattern, () => { getWordList(); });
 
 // FOR DEBUG
 function clearLocalStorage() {
