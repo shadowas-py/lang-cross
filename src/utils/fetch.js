@@ -13,6 +13,6 @@ export default async function fetchDictionary(source) {
     return res;
   } catch (e) {
     console.error('ERROR:', e.message);
-    return null;
+    return [];
   }
 }

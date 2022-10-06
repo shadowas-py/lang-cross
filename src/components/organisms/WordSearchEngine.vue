@@ -14,13 +14,13 @@
 <script setup>
 import fetchDictionary from '@/utils/fetch';
 import { ref, watch, watchEffect } from 'vue';
+import { ENG_DICTIONARY_URL } from '@/constants';
 
 // FETCHING DATA
 function saveDictionary() {
   if (!window.localStorage.getItem('engDict')) {
-    // github.com/shadowas-py/lang-cross.git
     fetchDictionary(
-      'https://raw.githubusercontent.com/shadowas-py/lang-cross/gh-pages/exampleDict.txt',
+      ENG_DICTIONARY_URL,
     ).then((res) => {
       console.log(res);
       if (res) {
