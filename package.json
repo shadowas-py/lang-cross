@@ -1,6 +1,7 @@
 {
   "name": "lang-cross",
   "version": "0.1.0",
+  "homepage": "https://shadowas-py.github.io/lang-cross/",
   "private": true,
   "scripts": {
     "serve": "vue-cli-service serve",
