@@ -12,6 +12,7 @@ module.exports = {
     'no-debugger': process.env.NODE_ENV === 'production' ? 'warn' : 'off',
     indent: ['error', 2],
     'linebreak-style': 0,
+    'no-underscore-dangle': 'off',
   },
   globals: {
     $ref: 'readonly',
