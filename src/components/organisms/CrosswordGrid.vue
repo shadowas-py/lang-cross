@@ -26,7 +26,7 @@
         />
       </div>
     </div>
-    <p>{{ regexPattern }} and {{charsSequence}}</p>
+    <p>{{ regexPattern }} and {{ charsSequence }}</p>
     <WordSearchEngine :pattern="regexPattern" />
   </div>
 </template>
@@ -85,6 +85,8 @@ function toggleDisplayingWritingDirection(target) {
   }
 }
 
+// function toggleClass(target, className) {}
+
 // WORD SEARCH ENGINE HANDLERS
 const charsSequence = ref('');
 
@@ -99,6 +101,23 @@ function applyRegexPattern() {
 }
 
 // MAIN FUNCTIONS
+function iterateThroughGridLine(
+  _target,
+  _callbacks,
+  _stopCondition = true,
+  _getNextTile = getNextTile.value,
+  _args = {},
+) {
+  console.log('NEW FUNC', _args);
+  let target = _target;
+  do {
+    for (let i = 0; i < _callbacks.length; i += 1) {
+      _callbacks[i](target, { ..._args });
+    }
+    target = _getNextTile(target);
+  } while (target && _stopCondition);
+}
+
 function forEachTileInLine(startTarget, callbacks, reversed = false) {
   let _getNextTile;
   if (reversed) {
@@ -156,12 +175,16 @@ watch(selectedTile, (newTile, oldTile) => {
   charsSequence.value = newTile.value || '.';
   regexPattern.value = '';
   if (oldTile) {
-    forEachTileInLine(oldTile, [toggleDisplayingWritingDirection]);
+    // forEachTileInLine(oldTile, [toggleDisplayingWritingDirection]);
+    iterateThroughGridLine(
+      oldTile,
+      [(target) => { target.classList.remove('direction-marking-tile'); }],
+      (target) => { target.classList.contains('locked-tile'); },
+    );
   }
   forEachTileInLine(newTile, [toggleDisplayingWritingDirection, generatePreRegexPattern]);
   applyRegexPattern();
 });
-
 </script>
 
 <style scoped>
