@@ -26,21 +26,23 @@
         />
       </div>
     </div>
-    <p>{{ regexPattern }} and {{ charsSequence }}</p>
+    <p></p>
     <WordSearchEngine :pattern="regexPattern" />
   </div>
 </template>
 <!-- @setLocked="stopDisplayWritingDirection" @setActive="displayWritingDirection" -->
 <script setup>
 import { TILE_SIZE_REM } from '@/constants';
-import { computed, ref, watch } from 'vue';
+import {
+  computed, ref, watch,
+} from 'vue';
 import { selectNextNthElement, selectNextSibling } from '@/utils/select';
 import WordSearchEngine from '@/components/organisms/WordSearchEngine.vue';
 import CrosswordTile from '../atoms/CrosswordTile.vue';
 
 // MAIN DATA
 const selectedTile = ref(null);
-// const activeElements = ref([]);
+const activeElementsIDs = ref([]);
 const isHorizontal = ref(true);
 const getNextTile = computed(() => (isHorizontal.value ? selectNextSibling : selectNextNthElement));
 
@@ -49,22 +51,18 @@ function toggleWritingDirection() {
 }
 
 // function addActiveElement(el) {
-//   activeElements.value.push(el);
+//   activeElementsIDs.value.push(el);
 // }
 
-// function resetActiveElements() {
-//   activeElements.value = [];
+// function resetactiveElementsIDs() {
+//   activeElementsIDs.value = [];
 // }
 
 // function sliceActiveTiles(startId, endId = null) {
-//   const selectedTileIndex = activeElements.value.indexOf(startId);
-//   const lastTileIndex = endId || activeElements.value.length;
-//   activeElements.value = activeElements.value.slice(selectedTileIndex, lastTileIndex);
+//   const selectedTileIndex = activeElementsIDs.value.indexOf(startId);
+//   const lastTileIndex = endId || activeElementsIDs.value.length;
+//   activeElementsIDs.value = activeElementsIDs.value.slice(selectedTileIndex, lastTileIndex);
 // }
-
-// watch(activeElements, (n, o) => {
-//   console.log(n, o);
-// });
 
 // RENDERING
 const props = defineProps({
@@ -85,7 +83,20 @@ function toggleDisplayingWritingDirection(target) {
   }
 }
 
-// function toggleClass(target, className) {}
+function toggleDisplayingSelectedBlock(target) {
+  if (target.classList.contains('selected-line')) {
+    console.log(target.id, 'HIDE BLOCK');
+    target.classList.remove('selected-line');
+  } else {
+    console.log(target.id, 'SHOW BLOCK');
+    target.classList.add('selected-line');
+  }
+}
+
+watch(activeElementsIDs, (n, o) => {
+  console.log('ACTIVE BLOCK CHANGE');
+  console.log(n.value, o.value);
+});
 
 // WORD SEARCH ENGINE HANDLERS
 const charsSequence = ref('');
@@ -158,16 +169,29 @@ function onLeftClick(e) {
   }
 }
 
+function* getIds(target) {
+  let nextTile = getNextTile.value(target);
+  yield target.id;
+  while (nextTile) {
+    yield nextTile.id;
+    nextTile = getNextTile.value(nextTile);
+  }
+}
+
 // MAIN WATCHERS
 watch(isHorizontal, () => {
   charsSequence.value = selectedTile.value.value.toLowerCase() || '.';
   regexPattern.value = '';
-  forEachTileInLine(selectedTile.value, [toggleDisplayingWritingDirection], true);
-  console.log(charsSequence.value);
+
+  forEachTileInLine(selectedTile.value, [toggleDisplayingWritingDirection,
+    toggleDisplayingSelectedBlock], true);
+
   forEachTileInLine(selectedTile.value, [
     generatePreRegexPattern,
     toggleDisplayingWritingDirection,
+    toggleDisplayingSelectedBlock,
   ]);
+  activeElementsIDs.value = Array.from(getIds(selectedTile.value));
   applyRegexPattern();
 });
 
@@ -183,6 +207,17 @@ watch(selectedTile, (newTile, oldTile) => {
     );
   }
   forEachTileInLine(newTile, [toggleDisplayingWritingDirection, generatePreRegexPattern]);
+  if (!activeElementsIDs.value.includes(newTile.id)) {
+    activeElementsIDs.value = Array.from(getIds(selectedTile.value));
+    forEachTileInLine(newTile, [toggleDisplayingSelectedBlock]);
+  } else if (activeElementsIDs.value.includes(newTile.id)
+  && activeElementsIDs.value.includes(newTile.id)) {
+    let nextTile = getNextTile(oldTile);
+    while (nextTile !== newTile) {
+      nextTile.classList.remove('active-block');
+      nextTile = getNextTile(nextTile);
+    }
+  }
   applyRegexPattern();
 });
 </script>

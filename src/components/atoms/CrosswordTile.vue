@@ -71,4 +71,7 @@ function toggleTileStatus(target) {
 .locked-tile.tile {
   background-color: black;
 }
+.selected-line {
+  border: 1px solid blue;
+}
 </style>
