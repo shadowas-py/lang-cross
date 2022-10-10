@@ -33,36 +33,22 @@
 <!-- @setLocked="stopDisplayWritingDirection" @setActive="displayWritingDirection" -->
 <script setup>
 import { TILE_SIZE_REM } from '@/constants';
-import {
-  computed, ref, watch,
-} from 'vue';
+import { computed, ref, watch } from 'vue';
 import { selectNextNthElement, selectNextSibling } from '@/utils/select';
 import WordSearchEngine from '@/components/organisms/WordSearchEngine.vue';
 import CrosswordTile from '../atoms/CrosswordTile.vue';
 
 // MAIN DATA
 const selectedTile = ref(null);
-const activeElementsIDs = ref([]);
 const isHorizontal = ref(true);
 const getNextTile = computed(() => (isHorizontal.value ? selectNextSibling : selectNextNthElement));
+
+const activeElementsIDs = ref([]);
+const firstTileInSelectedBlock = ref(null);
 
 function toggleWritingDirection() {
   isHorizontal.value = !isHorizontal.value;
 }
-
-// function addActiveElement(el) {
-//   activeElementsIDs.value.push(el);
-// }
-
-// function resetactiveElementsIDs() {
-//   activeElementsIDs.value = [];
-// }
-
-// function sliceActiveTiles(startId, endId = null) {
-//   const selectedTileIndex = activeElementsIDs.value.indexOf(startId);
-//   const lastTileIndex = endId || activeElementsIDs.value.length;
-//   activeElementsIDs.value = activeElementsIDs.value.slice(selectedTileIndex, lastTileIndex);
-// }
 
 // RENDERING
 const props = defineProps({
@@ -75,35 +61,18 @@ const cswWrapperHeight = computed(() => props.cswHeight * TILE_SIZE_REM);
 
 function toggleDisplayingWritingDirection(target) {
   if (target.classList.contains('direction-marking-tile')) {
-    console.log(target.id, 'HIDE');
     target.classList.remove('direction-marking-tile');
   } else {
-    console.log(target.id, 'SHOW');
     target.classList.add('direction-marking-tile');
   }
 }
 
-function toggleDisplayingSelectedBlock(target) {
-  if (target.classList.contains('selected-line')) {
-    console.log(target.id, 'HIDE BLOCK');
-    target.classList.remove('selected-line');
-  } else {
-    console.log(target.id, 'SHOW BLOCK');
-    target.classList.add('selected-line');
-  }
-}
-
-watch(activeElementsIDs, (n, o) => {
-  console.log('ACTIVE BLOCK CHANGE');
-  console.log(n.value, o.value);
-});
-
-// WORD SEARCH ENGINE HANDLERS
+// WORD SEARCH HANDLERS
 const charsSequence = ref('');
-
 const regexPattern = ref(/.*/);
 
-function generatePreRegexPattern(target) {
+function addToCharsSequence(target) {
+  console.log(target.id);
   charsSequence.value += target.value.toLowerCase() || '.';
 }
 
@@ -112,14 +81,13 @@ function applyRegexPattern() {
 }
 
 // MAIN FUNCTIONS
-function iterateThroughGridLine(
+function iterateCrosswordTiles(
   _target,
   _callbacks,
   _stopCondition = true,
   _getNextTile = getNextTile.value,
   _args = {},
 ) {
-  console.log('NEW FUNC', _args);
   let target = _target;
   do {
     for (let i = 0; i < _callbacks.length; i += 1) {
@@ -149,11 +117,17 @@ function setSelectedTile(targetTile) {
   selectedTile.value = targetTile;
 }
 
+function* getIds(target) {
+  let nextTile = getNextTile.value(target);
+  yield target.id;
+  while (nextTile) {
+    yield nextTile.id;
+    nextTile = getNextTile.value(nextTile);
+  }
+}
 // EVENT HANDLERS
 function onInputLetter(e) {
-  if (e.data) {
-    e.target.value = e.data.toUpperCase();
-  }
+  e.target.value = e.data.toUpperCase();
   const nextTile = getNextTile.value(e.target);
   if (nextTile && !nextTile.readOnly) {
     setSelectedTile(nextTile);
@@ -169,55 +143,120 @@ function onLeftClick(e) {
   }
 }
 
-function* getIds(target) {
-  let nextTile = getNextTile.value(target);
-  yield target.id;
-  while (nextTile) {
-    yield nextTile.id;
-    nextTile = getNextTile.value(nextTile);
-  }
-}
-
 // MAIN WATCHERS
+
+// ON WRITING DIRECTION CHANGE
 watch(isHorizontal, () => {
+  // BEFORE CHANGE
   charsSequence.value = selectedTile.value.value.toLowerCase() || '.';
   regexPattern.value = '';
 
-  forEachTileInLine(selectedTile.value, [toggleDisplayingWritingDirection,
-    toggleDisplayingSelectedBlock], true);
+  if (firstTileInSelectedBlock.value) {
+    iterateCrosswordTiles(
+      firstTileInSelectedBlock.value,
+      [
+        (target) => {
+          target.classList.remove('selected-line');
+        },
+      ],
+      (target) => {
+        target.classList.contains('locked-tile');
+      },
+      isHorizontal.value ? selectNextNthElement : selectNextSibling,
+    );
+  }
+  forEachTileInLine(
+    selectedTile.value,
+    [(target) => target.classList.remove('direction-marking-tile')],
+    true,
+  );
+  // ON CHANGE
+  firstTileInSelectedBlock.value = selectedTile.value;
 
-  forEachTileInLine(selectedTile.value, [
-    generatePreRegexPattern,
-    toggleDisplayingWritingDirection,
-    toggleDisplayingSelectedBlock,
-  ]);
+  // AFTER CHANGE
+  iterateCrosswordTiles(
+    selectedTile.value,
+    [
+      (target) => {
+        target.classList.add('selected-line');
+      },
+    ],
+    (target) => {
+      target.classList.contains('locked-tile');
+    },
+  );
+
+  forEachTileInLine(selectedTile.value, [addToCharsSequence, toggleDisplayingWritingDirection]);
   activeElementsIDs.value = Array.from(getIds(selectedTile.value));
   applyRegexPattern();
 });
 
+// ON ACTIVE TILE  CHANGE
 watch(selectedTile, (newTile, oldTile) => {
-  charsSequence.value = newTile.value || '.';
+  // BEFORE CHANGE
+  charsSequence.value = '';
   regexPattern.value = '';
+  if (activeElementsIDs.value.length === 0 || !activeElementsIDs.value.includes(newTile.id)) {
+    if (firstTileInSelectedBlock.value) {
+      iterateCrosswordTiles(
+        firstTileInSelectedBlock.value,
+        [
+          (target) => {
+            target.classList.remove('selected-line');
+          },
+        ],
+        (target) => {
+          target.classList.contains('locked-tile');
+        },
+      );
+    }
+
+    // ON CHANGE
+    firstTileInSelectedBlock.value = selectedTile.value;
+
+    iterateCrosswordTiles(
+      selectedTile.value,
+      [
+        (target) => {
+          target.classList.add('selected-line');
+        },
+      ],
+      (target) => {
+        target.classList.contains('locked-tile');
+      },
+    );
+    activeElementsIDs.value = Array.from(getIds(selectedTile.value));
+  }
+
+  iterateCrosswordTiles(firstTileInSelectedBlock.value, [addToCharsSequence]);
+  // REMOVE STYLE
   if (oldTile) {
-    // forEachTileInLine(oldTile, [toggleDisplayingWritingDirection]);
-    iterateThroughGridLine(
+    console.log('THIS');
+    iterateCrosswordTiles(
       oldTile,
-      [(target) => { target.classList.remove('direction-marking-tile'); }],
-      (target) => { target.classList.contains('locked-tile'); },
+      [
+        (target) => {
+          target.classList.remove('direction-marking-tile');
+        },
+      ],
+      (target) => {
+        target.classList.contains('locked-tile');
+      },
     );
   }
-  forEachTileInLine(newTile, [toggleDisplayingWritingDirection, generatePreRegexPattern]);
-  if (!activeElementsIDs.value.includes(newTile.id)) {
-    activeElementsIDs.value = Array.from(getIds(selectedTile.value));
-    forEachTileInLine(newTile, [toggleDisplayingSelectedBlock]);
-  } else if (activeElementsIDs.value.includes(newTile.id)
-  && activeElementsIDs.value.includes(newTile.id)) {
-    let nextTile = getNextTile(oldTile);
-    while (nextTile !== newTile) {
-      nextTile.classList.remove('active-block');
-      nextTile = getNextTile(nextTile);
-    }
-  }
+
+  // ADD STYLE
+  iterateCrosswordTiles(
+    newTile,
+    [
+      (target) => {
+        target.classList.add('direction-marking-tile');
+      },
+    ],
+    (target) => {
+      target.classList.contains('locked-tile');
+    },
+  );
   applyRegexPattern();
 });
 </script>
@@ -230,11 +269,13 @@ watch(selectedTile, (newTile, oldTile) => {
   margin: 0;
   width: fit-content;
 }
+
 .csw-grid-wrapper {
   width: fit-content;
   margin: 0 auto auto;
   border: 0.2rem solid black;
 }
+
 p {
   font-size: 2rem;
 }
