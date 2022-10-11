@@ -26,11 +26,4 @@ module.exports = {
     $customRef: 'readonly',
     $toRef: 'readonly',
   },
-
-  extends: [
-    'plugin:vue/vue3-essential',
-    '@vue/airbnb',
-    '@vue/typescript/recommended',
-    '@vue/typescript',
-  ],
 };
