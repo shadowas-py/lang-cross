@@ -8,21 +8,22 @@
   <GridGeneratorForm v-if="!cswGridVisible" @onCswGridParams="generateCswGrid" />
 </template>
 
-<script setup>
+<script lang="ts" setup>
 import GridGeneratorForm from '@/components/organisms/GridGeneratorForm.vue';
 import CrosswordGrid from '@/components/organisms/CrosswordGrid.vue';
+import { ref } from 'vue';
 
-let cswWidth = $ref(15);
-let cswHeight = $ref(15);
-let cswGridVisible = $ref(false);
-let cswColor = $ref('#9595FF');
+const cswWidth = ref(15);
+const cswHeight = ref(15);
+const cswGridVisible = ref(false);
+const cswColor = ref('#9595FF');
 
 function setCswGridVisible() {
-  cswGridVisible = true;
+  cswGridVisible.value = true;
 }
 
-function generateCswGrid(val) {
-  [cswWidth, cswHeight, cswColor] = val;
+function generateCswGrid(val:[number, number, string]) {
+  [cswWidth.value, cswHeight.value, cswColor.value] = val;
   setCswGridVisible();
 }
 </script>

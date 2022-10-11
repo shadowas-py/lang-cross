@@ -5,7 +5,7 @@
   <router-view />
 </template>
 
-<script setup></script>
+<script lang='ts' setup></script>
 
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Patrick+Hand&display=swap');

@@ -6,9 +6,11 @@
 </template>
 
 <script setup>
+import { ref } from 'vue';
+
 const props = defineProps({ field: Object });
 
-const localField = $ref(props.field);
+const localField = ref(props.field);
 </script>
 
 <style scoped>

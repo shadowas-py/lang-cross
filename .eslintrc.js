@@ -18,12 +18,4 @@ module.exports = {
     'linebreak-style': 0,
     'no-underscore-dangle': 'off',
   },
-
-  globals: {
-    $ref: 'readonly',
-    $computed: 'readonly',
-    $shallowRef: 'readonly',
-    $customRef: 'readonly',
-    $toRef: 'readonly',
-  },
 };
