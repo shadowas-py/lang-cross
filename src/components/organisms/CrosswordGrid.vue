@@ -143,9 +143,11 @@ function onInputLetter(e:InputEvent) {
 }
 
 function onLeftClick(e:Event) {
-  if (e.target as HTMLInputElement === selectedTile.value) {
+  // eslint-disable-next-line eqeqeq
+  console.log(e.target, selectedTile.value);
+  if (e.target === selectedTile.value) {
     toggleWritingDirection();
-  } else if (e.target && (e.target as HTMLInputElement).readOnly) {
+  } else if (e.target && !(e.target as HTMLInputElement).readOnly) {
     setSelectedTile(e.target as HTMLInputElement);
   }
 }
