@@ -45,6 +45,10 @@ const getNextTile = computed(() => (isHorizontal.value ? selectNextSibling : sel
 const activeElementsIDs: Ref<string[]> = ref([]);
 const firstTileInSelectedBlock: Ref<HTMLInputElement | undefined | null> = ref();
 
+function isTileLocked(target:HTMLInputElement) {
+  return target.classList.contains('locked-tile');
+}
+
 function toggleWritingDirection() {
   isHorizontal.value = !isHorizontal.value;
 }
@@ -58,20 +62,11 @@ const props = defineProps({
 const cswWrapperWidth = computed(() => Number(props.cswWidth) * TILE_SIZE_REM);
 const cswWrapperHeight = computed(() => Number(props.cswHeight) * TILE_SIZE_REM);
 
-function toggleDisplayingWritingDirection(target: HTMLElement) {
-  if (target.classList.contains('direction-marking-tile')) {
-    target.classList.remove('direction-marking-tile');
-  } else {
-    target.classList.add('direction-marking-tile');
-  }
-}
-
 // WORD SEARCH HANDLERS
 const charsSequence = ref('');
 const regexPattern: Ref<RegExp> = ref(/.*/);
 
 function addToCharsSequence(target: HTMLInputElement) {
-  console.log(target.id);
   charsSequence.value += target.value.toLowerCase() || '.';
 }
 
@@ -83,38 +78,15 @@ function applyRegexPattern() {
 
 function iterateCrosswordTiles(
   _target: HTMLInputElement,
-  _callbacks: [(target: HTMLInputElement, args: object) => void],
-  _stopCondition: boolean | ((arg: HTMLInputElement) => boolean) = true,
+  _callback: (target: HTMLInputElement) => void,
+  _stopCondition:((arg: HTMLInputElement) => boolean) = () => false,
   _getNextTile: (arg: HTMLInputElement) => HTMLInputElement | null = getNextTile.value,
-  _args: object = {},
 ) {
   let target: HTMLInputElement | null = _target;
   do {
-    for (let i = 0; i < _callbacks.length; i += 1) {
-      _callbacks[i](target, { ..._args });
-    }
+    _callback(target);
     target = _getNextTile(target);
-  } while (target && _stopCondition);
-}
-
-function forEachTileInLine(
-  startTarget: HTMLInputElement,
-  callbacks: ((arg: HTMLInputElement) => void)[],
-  reversed = false,
-) {
-  let _getNextTile;
-  if (reversed) {
-    _getNextTile = !isHorizontal.value ? selectNextSibling : selectNextNthElement;
-  } else {
-    _getNextTile = getNextTile.value;
-  }
-  let nextTile = _getNextTile(startTarget);
-  while (nextTile && !nextTile.classList.contains('locked-tile')) {
-    for (let i = 0; i < callbacks.length; i += 1) {
-      callbacks[i](nextTile);
-    }
-    nextTile = _getNextTile(nextTile);
-  }
+  } while (target && !isTileLocked(target) && !_stopCondition(target));
 }
 
 function setSelectedTile(targetTile: HTMLInputElement | null) {
@@ -148,117 +120,94 @@ function onLeftClick(e: MouseEvent) {
 }
 
 // MAIN WATCHERS
-
 // ON WRITING DIRECTION CHANGE
 watch(isHorizontal, () => {
-  // BEFORE CHANGE
-  if (selectedTile.value) {
-    charsSequence.value = selectedTile.value.value.toLowerCase() || '.';
-  }
+  // INITIAL VALUES
+  charsSequence.value = '';
   regexPattern.value = /''/;
+
   if (firstTileInSelectedBlock.value) {
     iterateCrosswordTiles(
       firstTileInSelectedBlock.value,
-      [
-        (target) => {
-          target.classList.remove('selected-line');
-        },
-      ],
-      (target) => target.classList.contains('locked-tile'),
+      (target) => target.classList.remove('selected-line'),
+      undefined,
       isHorizontal.value ? selectNextNthElement : selectNextSibling,
     );
   }
-  forEachTileInLine(
+  // REMOVE STYLE
+  iterateCrosswordTiles(
     selectedTile.value as HTMLInputElement,
-    [(target) => target.classList.remove('direction-marking-tile')],
-    true,
+    (target) => target.classList.remove('direction-marking-tile'),
+    undefined,
+    isHorizontal.value ? selectNextNthElement : selectNextSibling,
   );
-  // ON CHANGE
-
-  firstTileInSelectedBlock.value = selectedTile.value;
 
   // AFTER CHANGE
   iterateCrosswordTiles(
     selectedTile.value as HTMLInputElement,
-    [
-      (target) => {
-        target.classList.add('selected-line');
-      },
-    ],
-    (target) => target.classList.contains('locked-tile'),
+    (target) => target.classList.add('selected-line'),
   );
 
-  forEachTileInLine(selectedTile.value as HTMLInputElement, [
-    addToCharsSequence,
-    toggleDisplayingWritingDirection,
-  ]);
+  iterateCrosswordTiles(
+    selectedTile.value as HTMLInputElement,
+    (target) => {
+      addToCharsSequence(target);
+      (() => target.classList.add('direction-marking-tile'))();
+    },
+  );
   activeElementsIDs.value = Array.from(getIds(selectedTile.value as HTMLInputElement));
   applyRegexPattern();
 });
 
-// ON ACTIVE TILE  CHANGE
+// ON ACTIVE TILE CHANGE
 watch(
   selectedTile as Ref<HTMLInputElement>,
   (newTile: HTMLInputElement, oldTile: HTMLInputElement | null) => {
-    // BEFORE CHANGE
+    // INITIAL VALUES
     charsSequence.value = '';
     regexPattern.value = /''/;
-    if (activeElementsIDs.value.length === 0 || !activeElementsIDs.value.includes(newTile.id)) {
-      if (firstTileInSelectedBlock.value) {
-        iterateCrosswordTiles(
-          firstTileInSelectedBlock.value,
-          [
-            (target) => {
-              target.classList.remove('selected-line');
-            },
-          ],
-          (target) => target.classList.contains('locked-tile'),
-        );
-      }
 
-      // ON CHANGE
+    // ADD STYLE
+    iterateCrosswordTiles(
+      newTile,
+      (target) => target.classList.add('selected-line'),
+      (target) => target.classList.contains('selected-line'),
+    );
+
+    // REMOVE STYLE
+    if (!activeElementsIDs.value.includes(newTile.id)) {
       firstTileInSelectedBlock.value = selectedTile.value;
-
-      iterateCrosswordTiles(
-        selectedTile.value as HTMLInputElement,
-        [
-          (target) => {
-            target.classList.add('selected-line');
-          },
-        ],
-        (target) => target.classList.contains('locked-tile'),
-      );
-      activeElementsIDs.value = Array.from(getIds(selectedTile.value as HTMLInputElement));
     }
 
-    iterateCrosswordTiles(firstTileInSelectedBlock.value as HTMLInputElement, [addToCharsSequence]);
+    iterateCrosswordTiles(firstTileInSelectedBlock.value as HTMLInputElement, addToCharsSequence);
     // REMOVE STYLE
     if (oldTile) {
-      console.log('THIS');
       iterateCrosswordTiles(
         oldTile,
-        [
-          (target) => {
-            target.classList.remove('direction-marking-tile');
-          },
-        ],
-        (target) => target.classList.contains('locked-tile'),
+        (target) => target.classList.remove('direction-marking-tile'),
       );
     }
 
     // ADD STYLE
     iterateCrosswordTiles(
       newTile,
-      [
-        (target) => {
-          target.classList.add('direction-marking-tile');
-        },
-      ],
-      (target) => target.classList.contains('locked-tile'),
+      (target) => {
+        target.classList.add('direction-marking-tile');
+      },
     );
     applyRegexPattern();
   },
 );
+
+watch(firstTileInSelectedBlock, (newTile, oldTile) => {
+  activeElementsIDs.value = Array.from(getIds(selectedTile.value as HTMLInputElement));
+  if (oldTile && !activeElementsIDs.value.includes(oldTile.id)) {
+    iterateCrosswordTiles(
+      oldTile,
+      (target) => target.classList.remove('selected-line'),
+    );
+  }
+});
 </script>
 
 <style scoped>
