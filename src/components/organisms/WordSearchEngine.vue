@@ -31,6 +31,7 @@ function saveDictionary() {
 }
 
 watchEffect(() => {
+  console.log('SAVE DICTIONARY');
   saveDictionary();
 });
 

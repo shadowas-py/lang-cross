@@ -4,12 +4,6 @@ module.exports = {
   transpileDependencies: true,
   publicPath: '/lang-cross/',
   chainWebpack: (config) => {
-    config.module
-      .rule('vue')
-      .use('vue-loader')
-      .tap((options) => ({
-        ...options,
-        reactivityTransform: true,
-      }));
+    config.module.rule('vue').use('vue-loader');
   },
 };

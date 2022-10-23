@@ -3,7 +3,7 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, defineEmits, defineProps } from 'vue';
 
 const props = defineProps({ inputFields: Array });
 const emit = defineEmits(['onCswGridParams']);

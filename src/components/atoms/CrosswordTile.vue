@@ -13,8 +13,10 @@
 </template>
 
 <script setup>
-import { F_TILE_SIZE_REM } from '@/constants';
-import { computed, ref } from 'vue';
+import {
+  computed, ref, defineEmits, defineProps,
+} from 'vue';
+import { F_TILE_SIZE_REM } from '@/constants.ts';
 
 const props = defineProps({
   colNumber: Number,
