@@ -154,7 +154,7 @@ watch(isHorizontal, () => {
       isHorizontal.value ? selectNextNthElement : selectNextSibling,
     );
   }
-  
+
   firstTileInSelectedBlock.value = selectedTile.value
 
   iterateCrosswordTiles(
@@ -194,17 +194,12 @@ watch(
 
     // REMOVE STYLE
     if (!activeElementsIDs.value.includes(newTile.id)) {
-      console.log('CHANGE FIRST TILE')
       firstTileInSelectedBlock.value = selectedTile.value;
     }
-
     iterateCrosswordTiles(firstTileInSelectedBlock.value as HTMLInputElement, addToCharsSequence);
-    // REMOVE STYLE
     if (oldTile) {
       iterateCrosswordTiles(oldTile, (target) => removeStyle(target, 'direction-marking-tile'));
-
     }
-
     // ADD STYLE
     iterateCrosswordTiles(newTile, (target) => {
       addStyle(target, 'direction-marking-tile');
@@ -216,29 +211,10 @@ watch(
 watch(firstTileInSelectedBlock, (newTile, oldTile) => {
   activeElementsIDs.value = Array.from(getIds(selectedTile.value as HTMLInputElement));
   if (oldTile && !activeElementsIDs.value.includes(oldTile.id)) {
-    
     console.log('REMOVE AFTER CHANGE FIRST')
     iterateCrosswordTiles(oldTile, (target) => removeStyle(target, 'selected-line'));
   }
 });
-
-// watch(activeElementsIDs, (newElements, oldElements) =>{
-//   // console.log(newElements, oldElements, 'CHANGES')
-//   firstTileInSelectedBlock.value = newElements[0]
-//   previousTileInSelectedBlock 
-//   if (newElements[0] !== oldElements[0]){
-//     console.log('FIRST TILE CHANGED')
-//     if (oldElements.includes(newElements[0])){
-//       iterateCrosswordTiles(oldElements[0], (target) => removeStyle(target, 'selected-line'),undefined,isHorizontal.value ?
-//       selectNextNthElement : selectNextSibling)
-//     }
-//       // REMOVE FROM LAST FIRST TILE in reversed direction
-//       else{
-//         // STANDARD
-//       }
-
-//   }
-// })
 </script>
 
 <style scoped>
