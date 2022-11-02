@@ -71,7 +71,7 @@ function toggleTileStatus(target) {
 .locked-tile.tile {
   background-color: black;
 }
-.selected-line {
+.selected-to-word-search{
   border: 1px solid blue;
 }
 </style>
