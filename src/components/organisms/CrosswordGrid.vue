@@ -75,9 +75,9 @@ function addStyle(element: HTMLElement, classNames: string[]) {
 }
 function removeStyle(element: HTMLElement, classNames: string[]) {
   // if (classNames === 'selected-line') {
-  //   // console.log('REMOVE', className, element?.id);
+  console.log('REMOVE', classNames, element?.id);
   // }
-  console.log(classNames, 'REMOVE', element.id);
+  // console.log(classNames, 'REMOVE', element.id);
   classNames.forEach((cls) => {
     element.classList.remove(cls);
   });
@@ -96,6 +96,7 @@ function applyRegexPattern() {
 }
 
 function addToWordSearchTilesIds(target: HTMLInputElement) {
+  // console.log('add>>>>', target.id);
   wordSearchTilesIds.value.push(target.id);
 }
 
@@ -135,25 +136,26 @@ function* getIds(target: HTMLInputElement) {
 // EVENT HANDLERS
 
 function mainEventHandler(target: EventTarget) {
-  console.log('MAIN ');
-  // SETTING OLD NEW
+  console.log('===MAIN===');
   prevSelectedTile.value = selectedTile.value;
   selectedTile.value = target as HTMLInputElement;
-  if (
-    firstWordSearchTile.value
-    && !wordSearchTilesIds.value.includes(firstWordSearchTile.value.id)
+  // console.log(firstWordSearchTile.value?.id, wordSearchTilesIds.value, 'BEFORE');
+  // console.log(wordSearchTilesIds.value.includes(firstWordSearchTile.value?.id as any));
+  if (!wordSearchTilesIds.value.includes(selectedTile.value.id)
   ) {
-    // SETTING OLD NEW
-    console.log('CLICK OUTSIDE');
+    // TO OPT.
+    wordSearchTilesIds.value = [];
+    charsSequence.value = '';
+
+    console.log('SETUP IF firstWordSearchTile change');
     prevFirstWordSearchTile.value = firstWordSearchTile.value;
     firstWordSearchTile.value = target as HTMLInputElement;
     iterateCrosswordTiles(firstWordSearchTile.value, addToSearchPattern);
     iterateCrosswordTiles(firstWordSearchTile.value, addToWordSearchTilesIds); // OPT.
   }
-
   if (prevSelectedTile.value) {
     if (selectedTile.value === prevSelectedTile.value) {
-      console.log('CLICK SAME TWICE');
+      console.log('CLICK SAME');
       iterateCrosswordTiles(getNextTile.value(prevSelectedTile.value), removeStyle, [
         'direction-marking-tile', 'selected-to-word-search',
       ]);
@@ -187,21 +189,21 @@ function mainEventHandler(target: EventTarget) {
         (t) => t.classList.contains('direction-marking-tile'),
       );
       iterateCrosswordTiles(
-        firstWordSearchTile.value,
+        selectedTile.value,
         addStyle,
         ['selected-to-word-search'],
         (t) => t.classList.contains('selected-to-word-search'),
       );
-    }
-    if (
-      prevFirstWordSearchTile.value
-      && !wordSearchTilesIds.value.includes(prevFirstWordSearchTile.value.id)
-    ) {
-      console.log('clear prev selected block');
-      iterateCrosswordTiles(prevFirstWordSearchTile.value, removeStyle, [
-        'selected-to-word-search',
-        'direction-marking-tile',
-      ]); // FIX:zmienionyKier??
+      console.log(wordSearchTilesIds.value, 'WORD SEARCH TILES IDS', prevFirstWordSearchTile.value?.id);
+      if (prevFirstWordSearchTile.value
+        && !wordSearchTilesIds.value.includes(prevFirstWordSearchTile.value.id)
+      ) {
+        console.log('CLICK OUTSIDE SEC');
+        iterateCrosswordTiles(prevFirstWordSearchTile.value, removeStyle, [
+          'selected-to-word-search',
+          'direction-marking-tile',
+        ]); // FIX:zmienionyKier??
+      }
     }
   } else {
     console.log('FIRST CLICK ');
