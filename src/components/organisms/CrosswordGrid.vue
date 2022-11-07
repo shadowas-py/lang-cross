@@ -13,6 +13,8 @@
           :colNumber="col"
           :rowNumber="row"
           @focus="$event.target.select()"
+          @setActive='handleEmit'
+          @setLocked='handleEmit'
         />
       </div>
     </div>
@@ -20,13 +22,14 @@
     <WordSearchEngine :pattern="regexPattern" />
   </div>
 </template>
-<!-- @setLocked="stopDisplayWritingDirection" @setActive="displayWritingDirection" -->
 <script lang="ts" setup>
 import { TILE_SIZE_REM } from '@/constants';
 import {
-  computed, Ref, ref, watch,
+  computed, Ref, ref,
 } from 'vue';
-import { selectNextNthElement, selectNextSibling } from '@/utils/select';
+import {
+  selectNextNthElement, selectNextSibling, selectPrevNthElement, selectPrevSibling,
+} from '@/utils/select';
 import WordSearchEngine from '@/components/organisms/WordSearchEngine.vue';
 import CrosswordTile from '../atoms/CrosswordTile.vue';
 
@@ -40,11 +43,14 @@ const prevFirstWordSearchTile: Ref<null | HTMLInputElement> = ref(null);
 
 const isHorizontal = ref(true);
 const getNextTile = computed(() => (isHorizontal.value ? selectNextSibling : selectNextNthElement));
+const getPrevTile = computed(() => (isHorizontal.value ? selectPrevSibling : selectPrevNthElement));
 
 const wordSearchTilesIds: Ref<string[]> = ref([]);
 
 // DEBUG
 // let GLOBAL_COUNTER = 1;
+
+// DO I Need this?
 function isTileLocked(target: HTMLInputElement) {
   return target.classList.contains('locked-tile');
 }
@@ -64,13 +70,13 @@ const cswWrapperWidth = computed(() => Number(props.cswWidth) * TILE_SIZE_REM);
 const cswWrapperHeight = computed(() => Number(props.cswHeight) * TILE_SIZE_REM);
 
 function addStyle(element: HTMLElement, classNames: string[]) {
-  console.log('ADD', classNames, element?.id);
+  // console.log('ADD', classNames, element?.id);
   classNames.forEach((cls) => {
     element.classList.add(cls);
   });
 }
 function removeStyle(element: HTMLElement, classNames: string[]) {
-  console.log('REMOVE', classNames, element?.id);
+  // console.log('REMOVE', classNames, element?.id);
   classNames.forEach((cls) => {
     element.classList.remove(cls);
   });
@@ -95,7 +101,6 @@ function addToWordSearchTilesIds(target: HTMLInputElement) {
 }
 
 // MAIN FUNCTIONS
-
 function iterateCrosswordTiles(
   startElement: HTMLInputElement | null,
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -111,25 +116,8 @@ function iterateCrosswordTiles(
   }
 }
 
-// maybe to set prev values??
-// function setSelectedTile(targetTile: HTMLInputElement | null) {
-//   selectedTile.value = targetTile;
-// }
-
-// some use of this ???
-// function* setIds(target: HTMLInputElement) {
-//   let nextTile = getNextTile.value(target);
-//   yield target.id;
-//   while (nextTile) {
-//     yield nextTile.id;
-//     nextTile = getNextTile.value(nextTile);
-//   }
-// }
-
 // EVENT HANDLERS
-
 function mainEventHandler(target: EventTarget) {
-  console.log('===MAIN===');
   prevSelectedTile.value = selectedTile.value;
   selectedTile.value = target as HTMLInputElement;
 
@@ -149,12 +137,11 @@ function mainEventHandler(target: EventTarget) {
       prevFirstWordSearchTile.value = firstWordSearchTile.value;
       firstWordSearchTile.value = target as HTMLInputElement;
     }
-    console.log('SETUP firstTile LastTile', firstWordSearchTile.value?.id, prevFirstWordSearchTile.value?.id);
   }
 
   if (prevSelectedTile.value) {
     if (selectedTile.value === prevSelectedTile.value) {
-      console.log('CLICK SAME');
+      // console.log('CLICK SAME');
       iterateCrosswordTiles(getNextTile.value(prevSelectedTile.value), removeStyle, [
         'direction-marking-tile', 'selected-to-word-search',
       ]);
@@ -166,7 +153,6 @@ function mainEventHandler(target: EventTarget) {
       );
 
       // REMOVING FROM FIRST TILE TO OLD SELECTED TILE
-      console.log(prevFirstWordSearchTile.value?.id, selectedTile.value.id, 'Clear???');
       if (prevFirstWordSearchTile.value !== selectedTile.value) {
         // NOT TESTED
         prevFirstWordSearchTile.value = firstWordSearchTile.value;
@@ -190,7 +176,7 @@ function mainEventHandler(target: EventTarget) {
         'direction-marking-tile', 'selected-to-word-search',
       ]);
     } else if ((target as HTMLInputElement).classList.contains('direction-marking-tile')) {
-      console.log('CLICK INSIDE');
+      // console.log('CLICK INSIDE');
       iterateCrosswordTiles(
         prevSelectedTile.value,
         removeStyle,
@@ -198,7 +184,7 @@ function mainEventHandler(target: EventTarget) {
         (el: HTMLInputElement) => el === target,
       );
     } else {
-      console.log('CLICK OUTSIDE');
+      // console.log('CLICK OUTSIDE');
       ['direction-marking-tile', 'selected-to-word-search'].forEach((cls) => iterateCrosswordTiles(
         selectedTile.value,
         addStyle,
@@ -216,7 +202,7 @@ function mainEventHandler(target: EventTarget) {
         iterateCrosswordTiles(prevFirstWordSearchTile.value, removeStyle, [
           'selected-to-word-search',
           'direction-marking-tile',
-        ]); // FIX:zmienionyKier??
+        ]);
       }
     }
   } else {
@@ -237,9 +223,19 @@ function handleKeyboardEvent(e : Event & {data:string}) {
   (e.target as HTMLInputElement).value = e.data.toUpperCase() || '';
   const nextTile = getNextTile.value(e.target as HTMLInputElement);
   if (nextTile && !nextTile.readOnly) {
-    // selected Tile = ...
     mainEventHandler(nextTile);
     nextTile.focus();
+  }
+}
+
+function handleEmit(target: HTMLInputElement) {
+  // maybe handle this earlier?
+  // console.log(target.classList);
+  if (target.classList.contains('direction-marking-tile')) {
+    removeStyle(target, ['selected-to-word-search', 'direction-marking-tile']);
+    iterateCrosswordTiles(getNextTile.value(target), removeStyle, ['selected-to-word-search', 'direction-marking-tile']);
+  } else if (getPrevTile.value(target)?.classList.contains('direction-marking-tile')) {
+    iterateCrosswordTiles(target, addStyle, ['selected-to-word-search', 'direction-marking-tile']);
   }
 }
 
