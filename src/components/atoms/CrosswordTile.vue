@@ -7,9 +7,10 @@
     :id="elementId"
     :style="{ width: `${F_TILE_SIZE_REM}`, height: `${F_TILE_SIZE_REM}` }"
     @mousedown.right.prevent="toggleTileStatus($event.target)"
-    @contextmenu.prevent
     @focus="$event.target.select()"
+    @mousedown.left.prevent
   />
+  <!-- @contextmenu.prevent -->
 </template>
 
 <script setup>

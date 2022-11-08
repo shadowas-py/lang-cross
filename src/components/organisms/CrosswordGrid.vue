@@ -216,11 +216,14 @@ function mainEventHandler(target: EventTarget) {
 }
 
 function handleClickEvent(e: Event) {
-  mainEventHandler(e.target as EventTarget);
+  if (!(e.target as HTMLInputElement).classList.contains('locked-tile')) {
+    (e.target as HTMLInputElement).focus();
+    mainEventHandler(e.target as EventTarget);
+  }
 }
 
 function handleKeyboardEvent(e : Event & {data:string}) {
-  (e.target as HTMLInputElement).value = e.data.toUpperCase() || '';
+  (e.target as HTMLInputElement).value = e.data?.toUpperCase() || '';
   const nextTile = getNextTile.value(e.target as HTMLInputElement);
   if (nextTile && !nextTile.readOnly) {
     mainEventHandler(nextTile);
