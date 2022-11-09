@@ -1,9 +1,10 @@
 <template>
-  <div class="csw-grid-wrapper">
+  <div class="csw-grid-wrapper" @click.="keepFocus">
     <div
       class="csw-grid"
       @input="handleKeyboardEvent($event as any)"
-      @mousedown.left="handleClickEvent($event)"
+      @mousedown.left.stop="handleClickEvent($event)"
+      @click.stop=""
       :style="{ width: `${cswWrapperWidth}rem`, height: `${cswWrapperHeight}rem` }"
     >
       <div v-for="row in cswHeight" :key="row" class="csw-row" :id="`csw-row-${row}`">
@@ -12,7 +13,6 @@
           :key="`${col}-${row}`"
           :colNumber="col"
           :rowNumber="row"
-          @focus="$event.target.select()"
           @setActive='handleEmit'
           @setLocked='handleEmit'
         />
@@ -49,6 +49,11 @@ const wordSearchTilesIds: Ref<string[]> = ref([]);
 
 // DEBUG
 // let GLOBAL_COUNTER = 1;
+function keepFocus(e:Event) {
+  if (selectedTile.value) {
+    selectedTile.value.focus();
+  }
+}
 
 // DO I Need this?
 function isTileLocked(target: HTMLInputElement) {
