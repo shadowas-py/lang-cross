@@ -2,7 +2,6 @@
   <input
     value=""
     maxlength="1"
-    :readonly="isTileLocked"
     :class="classNames"
     :id="elementId"
     :style="{ width: `${F_TILE_SIZE_REM}`, height: `${F_TILE_SIZE_REM}` }"
@@ -29,7 +28,7 @@ const classNames = computed(() => `tile col-${props.colNumber}`);
 const elementId = computed(() => `${props.colNumber}-${props.rowNumber}-tile`);
 
 const tileStatus = ref('active');
-const isTileLocked = computed(() => tileStatus.value === 'locked');
+// const isTileLocked = computed(() => tileStatus.value === 'locked');
 
 function toggleTileStatus(target) {
   tileStatus.value = tileStatus.value === 'active' ? 'locked' : 'active';
@@ -38,6 +37,7 @@ function toggleTileStatus(target) {
     emit('setActive', target);
   } else {
     target.classList.add('locked-tile');
+    // SET MAX LENGTH and make it editable
     emit('setLocked', target);
   }
 }
@@ -71,6 +71,7 @@ function toggleTileStatus(target) {
 }
 .locked-tile.tile {
   background-color: black;
+  color: white;
 }
 .selected-to-word-search{
   border: 1px solid blue;

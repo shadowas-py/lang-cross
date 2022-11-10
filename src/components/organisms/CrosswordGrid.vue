@@ -13,8 +13,8 @@
           :key="`${col}-${row}`"
           :colNumber="col"
           :rowNumber="row"
-          @setActive='handleEmit'
-          @setLocked='handleEmit'
+          @setActive='handleTileStatusChange'
+          @setLocked='handleTileStatusChange'
         />
       </div>
     </div>
@@ -60,11 +60,6 @@ function isTileLocked(target: HTMLInputElement) {
   return target.classList.contains('locked-tile');
 }
 
-// remove ???
-// function toggleWritingDirection() {
-//   isHorizontal.value = !isHorizontal.value;
-// }
-
 // RENDERING
 const props = defineProps({
   cswWidth: Number,
@@ -108,7 +103,6 @@ function addToWordSearchTilesIds(target: HTMLInputElement) {
 // MAIN FUNCTIONS
 function iterateCrosswordTiles(
   startElement: HTMLInputElement | null,
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   callback: (target: HTMLInputElement, arg?: any) => void,
   args: unknown = [],
   stopCondition: (arg: HTMLInputElement) => boolean = () => false,
@@ -130,8 +124,7 @@ function mainEventHandler(target: EventTarget) {
   wordSearchTilesIds.value = []; // DO I really need this?
   charsSequence.value = ''; // TO OPT.
 
-  // too many repetition
-  iterateCrosswordTiles(firstWordSearchTile.value, addToSearchPattern);
+  iterateCrosswordTiles(firstWordSearchTile.value, addToSearchPattern);// too many repetition
   iterateCrosswordTiles(firstWordSearchTile.value, addToWordSearchTilesIds); // OPT.
 
   if (!wordSearchTilesIds.value.includes(selectedTile.value.id)) {
@@ -220,25 +213,43 @@ function mainEventHandler(target: EventTarget) {
   }
 }
 
+function handleLockedTileClick(target: HTMLInputElement) {
+  console.log(target);
+  if (target) {
+    target.setAttribute('maxlength', '22');
+    // target.setAttribute('readonly', 'false');
+    target.select();
+  }
+}
+
 function handleClickEvent(e: Event) {
   if (!(e.target as HTMLInputElement).classList.contains('locked-tile')) {
     (e.target as HTMLInputElement).focus();
     mainEventHandler(e.target as EventTarget);
+  } else if (e.target) {
+    // HANDLING CLICK ON "LOCKED-TILE"
+    console.log('clicked-locked');
+    handleLockedTileClick(e.target as HTMLInputElement);
   }
 }
 
 function handleKeyboardEvent(e : Event & {data:string}) {
-  (e.target as HTMLInputElement).value = e.data?.toUpperCase() || '';
-  const nextTile = getNextTile.value(e.target as HTMLInputElement);
-  if (nextTile && !nextTile.readOnly) {
-    mainEventHandler(nextTile);
-    nextTile.focus();
+  console.log('INput key');
+  if ((e.target as HTMLInputElement).classList?.contains('locked-tile')) {
+    console.log('input inside');
+  } else {
+    (e.target as HTMLInputElement).value = e.data?.toUpperCase() || '';
+    const nextTile = getNextTile.value(e.target as HTMLInputElement);
+    if (nextTile && !nextTile.classList.contains('locked-tile')) {
+      mainEventHandler(nextTile);
+      nextTile.focus();
+    }
   }
 }
 
-function handleEmit(target: HTMLInputElement) {
+function handleTileStatusChange(target: HTMLInputElement) {
   // maybe handle this earlier?
-  // console.log(target.classList);
+  console.log(target.classList);
   if (target.classList.contains('direction-marking-tile')) {
     removeStyle(target, ['selected-to-word-search', 'direction-marking-tile']);
     iterateCrosswordTiles(getNextTile.value(target), removeStyle, ['selected-to-word-search', 'direction-marking-tile']);
