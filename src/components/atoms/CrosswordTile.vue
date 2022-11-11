@@ -1,5 +1,8 @@
+<!-- eslint-disable vue/no-deprecated-html-element-is -->
+<!-- eslint-disable vuejs-accessibility/form-control-has-label -->
 <template>
   <input
+    v-if='isInputTag'
     value=""
     maxlength="1"
     :class="classNames"
@@ -8,8 +11,19 @@
     @mousedown.right.prevent="toggleTileStatus($event.target)"
     @focus="$event.target.select()"
     @mousedown.left.prevent
+    @contextmenu.prevent
   />
-  <!-- @contextmenu.prevent -->
+  <textarea
+    v-else
+    value=""
+    maxlength="22"
+    :class="classNames + 'locked-tile'"
+    :id="`${elementId}-question`"
+    :style="{ width: `${F_TILE_SIZE_REM}`, height: `${F_TILE_SIZE_REM}` }"
+    @mousedown.right.prevent="toggleTileStatus($event.target)"
+    @focus="$event.target.select()"
+    @mousedown.left.prevent
+  ></textarea>
 </template>
 
 <script setup>
@@ -27,17 +41,22 @@ const emit = defineEmits(['setLocked', 'setActive']);
 const classNames = computed(() => `tile col-${props.colNumber}`);
 const elementId = computed(() => `${props.colNumber}-${props.rowNumber}-tile`);
 
+// DYNAMIC TAG
+// const tagHTML = ref('input');
+
+// TODO change below names
 const tileStatus = ref('active');
-// const isTileLocked = computed(() => tileStatus.value === 'locked');
+const isInputTag = computed(() => tileStatus.value === 'active');
 
 function toggleTileStatus(target) {
   tileStatus.value = tileStatus.value === 'active' ? 'locked' : 'active';
   if (tileStatus.value === 'active') {
+    // tagHTML.value = 'input';
     target.classList.remove('locked-tile');
     emit('setActive', target);
   } else {
+    // tagHTML.value = 'textarea';
     target.classList.add('locked-tile');
-    // SET MAX LENGTH and make it editable
     emit('setLocked', target);
   }
 }
@@ -74,17 +93,8 @@ function toggleTileStatus(target) {
   color: white;
   font-size: 1rem;
   font-family: Arial, Helvetica, sans-serif;
-  overflow: wrap;
-  text-overflow: wrap;
-}
-
-.locked-tile.tile::before {
-  height: 0;
-  margin: 0;
-}
-.locked-tile.tile::after {
-  height: 0;
-  margin: 0;
+  word-wrap: break-word;
+  overflow: hidden;
 }
 
 .selected-to-word-search{

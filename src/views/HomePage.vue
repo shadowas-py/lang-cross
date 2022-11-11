@@ -3,7 +3,6 @@
     v-if="cswGridVisible"
     :cswWidth="cswWidth"
     :cswHeight="cswHeight"
-    :cswColor="cswColor"
   />
   <GridGeneratorForm v-if="!cswGridVisible" @onCswGridParams="generateCswGrid" />
 </template>

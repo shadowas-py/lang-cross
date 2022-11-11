@@ -13,6 +13,7 @@
           :key="`${col}-${row}`"
           :colNumber="col"
           :rowNumber="row"
+          :is='tagHTML'
           @setActive='handleTileStatusChange'
           @setLocked='handleTileStatusChange'
         />
@@ -32,7 +33,6 @@ import {
 } from '@/utils/select';
 import WordSearchEngine from '@/components/organisms/WordSearchEngine.vue';
 import CrosswordTile from '../atoms/CrosswordTile.vue';
-import CrosswordQuestionTile from '../atoms/CrosswordQuestionTile.vue';
 
 // MAIN DATA
 // simplify this somehow ???
@@ -47,6 +47,9 @@ const getNextTile = computed(() => (isHorizontal.value ? selectNextSibling : sel
 const getPrevTile = computed(() => (isHorizontal.value ? selectPrevSibling : selectPrevNthElement));
 
 const wordSearchTilesIds: Ref<string[]> = ref([]);
+
+// TO HANDLE TILES
+const tagHTML = ref('input');
 
 // DEBUG
 // let GLOBAL_COUNTER = 1;
@@ -70,8 +73,9 @@ const props = defineProps({
 const cswWrapperWidth = computed(() => Number(props.cswWidth) * TILE_SIZE_REM);
 const cswWrapperHeight = computed(() => Number(props.cswHeight) * TILE_SIZE_REM);
 
+// naprawic stylowanie
 function addStyle(element: HTMLElement, classNames: string[]) {
-  // console.log('ADD', classNames, element?.id);
+  console.log('ADD', classNames, element?.id);
   classNames.forEach((cls) => {
     element.classList.add(cls);
   });
@@ -217,8 +221,8 @@ function mainEventHandler(target: EventTarget) {
 function handleLockedTileClick(target: HTMLInputElement) {
   console.log(target);
   if (target) {
-    target.setAttribute('maxlength', '22');
-    // target.setAttribute('readonly', 'false');
+    tagHTML.value = 'textarea';
+    target.setAttribute('maxLength', '10');
     target.select();
   }
 }
@@ -250,11 +254,14 @@ function handleKeyboardEvent(e : Event & {data:string}) {
 
 function handleTileStatusChange(target: HTMLInputElement) {
   // maybe handle this earlier?
-  console.log(target.classList);
+  console.log(target.classList, target.id);
   if (target.classList.contains('direction-marking-tile')) {
     removeStyle(target, ['selected-to-word-search', 'direction-marking-tile']);
     iterateCrosswordTiles(getNextTile.value(target), removeStyle, ['selected-to-word-search', 'direction-marking-tile']);
+    console.log('removing Classes');
   } else if (getPrevTile.value(target)?.classList.contains('direction-marking-tile')) {
+    console.log('adding Classes');
+    addStyle(target, ['selected-to-word-search', 'direction-marking-tile']);
     iterateCrosswordTiles(target, addStyle, ['selected-to-word-search', 'direction-marking-tile']);
   }
 }
