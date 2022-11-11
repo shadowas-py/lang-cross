@@ -72,7 +72,21 @@ function toggleTileStatus(target) {
 .locked-tile.tile {
   background-color: black;
   color: white;
+  font-size: 1rem;
+  font-family: Arial, Helvetica, sans-serif;
+  overflow: wrap;
+  text-overflow: wrap;
 }
+
+.locked-tile.tile::before {
+  height: 0;
+  margin: 0;
+}
+.locked-tile.tile::after {
+  height: 0;
+  margin: 0;
+}
+
 .selected-to-word-search{
   border: 1px solid blue;
 }

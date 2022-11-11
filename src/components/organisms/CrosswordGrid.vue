@@ -32,6 +32,7 @@ import {
 } from '@/utils/select';
 import WordSearchEngine from '@/components/organisms/WordSearchEngine.vue';
 import CrosswordTile from '../atoms/CrosswordTile.vue';
+import CrosswordQuestionTile from '../atoms/CrosswordQuestionTile.vue';
 
 // MAIN DATA
 // simplify this somehow ???
@@ -273,6 +274,9 @@ function handleTileStatusChange(target: HTMLInputElement) {
   width: fit-content;
   margin: 0 auto auto;
   border: 0.2rem solid black;
+}
+.csw-row{
+  display:flex;
 }
 
 p {
