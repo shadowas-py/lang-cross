@@ -17,8 +17,8 @@
     v-else
     value=""
     maxlength="22"
-    :class="classNames + 'locked-tile'"
-    :id="`${elementId}-question`"
+    :class="classNames + ' locked-tile'"
+    :id="elementId"
     :style="{ width: `${F_TILE_SIZE_REM}`, height: `${F_TILE_SIZE_REM}` }"
     @mousedown.right.prevent="toggleTileStatus($event.target)"
     @focus="$event.target.select()"
@@ -52,11 +52,11 @@ function toggleTileStatus(target) {
   tileStatus.value = tileStatus.value === 'active' ? 'locked' : 'active';
   if (tileStatus.value === 'active') {
     // tagHTML.value = 'input';
-    target.classList.remove('locked-tile');
+    // target.classList.remove('locked-tile');
     emit('setActive', target);
   } else {
     // tagHTML.value = 'textarea';
-    target.classList.add('locked-tile');
+    // target.classList.add('locked-tile');
     emit('setLocked', target);
   }
 }

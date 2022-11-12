@@ -1,10 +1,9 @@
 <template>
-  <div class="csw-grid-wrapper" @click.="keepFocus">
+  <div class="csw-grid-wrapper">
     <div
       class="csw-grid"
       @input="handleKeyboardEvent($event as any)"
-      @mousedown.left.stop="handleClickEvent($event)"
-      @click.stop=""
+      @mousedown.left="handleClickEvent($event)"
       :style="{ width: `${cswWrapperWidth}rem`, height: `${cswWrapperHeight}rem` }"
     >
       <div v-for="row in cswHeight" :key="row" class="csw-row" :id="`csw-row-${row}`">
@@ -13,9 +12,15 @@
           :key="`${col}-${row}`"
           :colNumber="col"
           :rowNumber="row"
+<<<<<<< HEAD
           :is='tagHTML'
           @setActive='handleTileStatusChange'
           @setLocked='handleTileStatusChange'
+=======
+          @focus="$event.target.select()"
+          @setActive='handleEmit'
+          @setLocked='handleEmit'
+>>>>>>> parent of 1a7f1e3 (FEAT: trapping focus on selected tile inside component)
         />
       </div>
     </div>
@@ -53,11 +58,6 @@ const tagHTML = ref('input');
 
 // DEBUG
 // let GLOBAL_COUNTER = 1;
-function keepFocus(e:Event) {
-  if (selectedTile.value) {
-    selectedTile.value.focus();
-  }
-}
 
 // DO I Need this?
 function isTileLocked(target: HTMLInputElement) {
