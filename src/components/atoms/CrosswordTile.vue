@@ -2,7 +2,6 @@
   <input
     value=""
     maxlength="1"
-    :readonly="isTileLocked"
     :class="classNames"
     :id="elementId"
     :style="{ width: `${F_TILE_SIZE_REM}`, height: `${F_TILE_SIZE_REM}` }"
@@ -23,23 +22,22 @@ const props = defineProps({
   value: String,
 });
 
-const emit = defineEmits(['setLocked', 'setActive']);
+const emit = defineEmits(['changeTileType']);
 
 const classNames = computed(() => `tile col-${props.colNumber}`);
 const elementId = computed(() => `${props.colNumber}-${props.rowNumber}-tile`);
 
-const tileStatus = ref('active');
-const isTileLocked = computed(() => tileStatus.value === 'locked');
+const tileType = ref('active');
+// const isTileLocked = computed(() => tileStatus.value === 'locked');
 
 function toggleTileStatus(target) {
-  tileStatus.value = tileStatus.value === 'active' ? 'locked' : 'active';
-  if (tileStatus.value === 'active') {
-    target.classList.remove('locked-tile');
-    emit('setActive', target);
-  } else {
-    target.classList.add('locked-tile');
-    emit('setLocked', target);
-  }
+  tileType.value = tileType.value === 'active' ? 'question' : 'active';
+  // if (tileType.value === 'active') {
+  //   target.classList.remove('question-field');
+  // } else {
+  //   target.classList.add('question-field');
+  // }
+  emit('changeTileType', target, tileType.value);
 }
 </script>
 
@@ -69,7 +67,7 @@ function toggleTileStatus(target) {
 .direction-marking-tile {
   background-color: var(--selected-sibling);
 }
-.locked-tile.tile {
+.question-field.tile {
   background-color: black;
 }
 .selected-to-word-search{

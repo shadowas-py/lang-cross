@@ -13,8 +13,7 @@
           :key="`${col}-${row}`"
           :colNumber="col"
           :rowNumber="row"
-          @setActive='handleEmit'
-          @setLocked='handleEmit'
+          @changeTileType='handleEmit'
         />
       </div>
     </div>
@@ -57,13 +56,8 @@ function keepFocus(e:Event) {
 
 // DO I Need this?
 function isTileLocked(target: HTMLInputElement) {
-  return target.classList.contains('locked-tile');
+  return target.classList.contains('question-field');
 }
-
-// remove ???
-// function toggleWritingDirection() {
-//   isHorizontal.value = !isHorizontal.value;
-// }
 
 // RENDERING
 const props = defineProps({
@@ -122,6 +116,7 @@ function iterateCrosswordTiles(
 }
 
 // EVENT HANDLERS
+// to handle 'active tiles'
 function mainEventHandler(target: EventTarget) {
   prevSelectedTile.value = selectedTile.value;
   selectedTile.value = target as HTMLInputElement;
@@ -221,7 +216,9 @@ function mainEventHandler(target: EventTarget) {
 }
 
 function handleClickEvent(e: Event) {
-  if (!(e.target as HTMLInputElement).classList.contains('locked-tile')) {
+  if ((e.target as HTMLInputElement).classList.contains('question-field')) {
+    // first just select this field like regular textarea
+  } else {
     (e.target as HTMLInputElement).focus();
     mainEventHandler(e.target as EventTarget);
   }
@@ -236,14 +233,18 @@ function handleKeyboardEvent(e : Event & {data:string}) {
   }
 }
 
-function handleEmit(target: HTMLInputElement) {
-  // maybe handle this earlier?
-  // console.log(target.classList);
-  if (target.classList.contains('direction-marking-tile')) {
-    removeStyle(target, ['selected-to-word-search', 'direction-marking-tile']);
-    iterateCrosswordTiles(getNextTile.value(target), removeStyle, ['selected-to-word-search', 'direction-marking-tile']);
-  } else if (getPrevTile.value(target)?.classList.contains('direction-marking-tile')) {
-    iterateCrosswordTiles(target, addStyle, ['selected-to-word-search', 'direction-marking-tile']);
+function handleEmit(target: HTMLInputElement, tileType:string) {
+  if (tileType === 'question') {
+    addStyle(target, ['question-field']);
+    if (target.classList.contains('direction-marking-tile')) {
+      removeStyle(target, ['selected-to-word-search', 'direction-marking-tile']);
+      iterateCrosswordTiles(getNextTile.value(target), removeStyle, ['selected-to-word-search', 'direction-marking-tile']);
+    }
+  } else {
+    removeStyle(target, ['question-field']);
+    if (getPrevTile.value(target)?.classList.contains('direction-marking-tile')) {
+      iterateCrosswordTiles(target, addStyle, ['selected-to-word-search', 'direction-marking-tile']);
+    }
   }
 }
 

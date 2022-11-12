@@ -25,14 +25,14 @@ const inputFields = ref([
     label: 'szerokość',
     maxValue: 30,
     type: 'number',
-    value: 15,
+    value: 5,
   },
   {
     name: 'height-input',
     label: 'wysokość',
     maxValue: 30,
     type: 'number',
-    value: 10,
+    value: 5,
   },
   {
     name: 'color-input',
