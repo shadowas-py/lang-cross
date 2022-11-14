@@ -1,44 +1,53 @@
-<template>
-  <input
+<!-- eslint-disable vuejs-accessibility/form-control-has-label -->
+<template @contextmenu.prevent>
+  <input v-if='isInput'
     value=""
     maxlength="1"
     :class="classNames"
     :id="elementId"
     :style="{ width: `${F_TILE_SIZE_REM}`, height: `${F_TILE_SIZE_REM}` }"
-    @mousedown.right.prevent="toggleTileStatus($event.target)"
     @focus="$event.target.select()"
     @mousedown.left.prevent
   />
-  <!-- @contextmenu.prevent -->
+  <!-- <textarea v-else
+    value=""
+    maxlength="20"
+    :class="`${classNames} question-field`"
+    :id="elementId"
+    :style="{ width: `${F_TILE_SIZE_REM}`, height: `${F_TILE_SIZE_REM}` }"
+    @focus="$event.target.select()"
+    @mousedown.left.prevent
+  ></textarea> -->
+
 </template>
 
 <script setup>
 import { F_TILE_SIZE_REM } from '@/constants';
-import { computed, ref } from 'vue';
+import { computed, ref, watch } from 'vue';
 
 const props = defineProps({
   colNumber: Number,
   rowNumber: Number,
   value: String,
+  isInput: Boolean,
 });
 
 const emit = defineEmits(['changeTileType']);
 
 const classNames = computed(() => `tile col-${props.colNumber}`);
 const elementId = computed(() => `${props.colNumber}-${props.rowNumber}-tile`);
-
-const tileType = ref('active');
+const isInput = ref(true);
 // const isTileLocked = computed(() => tileStatus.value === 'locked');
 
 function toggleTileStatus(target) {
-  tileType.value = tileType.value === 'active' ? 'question' : 'active';
-  // if (tileType.value === 'active') {
-  //   target.classList.remove('question-field');
-  // } else {
-  //   target.classList.add('question-field');
-  // }
-  emit('changeTileType', target, tileType.value);
+  emit('changeTileType', target);
+  isInput.value = !isInput.value;
 }
+
+watch(() => props.isInput, (val) => {
+  console.log(val);
+  isInput.value = val;
+});
 </script>
 
 <style scoped>

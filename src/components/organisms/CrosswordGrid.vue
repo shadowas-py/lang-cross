@@ -13,7 +13,8 @@
           :key="`${col}-${row}`"
           :colNumber="col"
           :rowNumber="row"
-          @changeTileType='handleEmit'
+          :isInput ="isInput"
+          @click.right.prevent='handleTileTypeChange($event.target)'
         />
       </div>
     </div>
@@ -45,6 +46,9 @@ const getNextTile = computed(() => (isHorizontal.value ? selectNextSibling : sel
 const getPrevTile = computed(() => (isHorizontal.value ? selectPrevSibling : selectPrevNthElement));
 
 const wordSearchTilesIds: Ref<string[]> = ref([]);
+
+// HANDLE CHILD COMP
+const isInput = ref(true);
 
 // DEBUG
 // let GLOBAL_COUNTER = 1;
@@ -233,19 +237,36 @@ function handleKeyboardEvent(e : Event & {data:string}) {
   }
 }
 
-function handleEmit(target: HTMLInputElement, tileType:string) {
-  if (tileType === 'question') {
+function handleTileTypeChange(target: HTMLInputElement) {
+  console.log('clicked', target);
+  if (target && !target.classList.contains('question-field')) {
     addStyle(target, ['question-field']);
-    if (target.classList.contains('direction-marking-tile')) {
-      removeStyle(target, ['selected-to-word-search', 'direction-marking-tile']);
-      iterateCrosswordTiles(getNextTile.value(target), removeStyle, ['selected-to-word-search', 'direction-marking-tile']);
-    }
-  } else {
+    iterateCrosswordTiles(getNextTile.value(target), removeStyle, ['selected-to-word-search', 'direction-marking-tile']);
+  } else if (target) {
     removeStyle(target, ['question-field']);
     if (getPrevTile.value(target)?.classList.contains('direction-marking-tile')) {
-      iterateCrosswordTiles(target, addStyle, ['selected-to-word-search', 'direction-marking-tile']);
+      iterateCrosswordTiles(
+        target,
+        addStyle,
+        ['selected-to-word-search', 'direction-marking-tile'],
+      );
     }
   }
+
+  // if (tileType === 'question') {
+  //   addStyle(target, ['question-field']);
+  //   if (target.classList.contains('direction-marking-tile')) {
+  //     removeStyle(target, ['selected-to-word-search', 'direction-marking-tile']);
+  //     iterateCrosswordTiles(getNextTile.value(target), removeStyle,
+  // ['selected-to-word-search', 'direction-marking-tile']);
+  //   }
+  // } else {
+  //   removeStyle(target, ['question-field']);
+  //   if (getPrevTile.value(target)?.classList.contains('direction-marking-tile')) {
+  //     iterateCrosswordTiles(target, addStyle,
+  //  ['selected-to-word-search', 'direction-marking-tile']);
+  //   }
+  // }
 }
 
 </script>
@@ -267,5 +288,8 @@ function handleEmit(target: HTMLInputElement, tileType:string) {
 
 p {
   font-size: 2rem;
+}
+.csw-row{
+  display:flex;
 }
 </style>
