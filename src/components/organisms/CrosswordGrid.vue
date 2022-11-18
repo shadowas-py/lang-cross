@@ -6,6 +6,7 @@
       @mousedown.left.stop="handleClickEvent($event)"
       @click.stop=""
       :style="{ width: `${cswWrapperWidth}rem`, height: `${cswWrapperHeight}rem` }"
+      @mousedown.right ="handleRightClick"
     >
       <div v-for="row in cswHeight" :key="row" class="csw-row" :id="`csw-row-${row}`">
         <CrosswordTile
@@ -14,7 +15,6 @@
           :colNumber="col"
           :rowNumber="row"
           :isInput ="isInput"
-          @click.right.prevent='handleTileTypeChange($event.target)'
         />
       </div>
     </div>
@@ -46,6 +46,8 @@ const getNextTile = computed(() => (isHorizontal.value ? selectNextSibling : sel
 const getPrevTile = computed(() => (isHorizontal.value ? selectPrevSibling : selectPrevNthElement));
 
 const wordSearchTilesIds: Ref<string[]> = ref([]);
+
+const TILE_INPUT_CLASS_LIST = ['selected-to-word-search', 'direction-marking-tile'];
 
 // HANDLE CHILD COMP
 const isInput = ref(true);
@@ -212,16 +214,14 @@ function mainEventHandler(target: EventTarget) {
   } else {
     // MAYBE MERGE THIS ELSE WITH SOMETHING ELSE
     // console.log('FIRST CLICK ');
-    iterateCrosswordTiles(selectedTile.value, addStyle, [
-      'selected-to-word-search',
-      'direction-marking-tile',
-    ]);
+    iterateCrosswordTiles(selectedTile.value, addStyle, TILE_INPUT_CLASS_LIST);
   }
 }
 
 function handleClickEvent(e: Event) {
   if ((e.target as HTMLInputElement).classList.contains('question-field')) {
     // first just select this field like regular textarea
+    console.log('HANDLE TEXTAREA SELECT');
   } else {
     (e.target as HTMLInputElement).focus();
     mainEventHandler(e.target as EventTarget);
@@ -229,45 +229,36 @@ function handleClickEvent(e: Event) {
 }
 
 function handleKeyboardEvent(e : Event & {data:string}) {
-  (e.target as HTMLInputElement).value = e.data?.toUpperCase() || '';
-  const nextTile = getNextTile.value(e.target as HTMLInputElement);
-  if (nextTile && !nextTile.readOnly) {
-    mainEventHandler(nextTile);
-    nextTile.focus();
-  }
-}
-
-function handleTileTypeChange(target: HTMLInputElement) {
-  console.log('clicked', target);
-  if (target && !target.classList.contains('question-field')) {
-    addStyle(target, ['question-field']);
-    iterateCrosswordTiles(getNextTile.value(target), removeStyle, ['selected-to-word-search', 'direction-marking-tile']);
-  } else if (target) {
-    removeStyle(target, ['question-field']);
-    if (getPrevTile.value(target)?.classList.contains('direction-marking-tile')) {
-      iterateCrosswordTiles(
-        target,
-        addStyle,
-        ['selected-to-word-search', 'direction-marking-tile'],
-      );
+  if ((e.target as HTMLInputElement).tagName === 'INPUT') {
+    (e.target as HTMLInputElement).value = e.data?.toUpperCase() || '';
+    const nextTile = getNextTile.value(e.target as HTMLInputElement);
+    if (nextTile && !nextTile.readOnly) {
+      mainEventHandler(nextTile);
+      nextTile.focus();
     }
   }
-
-  // if (tileType === 'question') {
-  //   addStyle(target, ['question-field']);
-  //   if (target.classList.contains('direction-marking-tile')) {
-  //     removeStyle(target, ['selected-to-word-search', 'direction-marking-tile']);
-  //     iterateCrosswordTiles(getNextTile.value(target), removeStyle,
-  // ['selected-to-word-search', 'direction-marking-tile']);
-  //   }
-  // } else {
-  //   removeStyle(target, ['question-field']);
-  //   if (getPrevTile.value(target)?.classList.contains('direction-marking-tile')) {
-  //     iterateCrosswordTiles(target, addStyle,
-  //  ['selected-to-word-search', 'direction-marking-tile']);
-  //   }
-  // }
+  // else Handle TEXTAREA
 }
+function handleRightClick(e:any) {
+  // I don't know how to do this without queryselector
+  const el = document.getElementById(e.target.id);
+  if (el && el.tagName === 'INPUT') {
+    const prevTile = getPrevTile.value(el as HTMLInputElement);
+    if (prevTile) {
+      TILE_INPUT_CLASS_LIST.forEach((cls) => {
+        if (prevTile.classList.contains(cls)) {
+          el.classList.add(cls);
+          // console.log(el.classList);
+        }
+      });
+    }
+  }
+}
+
+// function handleTileTypeChange(target: HTMLInputElement) {
+//   console.log('clicked', target.tagName);
+//   isInput.value = false;
+// }
 
 </script>
 

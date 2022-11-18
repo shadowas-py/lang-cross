@@ -1,5 +1,5 @@
 <!-- eslint-disable vuejs-accessibility/form-control-has-label -->
-<template @contextmenu.prevent>
+<template >
   <input v-if='isInput'
     value=""
     maxlength="1"
@@ -8,16 +8,19 @@
     :style="{ width: `${F_TILE_SIZE_REM}`, height: `${F_TILE_SIZE_REM}` }"
     @focus="$event.target.select()"
     @mousedown.left.prevent
+    @mousedown.right='isInput=!isInput'
+    @contextmenu.prevent
   />
-  <!-- <textarea v-else
+  <textarea v-else
     value=""
     maxlength="20"
     :class="`${classNames} question-field`"
     :id="elementId"
     :style="{ width: `${F_TILE_SIZE_REM}`, height: `${F_TILE_SIZE_REM}` }"
     @focus="$event.target.select()"
-    @mousedown.left.prevent
-  ></textarea> -->
+    @mousedown.right="isInput=!isInput"
+    @contextmenu.prevent
+  ></textarea>
 
 </template>
 
@@ -43,11 +46,6 @@ function toggleTileStatus(target) {
   emit('changeTileType', target);
   isInput.value = !isInput.value;
 }
-
-watch(() => props.isInput, (val) => {
-  console.log(val);
-  isInput.value = val;
-});
 </script>
 
 <style scoped>
