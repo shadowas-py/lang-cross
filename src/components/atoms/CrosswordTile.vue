@@ -26,7 +26,7 @@
 
 <script setup>
 import { F_TILE_SIZE_REM } from '@/constants';
-import { computed, ref, watch } from 'vue';
+import { computed, ref } from 'vue';
 
 const props = defineProps({
   colNumber: Number,
@@ -35,17 +35,16 @@ const props = defineProps({
   isInput: Boolean,
 });
 
-const emit = defineEmits(['changeTileType']);
+// const emit = defineEmits(['changeTileType']);
 
 const classNames = computed(() => `tile col-${props.colNumber}`);
 const elementId = computed(() => `${props.colNumber}-${props.rowNumber}-tile`);
 const isInput = ref(true);
-// const isTileLocked = computed(() => tileStatus.value === 'locked');
 
-function toggleTileStatus(target) {
-  emit('changeTileType', target);
-  isInput.value = !isInput.value;
-}
+// function toggleTileStatus(target) {
+//   emit('changeTileType', target);
+//   isInput.value = !isInput.value;
+// }
 </script>
 
 <style scoped>

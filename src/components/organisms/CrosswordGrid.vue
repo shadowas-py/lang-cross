@@ -6,7 +6,7 @@
       @mousedown.left.stop="handleClickEvent($event)"
       @click.stop=""
       :style="{ width: `${cswWrapperWidth}rem`, height: `${cswWrapperHeight}rem` }"
-      @mousedown.right ="handleRightClick"
+      @mousedown.right="handleRightClick"
     >
       <div v-for="row in cswHeight" :key="row" class="csw-row" :id="`csw-row-${row}`">
         <CrosswordTile
@@ -14,7 +14,7 @@
           :key="`${col}-${row}`"
           :colNumber="col"
           :rowNumber="row"
-          :isInput ="isInput"
+          :isInput="isInput"
         />
       </div>
     </div>
@@ -24,11 +24,12 @@
 </template>
 <script lang="ts" setup>
 import { TILE_SIZE_REM } from '@/constants';
+import { computed, Ref, ref } from 'vue';
 import {
-  computed, Ref, ref,
-} from 'vue';
-import {
-  selectNextNthElement, selectNextSibling, selectPrevNthElement, selectPrevSibling,
+  selectNextNthElement,
+  selectNextSibling,
+  selectPrevNthElement,
+  selectPrevSibling,
 } from '@/utils/select';
 import WordSearchEngine from '@/components/organisms/WordSearchEngine.vue';
 import CrosswordTile from '../atoms/CrosswordTile.vue';
@@ -49,18 +50,13 @@ const wordSearchTilesIds: Ref<string[]> = ref([]);
 
 const TILE_INPUT_CLASS_LIST = ['selected-to-word-search', 'direction-marking-tile'];
 
+// DEBUGGING
+// let GLOBAL_COUNTER = 1;
+
 // HANDLE CHILD COMP
 const isInput = ref(true);
 
-// DEBUG
-// let GLOBAL_COUNTER = 1;
-function keepFocus(e:Event) {
-  if (selectedTile.value) {
-    selectedTile.value.focus();
-  }
-}
-
-// DO I Need this?
+// do i need this?
 function isTileLocked(target: HTMLInputElement) {
   return target.classList.contains('question-field');
 }
@@ -100,7 +96,6 @@ function addToSearchPattern(target: HTMLInputElement) {
 //   regexPattern.value = new RegExp(`^${charsSequence.value}$`);
 // }
 
-// maybe make class for this ?
 function addToWordSearchTilesIds(target: HTMLInputElement) {
   wordSearchTilesIds.value.push(target.id);
 }
@@ -108,7 +103,6 @@ function addToWordSearchTilesIds(target: HTMLInputElement) {
 // MAIN FUNCTIONS
 function iterateCrosswordTiles(
   startElement: HTMLInputElement | null,
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   callback: (target: HTMLInputElement, arg?: any) => void,
   args: unknown = [],
   stopCondition: (arg: HTMLInputElement) => boolean = () => false,
@@ -121,23 +115,28 @@ function iterateCrosswordTiles(
   }
 }
 
+// OTHERS
+// REFACTOR!!! DEBUG!!!
+function keepFocus(e: Event) {
+  if (selectedTile.value) {
+    selectedTile.value.focus();
+  }
+}
+
 // EVENT HANDLERS
-// to handle 'active tiles'
 function mainEventHandler(target: EventTarget) {
   prevSelectedTile.value = selectedTile.value;
   selectedTile.value = target as HTMLInputElement;
 
-  // TO OPT.
+  // TO OPT.!!!
   wordSearchTilesIds.value = []; // DO I really need this?
   charsSequence.value = ''; // TO OPT.
 
-  // too many repetition
+  // TO REFACTOR!!!
   iterateCrosswordTiles(firstWordSearchTile.value, addToSearchPattern);
   iterateCrosswordTiles(firstWordSearchTile.value, addToWordSearchTilesIds); // OPT.
 
   if (!wordSearchTilesIds.value.includes(selectedTile.value.id)) {
-    // console.log('SETUP IF firstWordSearchTile change', firstWordSearchTile.value?.id);
-
     if (selectedTile.value.id !== firstWordSearchTile.value?.id || !firstWordSearchTile.value) {
       // console.log('SET');
       prevFirstWordSearchTile.value = firstWordSearchTile.value;
@@ -149,7 +148,8 @@ function mainEventHandler(target: EventTarget) {
     if (selectedTile.value === prevSelectedTile.value) {
       // console.log('CLICK SAME');
       iterateCrosswordTiles(getNextTile.value(prevSelectedTile.value), removeStyle, [
-        'direction-marking-tile', 'selected-to-word-search',
+        'direction-marking-tile',
+        'selected-to-word-search',
       ]);
       iterateCrosswordTiles(
         firstWordSearchTile.value,
@@ -179,7 +179,8 @@ function mainEventHandler(target: EventTarget) {
       iterateCrosswordTiles(firstWordSearchTile.value, addToWordSearchTilesIds); // OPT.
 
       iterateCrosswordTiles(getNextTile.value(selectedTile.value), addStyle, [
-        'direction-marking-tile', 'selected-to-word-search',
+        'direction-marking-tile',
+        'selected-to-word-search',
       ]);
     } else if ((target as HTMLInputElement).classList.contains('direction-marking-tile')) {
       // console.log('CLICK INSIDE');
@@ -191,17 +192,13 @@ function mainEventHandler(target: EventTarget) {
       );
     } else {
       // console.log('CLICK OUTSIDE');
-      ['direction-marking-tile', 'selected-to-word-search'].forEach((cls) => iterateCrosswordTiles(
-        selectedTile.value,
-        addStyle,
-        [cls],
-        (t) => t.classList.contains(cls),
-      ));
+      ['direction-marking-tile', 'selected-to-word-search'].forEach((cls) => iterateCrosswordTiles(selectedTile.value, addStyle, [cls], (t) => t.classList.contains(cls)));
 
       wordSearchTilesIds.value = [];
       iterateCrosswordTiles(firstWordSearchTile.value, addToWordSearchTilesIds);
       // only reason for wordSearchTilesIds
-      if (prevFirstWordSearchTile.value
+      if (
+        prevFirstWordSearchTile.value
         && !wordSearchTilesIds.value.includes(prevFirstWordSearchTile.value.id)
       ) {
         // console.log('CLICK OUTSIDE SEC');
@@ -212,7 +209,6 @@ function mainEventHandler(target: EventTarget) {
       }
     }
   } else {
-    // MAYBE MERGE THIS ELSE WITH SOMETHING ELSE
     // console.log('FIRST CLICK ');
     iterateCrosswordTiles(selectedTile.value, addStyle, TILE_INPUT_CLASS_LIST);
   }
@@ -221,6 +217,7 @@ function mainEventHandler(target: EventTarget) {
 function handleClickEvent(e: Event) {
   if ((e.target as HTMLInputElement).classList.contains('question-field')) {
     // first just select this field like regular textarea
+    // TO REFACTOR
     console.log('HANDLE TEXTAREA SELECT');
   } else {
     (e.target as HTMLInputElement).focus();
@@ -228,7 +225,7 @@ function handleClickEvent(e: Event) {
   }
 }
 
-function handleKeyboardEvent(e : Event & {data:string}) {
+function handleKeyboardEvent(e: Event & { data: string }) {
   if ((e.target as HTMLInputElement).tagName === 'INPUT') {
     (e.target as HTMLInputElement).value = e.data?.toUpperCase() || '';
     const nextTile = getNextTile.value(e.target as HTMLInputElement);
@@ -237,28 +234,32 @@ function handleKeyboardEvent(e : Event & {data:string}) {
       nextTile.focus();
     }
   }
-  // else Handle TEXTAREA
+  // TODO textarea logic
 }
-function handleRightClick(e:any) {
-  // I don't know how to do this without queryselector
+function handleRightClick(e: any) {
+  // REFACTOR - I don't know how to do this without queryselector
   const el = document.getElementById(e.target.id);
+
+  // CLICKED TILE
   if (el && el.tagName === 'INPUT') {
     const prevTile = getPrevTile.value(el as HTMLInputElement);
     if (prevTile) {
       TILE_INPUT_CLASS_LIST.forEach((cls) => {
         if (prevTile.classList.contains(cls)) {
-          el.classList.add(cls);
-          // console.log(el.classList);
+          iterateCrosswordTiles(el as HTMLInputElement, addStyle, TILE_INPUT_CLASS_LIST);
         }
       });
     }
+
+    // AFTER CLICKED TILE
+  } else {
+    iterateCrosswordTiles(
+      getNextTile.value(el as HTMLInputElement),
+      removeStyle,
+      TILE_INPUT_CLASS_LIST,
+    );
   }
 }
-
-// function handleTileTypeChange(target: HTMLInputElement) {
-//   console.log('clicked', target.tagName);
-//   isInput.value = false;
-// }
 
 </script>
 
@@ -280,7 +281,7 @@ function handleRightClick(e:any) {
 p {
   font-size: 2rem;
 }
-.csw-row{
-  display:flex;
+.csw-row {
+  display: flex;
 }
 </style>
