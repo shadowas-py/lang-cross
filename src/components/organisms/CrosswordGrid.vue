@@ -116,6 +116,7 @@ function iterateCrosswordTiles(
 }
 
 // OTHERS
+
 // REFACTOR!!! DEBUG!!!
 function keepFocus(e: Event) {
   if (selectedTile.value) {
@@ -145,20 +146,25 @@ function mainEventHandler(target: EventTarget) {
   }
 
   if (prevSelectedTile.value) {
+    //
+    // CLICK SAME TILE TWICE
+    //
     if (selectedTile.value === prevSelectedTile.value) {
-      // console.log('CLICK SAME');
+      console.log('CLICK SAME');
+      console.log(prevSelectedTile.value.id, '=>', firstWordSearchTile?.value?.id);
+
       iterateCrosswordTiles(getNextTile.value(prevSelectedTile.value), removeStyle, [
         'direction-marking-tile',
         'selected-to-word-search',
       ]);
-      iterateCrosswordTiles(
-        firstWordSearchTile.value,
-        removeStyle,
-        ['selected-to-word-search'],
-        (el: HTMLInputElement) => firstWordSearchTile.value === el,
-      );
 
-      // REMOVING FROM FIRST TILE TO OLD SELECTED TILE
+      // iterateCrosswordTiles(
+      //   firstWordSearchTile.value,
+      //   removeStyle,
+      //   ['selected-to-word-search'],
+      //   (el: HTMLInputElement) => firstWordSearchTile.value === el,
+      // );
+
       if (prevFirstWordSearchTile.value !== selectedTile.value) {
         // NOT TESTED
         prevFirstWordSearchTile.value = firstWordSearchTile.value;
@@ -182,16 +188,23 @@ function mainEventHandler(target: EventTarget) {
         'direction-marking-tile',
         'selected-to-word-search',
       ]);
+
+    //
+    //  CLICK INSIDE SELECTED LINE
+    //
     } else if ((target as HTMLInputElement).classList.contains('direction-marking-tile')) {
-      // console.log('CLICK INSIDE');
+      console.log('CLICK INSIDE');
       iterateCrosswordTiles(
         prevSelectedTile.value,
         removeStyle,
         ['direction-marking-tile'],
         (el: HTMLInputElement) => el === target,
       );
+    //
+    //  CLICK OUTSIDE SELECTED LINE
+    //
     } else {
-      // console.log('CLICK OUTSIDE');
+      console.log('CLICK OUTSIDE');
       ['direction-marking-tile', 'selected-to-word-search'].forEach((cls) => iterateCrosswordTiles(selectedTile.value, addStyle, [cls], (t) => t.classList.contains(cls)));
 
       wordSearchTilesIds.value = [];
@@ -208,8 +221,11 @@ function mainEventHandler(target: EventTarget) {
         ]);
       }
     }
+    //
+    //  FIRST SELECTING TILE
+    //
   } else {
-    // console.log('FIRST CLICK ');
+    console.log('FIRST CLICK ');
     iterateCrosswordTiles(selectedTile.value, addStyle, TILE_INPUT_CLASS_LIST);
   }
 }
