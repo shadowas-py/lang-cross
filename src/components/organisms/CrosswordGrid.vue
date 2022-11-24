@@ -19,7 +19,7 @@
       </div>
     </div>
     <p></p>
-    <WordSearchEngine :pattern="regexPattern" />
+    <WordList :pattern="regexPattern" />
   </div>
 </template>
 <script lang="ts" setup>
@@ -31,7 +31,7 @@ import {
   selectPrevNthElement,
   selectPrevSibling,
 } from '@/utils/select';
-import WordSearchEngine from '@/components/organisms/WordSearchEngine.vue';
+import WordList from '@/components/organisms/WordList.vue';
 import CrosswordTile from '../atoms/CrosswordTile.vue';
 
 // MAIN DATA
@@ -89,12 +89,27 @@ const regexPattern: Ref<RegExp> = ref(/.*/);
 
 function addToSearchPattern(target: HTMLInputElement) {
   charsSequence.value += target.value.toLowerCase() || '.';
+function addToCharSequence(target: HTMLInputElement) {
+  charSequence.value += target.value.toLowerCase() || '.';
+}
+
+function getIndexOfCharSequence(target:any) {
+  return charSequence.value.indexOf(target.id);
+}
+// to change string pattern
+function setIndexOfCharSequence(target:any) {
+  const index = getIndexOfCharSequence(target);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars, max-len
+  const res = charSequence.value.substring(0, index) + target.data + charSequence.value.substring(charSequence.value.length);
+
+  return res;
 }
 
 // TODO IMPORTANT
-// function applyRegexPattern() {
-//   regexPattern.value = new RegExp(`^${charsSequence.value}$`);
-// }
+function applyRegexPattern() {
+  regexPattern.value = new RegExp(`^${charsSequence.value}$`);
+  regexPattern.value = new RegExp(`^${charSequence.value}$`);
+}
 
 function addToWordSearchTilesIds(target: HTMLInputElement) {
   wordSearchTilesIds.value.push(target.id);
@@ -132,9 +147,11 @@ function mainEventHandler(target: EventTarget) {
   // TO OPT.!!!
   wordSearchTilesIds.value = []; // DO I really need this?
   charsSequence.value = ''; // TO OPT.
+  wordSearchTilesIds.value = []; // DO I really need this
 
   // TO REFACTOR!!!
   iterateCrosswordTiles(firstWordSearchTile.value, addToSearchPattern);
+  // iterateCrosswordTiles(firstWordSearchTile.value, addToCharSequence);
   iterateCrosswordTiles(firstWordSearchTile.value, addToWordSearchTilesIds); // OPT.
 
   if (!wordSearchTilesIds.value.includes(selectedTile.value.id)) {
@@ -152,6 +169,7 @@ function mainEventHandler(target: EventTarget) {
     if (selectedTile.value === prevSelectedTile.value) {
       console.log('CLICK SAME');
       console.log(prevSelectedTile.value.id, '=>', firstWordSearchTile?.value?.id);
+      // console.log(prevSelectedTile.value.id, '=>', firstWordSearchTile?.value?.id);
 
       iterateCrosswordTiles(getNextTile.value(prevSelectedTile.value), removeStyle, [
         'direction-marking-tile',
@@ -225,9 +243,10 @@ function mainEventHandler(target: EventTarget) {
     //  FIRST SELECTING TILE
     //
   } else {
-    console.log('FIRST CLICK ');
+    // console.log('FIRST CLICK ');
     iterateCrosswordTiles(selectedTile.value, addStyle, TILE_INPUT_CLASS_LIST);
   }
+  console.log(charSequence.value, 'CHAR SEQUENCE');
 }
 
 function handleClickEvent(e: Event) {
@@ -245,8 +264,10 @@ function handleKeyboardEvent(e: Event & { data: string }) {
   if ((e.target as HTMLInputElement).tagName === 'INPUT') {
     (e.target as HTMLInputElement).value = e.data?.toUpperCase() || '';
     const nextTile = getNextTile.value(e.target as HTMLInputElement);
-    if (nextTile && !nextTile.readOnly) {
+    if (nextTile && !nextTile.classList.contains('question-field')) {
+      console.log('input');
       mainEventHandler(nextTile);
+      // getIndexFromCharSequence(e.target);
       nextTile.focus();
     }
   }
