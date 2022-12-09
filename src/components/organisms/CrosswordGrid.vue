@@ -77,7 +77,7 @@ function addStyle(element: HTMLElement, classNames: string[]) {
   });
 }
 function removeStyle(element: HTMLElement, classNames: string[]) {
-  // console.log('REMOVE', classNames, element?.id);
+  console.log('REMOVE', classNames, element?.id);
   classNames.forEach((cls) => {
     element.classList.remove(cls);
   });
@@ -139,9 +139,9 @@ function mainEventHandler(target: EventTarget) {
 
   if (!wordSearchTilesIds.value.includes(selectedTile.value.id)) {
     if (selectedTile.value.id !== firstWordSearchTile.value?.id || !firstWordSearchTile.value) {
-      // console.log('SET');
       prevFirstWordSearchTile.value = firstWordSearchTile.value;
       firstWordSearchTile.value = target as HTMLInputElement;
+      console.log('SET', 'O:', prevFirstWordSearchTile.value?.id, 'N:', firstWordSearchTile.value.id);
     }
   }
 
@@ -151,20 +151,25 @@ function mainEventHandler(target: EventTarget) {
     //
     if (selectedTile.value === prevSelectedTile.value) {
       console.log('CLICK SAME');
+      console.log(firstWordSearchTile.value?.id, 'firstwordserachtile');
       console.log(prevSelectedTile.value.id, '=>', firstWordSearchTile?.value?.id);
 
+      // TO OPT.
+      // REMOVE AFTER SELECTED TILE
+      console.log('FROM', getNextTile.value(prevSelectedTile.value)?.id, 'REMOVE');
       iterateCrosswordTiles(getNextTile.value(prevSelectedTile.value), removeStyle, [
         'direction-marking-tile',
         'selected-to-word-search',
       ]);
 
-      // iterateCrosswordTiles(
-      //   firstWordSearchTile.value,
-      //   removeStyle,
-      //   ['selected-to-word-search'],
-      //   (el: HTMLInputElement) => firstWordSearchTile.value === el,
-      // );
-
+      console.log('FROM', firstWordSearchTile.value?.id, 'REMOVE');
+      // REMOVE BEFORE SELECTED TILE
+      iterateCrosswordTiles(
+        firstWordSearchTile.value,
+        removeStyle,
+        ['selected-to-word-search'],
+        (el:HTMLInputElement) => el === selectedTile.value,
+      );
       if (prevFirstWordSearchTile.value !== selectedTile.value) {
         // NOT TESTED
         prevFirstWordSearchTile.value = firstWordSearchTile.value;
