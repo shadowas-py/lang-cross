@@ -19,7 +19,7 @@
       </div>
     </div>
     <p></p>
-    <WordList :pattern="regexPattern" />
+    <WordList :wordPattern="regexPattern" />
   </div>
 </template>
 <script lang="ts" setup>
@@ -105,7 +105,7 @@ function setIndexOfCharSequence(target:any) {
   return res;
 }
 
-function applyRegexPattern() {
+function setRegexPattern() {
   regexPattern.value = new RegExp(`^${charSequence.value}$`);
 }
 
@@ -247,7 +247,8 @@ function mainEventHandler(target: EventTarget) {
     // console.log('FIRST CLICK ');
     iterateCrosswordTiles(selectedTile.value, addStyle, TILE_INPUT_CLASS_LIST);
   }
-  console.log(charSequence.value, 'CHAR SEQUENCE');
+  // console.log(charSequence.value, 'CHAR SEQUENCE');
+  setRegexPattern();
 }
 
 function handleClickEvent(e: Event) {

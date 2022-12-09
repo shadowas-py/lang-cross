@@ -37,7 +37,7 @@ watchEffect(() => {
 // DISPLAYING WORD-CLUES
 const wordList = ref([]);
 
-const props = defineProps({ pattern: RegExp });
+const props = defineProps({ wordPattern: RegExp });
 
 function getWordList() {
   const res = JSON.parse(window.localStorage.getItem('engDict')).filter((word) => props.pattern.test(word));
@@ -47,6 +47,7 @@ function getWordList() {
 watch(
   () => props.pattern,
   () => {
+    console.log('GET WORD LIST');
     getWordList();
   },
 );
