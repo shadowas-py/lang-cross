@@ -34,16 +34,9 @@ const inputFields = ref([
     type: 'number',
     value: 5,
   },
-  {
-    name: 'color-input',
-    label: 'kolor',
-    maxValue: 30,
-    type: 'color',
-    value: '#F1F1F1',
-  },
 ]);
 
-function emitCswParams(data: [number, number, string]) {
+function emitCswParams(data: [number, number]) {
   emit('onCswGridParams', data);
 }
 </script>

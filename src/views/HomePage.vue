@@ -3,7 +3,6 @@
     v-if="cswGridVisible"
     :cswWidth="cswWidth"
     :cswHeight="cswHeight"
-    :cswColor="cswColor"
   />
   <GridGeneratorForm v-if="!cswGridVisible" @onCswGridParams="generateCswGrid" />
 </template>
@@ -16,14 +15,13 @@ import { ref } from 'vue';
 const cswWidth = ref(15);
 const cswHeight = ref(15);
 const cswGridVisible = ref(false);
-const cswColor = ref('#9595FF');
 
 function setCswGridVisible() {
   cswGridVisible.value = true;
 }
 
-function generateCswGrid(val:[number, number, string]) {
-  [cswWidth.value, cswHeight.value, cswColor.value] = val;
+function generateCswGrid(val:[number, number]) {
+  [cswWidth.value, cswHeight.value] = val;
   setCswGridVisible();
 }
 </script>
