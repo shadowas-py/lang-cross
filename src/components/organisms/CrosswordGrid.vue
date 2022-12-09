@@ -24,7 +24,9 @@
 </template>
 <script lang="ts" setup>
 import { TILE_SIZE_REM } from '@/constants';
-import { computed, Ref, ref } from 'vue';
+import {
+  computed, Ref, ref,
+} from 'vue';
 import {
   selectNextNthElement,
   selectNextSibling,
@@ -84,11 +86,9 @@ function removeStyle(element: HTMLElement, classNames: string[]) {
 }
 
 // WORD SEARCH HANDLERS
-const charsSequence = ref('');
+const charSequence = ref('');
 const regexPattern: Ref<RegExp> = ref(/.*/);
 
-function addToSearchPattern(target: HTMLInputElement) {
-  charsSequence.value += target.value.toLowerCase() || '.';
 function addToCharSequence(target: HTMLInputElement) {
   charSequence.value += target.value.toLowerCase() || '.';
 }
@@ -105,9 +105,7 @@ function setIndexOfCharSequence(target:any) {
   return res;
 }
 
-// TODO IMPORTANT
 function applyRegexPattern() {
-  regexPattern.value = new RegExp(`^${charsSequence.value}$`);
   regexPattern.value = new RegExp(`^${charSequence.value}$`);
 }
 
@@ -145,20 +143,23 @@ function mainEventHandler(target: EventTarget) {
   selectedTile.value = target as HTMLInputElement;
 
   // TO OPT.!!!
-  wordSearchTilesIds.value = []; // DO I really need this?
-  charsSequence.value = ''; // TO OPT.
   wordSearchTilesIds.value = []; // DO I really need this
 
   // TO REFACTOR!!!
-  iterateCrosswordTiles(firstWordSearchTile.value, addToSearchPattern);
   // iterateCrosswordTiles(firstWordSearchTile.value, addToCharSequence);
   iterateCrosswordTiles(firstWordSearchTile.value, addToWordSearchTilesIds); // OPT.
 
+  //
+  //  CLICK OUTSIDE SELECTED LINE
+  //
   if (!wordSearchTilesIds.value.includes(selectedTile.value.id)) {
     if (selectedTile.value.id !== firstWordSearchTile.value?.id || !firstWordSearchTile.value) {
-      // console.log('SET');
+      console.log('SET NEW firstWordSearchTile');
       prevFirstWordSearchTile.value = firstWordSearchTile.value;
       firstWordSearchTile.value = target as HTMLInputElement;
+
+      charSequence.value = '';
+      iterateCrosswordTiles(firstWordSearchTile.value, addToCharSequence);
     }
   }
 
@@ -168,7 +169,6 @@ function mainEventHandler(target: EventTarget) {
     //
     if (selectedTile.value === prevSelectedTile.value) {
       console.log('CLICK SAME');
-      console.log(prevSelectedTile.value.id, '=>', firstWordSearchTile?.value?.id);
       // console.log(prevSelectedTile.value.id, '=>', firstWordSearchTile?.value?.id);
 
       iterateCrosswordTiles(getNextTile.value(prevSelectedTile.value), removeStyle, [
@@ -199,9 +199,10 @@ function mainEventHandler(target: EventTarget) {
 
       // to many repetitions
       wordSearchTilesIds.value = [];
-      iterateCrosswordTiles(firstWordSearchTile.value, addToSearchPattern);
-      iterateCrosswordTiles(firstWordSearchTile.value, addToWordSearchTilesIds); // OPT.
+      charSequence.value = '';
+      iterateCrosswordTiles(firstWordSearchTile.value, addToCharSequence);
 
+      iterateCrosswordTiles(firstWordSearchTile.value, addToWordSearchTilesIds); // OPT.
       iterateCrosswordTiles(getNextTile.value(selectedTile.value), addStyle, [
         'direction-marking-tile',
         'selected-to-word-search',
@@ -211,7 +212,7 @@ function mainEventHandler(target: EventTarget) {
     //  CLICK INSIDE SELECTED LINE
     //
     } else if ((target as HTMLInputElement).classList.contains('direction-marking-tile')) {
-      console.log('CLICK INSIDE');
+      // console.log('CLICK INSIDE');
       iterateCrosswordTiles(
         prevSelectedTile.value,
         removeStyle,
@@ -222,7 +223,7 @@ function mainEventHandler(target: EventTarget) {
     //  CLICK OUTSIDE SELECTED LINE
     //
     } else {
-      console.log('CLICK OUTSIDE');
+      // console.log('CLICK OUTSIDE');
       ['direction-marking-tile', 'selected-to-word-search'].forEach((cls) => iterateCrosswordTiles(selectedTile.value, addStyle, [cls], (t) => t.classList.contains(cls)));
 
       wordSearchTilesIds.value = [];
