@@ -32,15 +32,5 @@ input {
   box-shadow: 0 0 1rem saddlebrown;
   border-radius: 0.5rem;
 }
-.color-input {
-  margin:0.1rem;
-  padding: 0.4rem;
-  width: 3rem;
-  height:3rem;
-  overflow:hidden;
-  border-radius:50%;
-  vertical-align:-50%;
-  background-color: currentColor;
-}
 
 </style>
