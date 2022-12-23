@@ -1,6 +1,6 @@
 <!-- eslint-disable vuejs-accessibility/form-control-has-label -->
 <template >
-  <input v-if='isInput'
+  <input
     value=""
     maxlength="1"
     :class="classNames"
@@ -8,38 +8,24 @@
     :style="{ width: `${F_TILE_SIZE_REM}`, height: `${F_TILE_SIZE_REM}` }"
     @focus="$event.target.select()"
     @mousedown.left.prevent
-    @mousedown.right='isInput=!isInput'
     @contextmenu.prevent
   />
-  <textarea v-else
-    value=""
-    maxlength="20"
-    :class="`${classNames} question-field`"
-    :id="elementId"
-    :style="{ width: `${F_TILE_SIZE_REM}`, height: `${F_TILE_SIZE_REM}` }"
-    @focus="$event.target.select()"
-    @mousedown.right="isInput=!isInput"
-    @contextmenu.prevent
-  ></textarea>
-
 </template>
 
 <script setup>
 import { F_TILE_SIZE_REM } from '@/constants';
-import { computed, ref } from 'vue';
+import { computed } from 'vue';
 
 const props = defineProps({
   colNumber: Number,
   rowNumber: Number,
   value: String,
-  isInput: Boolean,
 });
 
 // const emit = defineEmits(['changeTileType']);
 
 const classNames = computed(() => `tile col-${props.colNumber}`);
 const elementId = computed(() => `${props.colNumber}-${props.rowNumber}-tile`);
-const isInput = ref(true);
 
 // function toggleTileStatus(target) {
 //   emit('changeTileType', target);
@@ -72,9 +58,6 @@ const isInput = ref(true);
 }
 .direction-marking-tile {
   background-color: var(--selected-sibling);
-}
-.question-field.tile {
-  background-color: black;
 }
 .selected-to-word-search{
   border: 1px solid blue;

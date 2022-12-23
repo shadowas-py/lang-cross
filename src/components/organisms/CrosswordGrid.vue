@@ -1,6 +1,6 @@
 <template>
   <div class="csw-grid-wrapper" @click.="keepFocus">
-    <div
+    <table
       class="csw-grid"
       @input="handleKeyboardEvent($event as any)"
       @mousedown.left.stop="handleClickEvent($event)"
@@ -8,16 +8,17 @@
       :style="{ width: `${cswWrapperWidth}rem`, height: `${cswWrapperHeight}rem` }"
       @mousedown.right="handleRightClick"
     >
-      <div v-for="row in cswHeight" :key="row" class="csw-row" :id="`csw-row-${row}`">
-        <CrosswordTile
+      <tr v-for="row in cswHeight" :key="row" class="csw-row" :id="`csw-row-${row}`">
+        <td
           v-for="col in props.cswWidth"
-          :key="`${col}-${row}`"
-          :colNumber="col"
-          :rowNumber="row"
-          :isInput="isInput"
-        />
-      </div>
-    </div>
+          :id="`csw-tile-${col}${row}`"
+          :key="col.toString() + row.toString()"
+        >
+          <CrosswordAnswerTile v-if="isAnswerTile" />
+          <CrosswordClueTile v-else />
+        </td>
+      </tr>
+    </table>
     <p></p>
     <WordSearchEngine :pattern="regexPattern" />
   </div>
@@ -32,7 +33,7 @@ import {
   selectPrevSibling,
 } from '@/utils/select';
 import WordSearchEngine from '@/components/organisms/WordSearchEngine.vue';
-import CrosswordTile from '../atoms/CrosswordTile.vue';
+import CrosswordAnswerTile from '../atoms/CrosswordAnswerTile.vue';
 
 // MAIN DATA
 // simplify this somehow ???
@@ -54,7 +55,7 @@ const TILE_INPUT_CLASS_LIST = ['selected-to-word-search', 'direction-marking-til
 // let GLOBAL_COUNTER = 1;
 
 // HANDLE CHILD COMP
-const isInput = ref(true);
+const isAnswerTile = ref(true);
 
 // do i need this?
 function isTileLocked(target: HTMLInputElement) {
@@ -141,7 +142,13 @@ function mainEventHandler(target: EventTarget) {
     if (selectedTile.value.id !== firstWordSearchTile.value?.id || !firstWordSearchTile.value) {
       prevFirstWordSearchTile.value = firstWordSearchTile.value;
       firstWordSearchTile.value = target as HTMLInputElement;
-      console.log('SET', 'O:', prevFirstWordSearchTile.value?.id, 'N:', firstWordSearchTile.value.id);
+      console.log(
+        'SET',
+        'O:',
+        prevFirstWordSearchTile.value?.id,
+        'N:',
+        firstWordSearchTile.value.id,
+      );
     }
   }
 
@@ -168,7 +175,7 @@ function mainEventHandler(target: EventTarget) {
         firstWordSearchTile.value,
         removeStyle,
         ['selected-to-word-search'],
-        (el:HTMLInputElement) => el === selectedTile.value,
+        (el: HTMLInputElement) => el === selectedTile.value,
       );
       if (prevFirstWordSearchTile.value !== selectedTile.value) {
         // NOT TESTED
@@ -194,9 +201,9 @@ function mainEventHandler(target: EventTarget) {
         'selected-to-word-search',
       ]);
 
-    //
-    //  CLICK INSIDE SELECTED LINE
-    //
+      //
+      //  CLICK INSIDE SELECTED LINE
+      //
     } else if ((target as HTMLInputElement).classList.contains('direction-marking-tile')) {
       console.log('CLICK INSIDE');
       iterateCrosswordTiles(
@@ -205,9 +212,9 @@ function mainEventHandler(target: EventTarget) {
         ['direction-marking-tile'],
         (el: HTMLInputElement) => el === target,
       );
-    //
-    //  CLICK OUTSIDE SELECTED LINE
-    //
+      //
+      //  CLICK OUTSIDE SELECTED LINE
+      //
     } else {
       console.log('CLICK OUTSIDE');
       ['direction-marking-tile', 'selected-to-word-search'].forEach((cls) => iterateCrosswordTiles(selectedTile.value, addStyle, [cls], (t) => t.classList.contains(cls)));
@@ -281,7 +288,6 @@ function handleRightClick(e: any) {
     );
   }
 }
-
 </script>
 
 <style scoped>
