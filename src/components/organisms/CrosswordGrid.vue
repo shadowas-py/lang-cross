@@ -1,11 +1,15 @@
+<!-- eslint-disable vuejs-accessibility/click-events-have-key-events -->
 <template>
-  <div class="csw-grid-wrapper" @click.="keepFocus">
+  <div class="csw-grid-wrapper" @click="keepFocus">
     <table
       class="csw-grid"
       @input="handleKeyboardEvent($event as any)"
       @mousedown.left.stop="handleClickEvent($event)"
       @click.stop=""
-      :style="{ width: `${cswWrapperWidth}rem`, height: `${cswWrapperHeight}rem` }"
+      :style="{
+        width: `${cswWrapperWidth}rem`,
+        height: `${cswWrapperHeight}rem`,
+      }"
       @mousedown.right="handleRightClick"
     >
       <tr v-for="row in cswHeight" :key="row" class="csw-row" :id="`csw-row-${row}`">
@@ -23,6 +27,7 @@
     <WordSearchEngine :pattern="regexPattern" />
   </div>
 </template>
+
 <script lang="ts" setup>
 import { TILE_SIZE_REM } from '@/constants';
 import { computed, Ref, ref } from 'vue';
@@ -119,7 +124,7 @@ function iterateCrosswordTiles(
 // OTHERS
 
 // REFACTOR!!! DEBUG!!!
-function keepFocus(e: Event) {
+function keepFocus() {
   if (selectedTile.value) {
     selectedTile.value.focus();
   }
@@ -217,14 +222,16 @@ function mainEventHandler(target: EventTarget) {
       //
     } else {
       console.log('CLICK OUTSIDE');
-      ['direction-marking-tile', 'selected-to-word-search'].forEach((cls) => iterateCrosswordTiles(selectedTile.value, addStyle, [cls], (t) => t.classList.contains(cls)));
+      ['direction-marking-tile', 'selected-to-word-search'].forEach((cls) =>
+        iterateCrosswordTiles(selectedTile.value, addStyle, [cls], (t) =>
+          t.classList.contains(cls)));
 
       wordSearchTilesIds.value = [];
       iterateCrosswordTiles(firstWordSearchTile.value, addToWordSearchTilesIds);
       // only reason for wordSearchTilesIds
       if (
-        prevFirstWordSearchTile.value
-        && !wordSearchTilesIds.value.includes(prevFirstWordSearchTile.value.id)
+        prevFirstWordSearchTile.value &&
+        !wordSearchTilesIds.value.includes(prevFirstWordSearchTile.value.id)
       ) {
         // console.log('CLICK OUTSIDE SEC');
         iterateCrosswordTiles(prevFirstWordSearchTile.value, removeStyle, [
@@ -264,9 +271,9 @@ function handleKeyboardEvent(e: Event & { data: string }) {
   }
   // TODO textarea logic
 }
-function handleRightClick(e: any) {
+function handleRightClick(e: Event) {
   // REFACTOR - I don't know how to do this without queryselector
-  const el = document.getElementById(e.target.id);
+  const el = document.getElementById((e.target as HTMLInputElement).id);
 
   // CLICKED TILE
   if (el && el.tagName === 'INPUT') {
@@ -308,6 +315,7 @@ function handleRightClick(e: any) {
 p {
   font-size: 2rem;
 }
+
 .csw-row {
   display: flex;
 }

@@ -17,11 +17,10 @@ import { ref, watch } from 'vue';
 
 const clue = ref('');
 watch(clue, (n) => console.log(n));
-
 </script>
 <style scoped>
 textarea {
   background-color: black;
-  color:white;
+  color: white;
 }
 </style>

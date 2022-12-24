@@ -1,5 +1,4 @@
-<!-- eslint-disable vuejs-accessibility/form-control-has-label -->
-<template >
+<template>
   <input
     value=""
     maxlength="1"
@@ -59,7 +58,7 @@ const elementId = computed(() => `${props.colNumber}-${props.rowNumber}-tile`);
 .direction-marking-tile {
   background-color: var(--selected-sibling);
 }
-.selected-to-word-search{
+.selected-to-word-search {
   border: 1px solid blue;
 }
 </style>
