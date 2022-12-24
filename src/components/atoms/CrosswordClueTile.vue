@@ -16,7 +16,7 @@
 import { ref, watch } from 'vue';
 
 const clue = ref('');
-watch(clue, (n) => console.log(n));
+// watch(clue, (n) => console.log(n));
 </script>
 <style scoped>
 textarea {

@@ -2,8 +2,6 @@
   <input
     value=""
     maxlength="1"
-    :class="classNames"
-    :id="elementId"
     :style="{ width: `${F_TILE_SIZE_REM}`, height: `${F_TILE_SIZE_REM}` }"
     @focus="$event.target.select()"
     @mousedown.left.prevent
@@ -13,7 +11,7 @@
 
 <script setup>
 import { F_TILE_SIZE_REM } from '@/constants';
-import { computed } from 'vue';
+// import { computed } from 'vue';
 
 const props = defineProps({
   colNumber: Number,
@@ -21,15 +19,9 @@ const props = defineProps({
   value: String,
 });
 
-// const emit = defineEmits(['changeTileType']);
+// const classNames = computed(() => `tile col-${props.colNumber}`);
+// const elementId = computed(() => `${props.colNumber}-${props.rowNumber}-tile`);
 
-const classNames = computed(() => `tile col-${props.colNumber}`);
-const elementId = computed(() => `${props.colNumber}-${props.rowNumber}-tile`);
-
-// function toggleTileStatus(target) {
-//   emit('changeTileType', target);
-//   isInput.value = !isInput.value;
-// }
 </script>
 
 <style scoped>

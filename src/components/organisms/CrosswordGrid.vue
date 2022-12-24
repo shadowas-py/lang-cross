@@ -5,21 +5,29 @@
       class="csw-grid"
       @input="handleKeyboardEvent($event as any)"
       @mousedown.left.stop="handleClickEvent($event)"
+      @mousedown.right="handleRightClick"
       @click.stop=""
       :style="{
         width: `${cswWrapperWidth}rem`,
         height: `${cswWrapperHeight}rem`,
       }"
-      @mousedown.right="handleRightClick"
     >
       <tr v-for="row in cswHeight" :key="row" class="csw-row" :id="`csw-row-${row}`">
         <td
           v-for="col in props.cswWidth"
-          :id="`csw-tile-${col}${row}`"
-          :key="col.toString() + row.toString()"
+          :id="`csw-td-${col}-${row}`"
+          :key="`csw-td-${col}-${row}`"
         >
-          <CrosswordAnswerTile v-if="isAnswerTile" />
-          <CrosswordClueTile v-else />
+          <CrosswordAnswerTile
+            v-if="isAnswerTile"
+            :class="`tile ${col}-${row}-tile`"
+            :id="`${col}-${row}-tile`"
+          />
+          <CrosswordClueTile
+            v-else
+            :class="`tile ${col}-${row}-tile`"
+            :id="`${col}-${row}-tile)`"
+          />
         </td>
       </tr>
     </table>
@@ -67,6 +75,8 @@ function isTileLocked(target: HTMLInputElement) {
   return target.classList.contains('question-field');
 }
 
+const getTileNameByCoord = (colNr: number, rowNr: number) => `col-${`${colNr}-${rowNr}-tile`}`;
+
 // RENDERING
 const props = defineProps({
   cswWidth: Number,
@@ -83,7 +93,7 @@ function addStyle(element: HTMLElement, classNames: string[]) {
   });
 }
 function removeStyle(element: HTMLElement, classNames: string[]) {
-  console.log('REMOVE', classNames, element?.id);
+  // console.log('REMOVE', classNames, element?.id);
   classNames.forEach((cls) => {
     element.classList.remove(cls);
   });
@@ -94,7 +104,7 @@ const charsSequence = ref('');
 const regexPattern: Ref<RegExp> = ref(/.*/);
 
 function addToSearchPattern(target: HTMLInputElement) {
-  charsSequence.value += target.value.toLowerCase() || '.';
+  // charsSequence.value += target.value.toLowerCase() || '.';
 }
 
 // TODO IMPORTANT
@@ -147,13 +157,13 @@ function mainEventHandler(target: EventTarget) {
     if (selectedTile.value.id !== firstWordSearchTile.value?.id || !firstWordSearchTile.value) {
       prevFirstWordSearchTile.value = firstWordSearchTile.value;
       firstWordSearchTile.value = target as HTMLInputElement;
-      console.log(
-        'SET',
-        'O:',
-        prevFirstWordSearchTile.value?.id,
-        'N:',
-        firstWordSearchTile.value.id,
-      );
+      // console.log(
+      //  'SET',
+      //  'O:',
+      //  prevFirstWordSearchTile.value?.id,
+      //  'N:',
+      //  firstWordSearchTile.value.id,
+      // );
     }
   }
 
@@ -168,13 +178,13 @@ function mainEventHandler(target: EventTarget) {
 
       // TO OPT.
       // REMOVE AFTER SELECTED TILE
-      console.log('FROM', getNextTile.value(prevSelectedTile.value)?.id, 'REMOVE');
+      // console.log('FROM', getNextTile.value(prevSelectedTile.value)?.id, 'REMOVE');
       iterateCrosswordTiles(getNextTile.value(prevSelectedTile.value), removeStyle, [
         'direction-marking-tile',
         'selected-to-word-search',
       ]);
 
-      console.log('FROM', firstWordSearchTile.value?.id, 'REMOVE');
+      // console.log('FROM', firstWordSearchTile.value?.id, 'REMOVE');
       // REMOVE BEFORE SELECTED TILE
       iterateCrosswordTiles(
         firstWordSearchTile.value,
@@ -273,15 +283,16 @@ function handleKeyboardEvent(e: Event & { data: string }) {
 }
 function handleRightClick(e: Event) {
   // REFACTOR - I don't know how to do this without queryselector
-  const el = document.getElementById((e.target as HTMLInputElement).id);
+  // const el = document.getElementById((e.target as HTMLInputElement).id);
 
   // CLICKED TILE
-  if (el && el.tagName === 'INPUT') {
-    const prevTile = getPrevTile.value(el as HTMLInputElement);
+  if ((e.target as HTMLInputElement).tagName === 'INPUT') {
+    console.log(e.target, 'HANDLE RIGHT CLICK');
+    const prevTile = getPrevTile.value(e.target as HTMLInputElement);
     if (prevTile) {
       TILE_INPUT_CLASS_LIST.forEach((cls) => {
         if (prevTile.classList.contains(cls)) {
-          iterateCrosswordTiles(el as HTMLInputElement, addStyle, TILE_INPUT_CLASS_LIST);
+          iterateCrosswordTiles(e.target as HTMLInputElement, addStyle, TILE_INPUT_CLASS_LIST);
         }
       });
     }
@@ -289,7 +300,7 @@ function handleRightClick(e: Event) {
     // AFTER CLICKED TILE
   } else {
     iterateCrosswordTiles(
-      getNextTile.value(el as HTMLInputElement),
+      getNextTile.value(e.target as HTMLInputElement),
       removeStyle,
       TILE_INPUT_CLASS_LIST,
     );
