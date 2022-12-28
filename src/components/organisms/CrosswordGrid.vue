@@ -7,26 +7,20 @@
       @mousedown.left.stop="handleClickEvent($event)"
       @mousedown.right="handleRightClick"
       @click.stop=""
-      :style="{
-        width: `${cswWrapperWidth}rem`,
-        height: `${cswWrapperHeight}rem`,
-      }"
     >
       <tr v-for="row in cswHeight" :key="row" class="csw-row" :id="`csw-row-${row}`">
-        <td
-          v-for="col in props.cswWidth"
-          :id="`csw-td-${col}-${row}`"
-          :key="`csw-td-${col}-${row}`"
-        >
+        <td v-for="col in props.cswWidth" :id="`csw-td-${col}-${row}`" :key="`${col}-${row}`">
           <CrosswordAnswerTile
-            v-if="isAnswerTile"
-            :class="`tile ${col}-${row}-tile`"
+            v-if="isAnswerTile([col, row])"
+            :class="`tile answer-tile ${col}-${row}-tile`"
             :id="`${col}-${row}-tile`"
+            :coord="[col, row]"
           />
           <CrosswordClueTile
             v-else
-            :class="`tile ${col}-${row}-tile`"
+            :class="`tile clue-tile ${col}-${row}-tile`"
             :id="`${col}-${row}-tile)`"
+            :coord="[col, row]"
           />
         </td>
       </tr>
@@ -38,7 +32,9 @@
 
 <script lang="ts" setup>
 import { TILE_SIZE_REM } from '@/constants';
-import { computed, Ref, ref } from 'vue';
+import {
+  computed, Ref, ref, reactive,
+} from 'vue';
 import {
   selectNextNthElement,
   selectNextSibling,
@@ -46,7 +42,8 @@ import {
   selectPrevSibling,
 } from '@/utils/select';
 import WordSearchEngine from '@/components/organisms/WordSearchEngine.vue';
-import CrosswordAnswerTile from '../atoms/CrosswordAnswerTile.vue';
+import CrosswordAnswerTile from '@/components/atoms/CrosswordAnswerTile.vue';
+import CrosswordClueTile from '@/components/atoms/CrosswordClueTile.vue';
 
 // MAIN DATA
 // simplify this somehow ???
@@ -58,7 +55,8 @@ const prevFirstWordSearchTile: Ref<null | HTMLInputElement> = ref(null);
 
 const isHorizontal = ref(true);
 const getNextTile = computed(() => (isHorizontal.value ? selectNextSibling : selectNextNthElement));
-const getPrevTile = computed(() => (isHorizontal.value ? selectPrevSibling : selectPrevNthElement));
+// const getPrevTile = computed(() => (
+//  isHorizontal.value ? selectPrevSibling : selectPrevNthElement));
 
 const wordSearchTilesIds: Ref<string[]> = ref([]);
 
@@ -68,14 +66,19 @@ const TILE_INPUT_CLASS_LIST = ['selected-to-word-search', 'direction-marking-til
 // let GLOBAL_COUNTER = 1;
 
 // HANDLE CHILD COMP
-const isAnswerTile = ref(true);
 
+type Coordinate = [number, number];
+const questionTileCoords = reactive(new Set());
+const isAnswerTile = (coord: Coordinate) => {
+  console.log(coord, questionTileCoords);
+  return !questionTileCoords.has(coord.toString());
+};
 // do i need this?
 function isTileLocked(target: HTMLInputElement) {
   return target.classList.contains('question-field');
 }
 
-const getTileNameByCoord = (colNr: number, rowNr: number) => `col-${`${colNr}-${rowNr}-tile`}`;
+// const getTileNameByCoord = (colNr: number, rowNr: number) => `col-${`${colNr}-${rowNr}-tile`}`;
 
 // RENDERING
 const props = defineProps({
@@ -87,7 +90,7 @@ const cswWrapperWidth = computed(() => Number(props.cswWidth) * TILE_SIZE_REM);
 const cswWrapperHeight = computed(() => Number(props.cswHeight) * TILE_SIZE_REM);
 
 function addStyle(element: HTMLElement, classNames: string[]) {
-  // console.log('ADD', classNames, element?.id);
+  console.log('ADD', classNames, element?.id);
   classNames.forEach((cls) => {
     element.classList.add(cls);
   });
@@ -281,53 +284,91 @@ function handleKeyboardEvent(e: Event & { data: string }) {
   }
   // TODO textarea logic
 }
-function handleRightClick(e: Event) {
-  // REFACTOR - I don't know how to do this without queryselector
-  // const el = document.getElementById((e.target as HTMLInputElement).id);
+function handleRightClick(e: any) {
+  const coordValue = e.target.attributes.coord.value;
 
-  // CLICKED TILE
-  if ((e.target as HTMLInputElement).tagName === 'INPUT') {
-    console.log(e.target, 'HANDLE RIGHT CLICK');
-    const prevTile = getPrevTile.value(e.target as HTMLInputElement);
-    if (prevTile) {
-      TILE_INPUT_CLASS_LIST.forEach((cls) => {
-        if (prevTile.classList.contains(cls)) {
-          iterateCrosswordTiles(e.target as HTMLInputElement, addStyle, TILE_INPUT_CLASS_LIST);
-        }
-      });
-    }
+  // console.log(coordValue, 'Coord Val');
 
-    // AFTER CLICKED TILE
+  if (questionTileCoords.has(coordValue)) {
+    questionTileCoords.delete(coordValue);
   } else {
-    iterateCrosswordTiles(
-      getNextTile.value(e.target as HTMLInputElement),
-      removeStyle,
-      TILE_INPUT_CLASS_LIST,
-    );
+    questionTileCoords.add(coordValue);
   }
+  // console.log(questionTileIDs);
+  // if ((target as HTMLInputElement).tagName === 'INPUT') {
+  //  console.log(target.id, 'HANDLE RIGHT CLICK');
+  //  target?.data?.isAnswerTile = false;
+  //  console.log(isAnswerTile);
+  // const prevTile = getPrevTile.value(e.target as HTMLInputElement);
+
+  // if (prevTile) {
+  //  console.log(prevTile, 'prev tile');
+  //  TILE_INPUT_CLASS_LIST.forEach((cls) => {
+  //    if (prevTile.classList.contains(cls)) {
+  //      iterateCrosswordTiles(e.target as HTMLInputElement, addStyle, TILE_INPUT_CLASS_LIST);
+  //    }
+  //  });
+  // }
+
+  // AFTER CLICKED TILE
+
+  // } else {
+  //  iterateCrosswordTiles(
+  //    getNextTile.value(e.target as HTMLInputElement),
+  //    removeStyle,
+  //    TILE_INPUT_CLASS_LIST,
+  //  );
+  // }
 }
 </script>
 
 <style scoped>
-.csw-grid {
-  box-sizing: border-box;
-  display: flex;
-  flex-wrap: wrap;
-  margin: 0;
-  width: fit-content;
+p {
+  font-size: 2rem;
 }
+/*.clue-tile{
+
+}*/
 
 .csw-grid-wrapper {
+  display: flex;
+  flex-wrap: wrap;
+  flex-direction: column;
+  align-items: center;
   width: fit-content;
   margin: 0 auto auto;
   border: 0.2rem solid black;
 }
 
-p {
-  font-size: 2rem;
+.csw-grid {
+  box-sizing: border-box;
+  border-collapse: collapse;
+  margin: 1rem;
+  width: fit-content;
 }
 
-.csw-row {
-  display: flex;
+.tile {
+  width: 5.6rem;
+  height: 5.6rem;
+  border: 1px dotted rgb(150, 150, 150);
+  text-align: center;
+  outline: none;
+  caret-color: black;
+  cursor: default;
+}
+.answer-tile {
+  color: darkblue;
+  font-size: 4.6rem;
+  font-family: 'Patrick Hand', cursive;
+}
+.clue-tile {
+  font-size: 12px;
+  font-family: Arial, Helvetica, sans-serif;
+  background: black;
+  color: white;
+  display: block;
+  resize: none;
+  overflow: hidden;
+  letter-spacing: 0;
 }
 </style>

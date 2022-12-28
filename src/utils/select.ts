@@ -16,5 +16,6 @@ export function selectPrevNthElement(el: HTMLInputElement): HTMLInputElement | n
 }
 
 export function selectPrevSibling(el: HTMLInputElement): HTMLInputElement | null {
-  return el.previousElementSibling as HTMLInputElement | null;
+  console.log('SELECT PREV');
+  return el.parentElement?.previousElementSibling?.firstElementChild as HTMLInputElement | null;
 }
