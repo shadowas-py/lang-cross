@@ -31,15 +31,14 @@
 </template>
 
 <script lang="ts" setup>
-import { TILE_SIZE_REM } from '@/constants';
 import {
   computed, Ref, ref, reactive,
 } from 'vue';
 import {
   selectNextNthElement,
   selectNextSibling,
-  selectPrevNthElement,
-  selectPrevSibling,
+  // selectPrevNthElement,
+  // selectPrevSibling,
 } from '@/utils/select';
 import WordSearchEngine from '@/components/organisms/WordSearchEngine.vue';
 import CrosswordAnswerTile from '@/components/atoms/CrosswordAnswerTile.vue';
@@ -62,32 +61,21 @@ const wordSearchTilesIds: Ref<string[]> = ref([]);
 
 const TILE_INPUT_CLASS_LIST = ['selected-to-word-search', 'direction-marking-tile'];
 
-// DEBUGGING
-// let GLOBAL_COUNTER = 1;
-
 // HANDLE CHILD COMP
 
 type Coordinate = [number, number];
 const questionTileCoords = reactive(new Set());
-const isAnswerTile = (coord: Coordinate) => {
-  console.log(coord, questionTileCoords);
-  return !questionTileCoords.has(coord.toString());
-};
+const isAnswerTile = (coord: Coordinate) => !questionTileCoords.has(coord.toString());
 // do i need this?
 function isTileLocked(target: HTMLInputElement) {
   return target.classList.contains('question-field');
 }
-
-// const getTileNameByCoord = (colNr: number, rowNr: number) => `col-${`${colNr}-${rowNr}-tile`}`;
 
 // RENDERING
 const props = defineProps({
   cswWidth: Number,
   cswHeight: Number,
 });
-
-const cswWrapperWidth = computed(() => Number(props.cswWidth) * TILE_SIZE_REM);
-const cswWrapperHeight = computed(() => Number(props.cswHeight) * TILE_SIZE_REM);
 
 function addStyle(element: HTMLElement, classNames: string[]) {
   console.log('ADD', classNames, element?.id);
@@ -107,7 +95,7 @@ const charsSequence = ref('');
 const regexPattern: Ref<RegExp> = ref(/.*/);
 
 function addToSearchPattern(target: HTMLInputElement) {
-  // charsSequence.value += target.value.toLowerCase() || '.';
+  charsSequence.value += target.value.toLowerCase() || '.';
 }
 
 // TODO IMPORTANT
@@ -116,7 +104,7 @@ function addToSearchPattern(target: HTMLInputElement) {
 // }
 
 function addToWordSearchTilesIds(target: HTMLInputElement) {
-  wordSearchTilesIds.value.push(target.id);
+  // wordSearchTilesIds.value.push(target.id);
 }
 
 // MAIN FUNCTIONS
@@ -160,13 +148,6 @@ function mainEventHandler(target: EventTarget) {
     if (selectedTile.value.id !== firstWordSearchTile.value?.id || !firstWordSearchTile.value) {
       prevFirstWordSearchTile.value = firstWordSearchTile.value;
       firstWordSearchTile.value = target as HTMLInputElement;
-      // console.log(
-      //  'SET',
-      //  'O:',
-      //  prevFirstWordSearchTile.value?.id,
-      //  'N:',
-      //  firstWordSearchTile.value.id,
-      // );
     }
   }
 
@@ -323,12 +304,11 @@ function handleRightClick(e: any) {
 </script>
 
 <style scoped>
+@import url('https://fonts.googleapis.com/css2?family=Patrick+Hand&display=swap');
+
 p {
   font-size: 2rem;
 }
-/*.clue-tile{
-
-}*/
 
 .csw-grid-wrapper {
   display: flex;
@@ -356,6 +336,14 @@ p {
   caret-color: black;
   cursor: default;
 }
+.tile:hover {
+  background-color: var(--hover-tile);
+}
+/*.tile:focus {
+  background-color: var(--selected-tile);
+  border: 2px solid var(--selected-tile-border);
+}*/
+
 .answer-tile {
   color: darkblue;
   font-size: 4.6rem;
@@ -371,4 +359,15 @@ p {
   overflow: hidden;
   letter-spacing: 0;
 }
+.clue-tile:hover {
+  background: darkgreen;
+}
+
+.direction-marking-tile {
+  background-color: var(--selected-sibling);
+}
+.selected-to-word-search {
+  border: 1px solid blue;
+}
+
 </style>

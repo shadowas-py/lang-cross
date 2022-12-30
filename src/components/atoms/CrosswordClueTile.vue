@@ -8,11 +8,7 @@
   ></textarea>
 </template>
 <script setup>
-import { ref, watch } from 'vue';
+import { ref } from 'vue';
 
 const clue = ref('');
-// watch(clue, (n) => console.log(n));
 </script>
-<style>
-
-</style>
