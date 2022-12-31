@@ -32,7 +32,7 @@
 
 <script lang="ts" setup>
 import {
-  computed, Ref, ref, reactive,
+  computed, Ref, ref, reactive, watch,
 } from 'vue';
 import {
   selectNextNthElement,
@@ -59,7 +59,7 @@ const getNextTile = computed(() => (isHorizontal.value ? selectNextSibling : sel
 
 const wordSearchTilesIds: Ref<string[]> = ref([]);
 
-const TILE_INPUT_CLASS_LIST = ['selected-to-word-search', 'direction-marking-tile'];
+const ALL_INPUT_TILE_STYLES = ['selected-to-word-search', 'direction-marking-tile'];
 
 // HANDLE CHILD COMP
 
@@ -131,68 +131,48 @@ function keepFocus() {
   }
 }
 
-// TODO JUST MAKE SIMPLE CODE
-
 function mainEventHandler(target: EventTarget) {
   prevSelectedTile.value = selectedTile.value;
   selectedTile.value = target as HTMLInputElement;
   const selectedSameTile = computed(() => prevSelectedTile.value === selectedTile.value);
 
-  // BEFORE RENDER
-  if (prevSelectedTile.value) {
-    if (selectedTile.value.classList.contains('selected-to-word-search')) {
-      console.log('THIS');
-      iterateCrosswordTiles(prevSelectedTile.value, removeStyle, ['direction-marking-tile']);
-    } else {
+  // SAME TILE CLICK
+  if (selectedSameTile.value) {
+    iterateCrosswordTiles(
+      getNextTile.value(selectedTile.value as HTMLInputElement),
+      removeStyle,
+      ALL_INPUT_TILE_STYLES,
+    );
+
+    isHorizontal.value = !isHorizontal.value;
+
+    iterateCrosswordTiles(getNextTile.value(selectedTile.value), addStyle, ALL_INPUT_TILE_STYLES);
+  } else if (selectedTile.value.classList.contains('selected-to-word-search')) {
+    // INSIDE 'SELECTED TO WORD SEARCH CLASS'
+    if (selectedTile.value.classList.contains('direction-marking-tile')) {
       iterateCrosswordTiles(
-        selectedSameTile.value ? getNextTile.value(prevSelectedTile.value) : prevSelectedTile.value,
+        prevSelectedTile.value,
         removeStyle,
         ['direction-marking-tile'],
         (el) => el === selectedTile.value,
       );
+    } else {
+      iterateCrosswordTiles(
+        selectedTile.value,
+        addStyle,
+        ['direction-marking-tile'],
+        (el) => el === prevSelectedTile.value,
+      );
     }
-  }
-
-  // HANDLE DIRECTION
-  if (selectedSameTile.value) {
-    isHorizontal.value = !isHorizontal.value;
-  }
-
-  // RENDERING
-  if (selectedTile.value.classList.contains('selected-to-word-search')) {
-    iterateCrosswordTiles(
-      prevSelectedTile.value,
-      addStyle,
-      ['direction-marking-tile'],
-      (el) => el.classList.contains('direction-marking-tile'),
-    );
   } else {
-    console.log('ELSE');
-    iterateCrosswordTiles(
-      selectedSameTile.value ?
-        getNextTile.value(selectedTile.value as HTMLInputElement) :
-        selectedTile.value,
-      addStyle,
-      ['direction-marking-tile'],
-      (el) => el.classList.contains('direction-marking-tile'),
-    );
-    iterateCrosswordTiles(
-      selectedSameTile.value ?
-        getNextTile.value(selectedTile.value as HTMLInputElement) :
-        selectedTile.value,
-      addStyle,
-      ['selected-to-word-search'],
-      (el) => el.classList.contains('selected-to-word-search'),
-    );
+    // OUTSIDE 'SELECTED TO WORD SEARCH CLASS'
+    iterateCrosswordTiles(prevSelectedTile.value, removeStyle, ALL_INPUT_TILE_STYLES);
+
+    ['direction-marking-tile', 'selected-to-word-search'].map((cls) =>
+      iterateCrosswordTiles(selectedTile.value, addStyle, [cls], (el) =>
+        el.classList.contains(cls)));
   }
 }
-// iterateCrosswordTiles(
-//  selectedSameTile.value ? getNextTile.value(selectedTile.value) : selectedTile.value,
-//  addStyle,
-//  ['direction-marking-tile', 'selected-to-word-search'],
-//  (el) => el.classList.contains('direction-marking-tile'),
-// );
-
 // EVENT HANDLERS
 // function mainEventHandler(target: EventTarget) {
 //  prevSelectedTile.value = selectedTile.value;
