@@ -1,14 +1,15 @@
 <template>
   <div class="csw-grid-wrapper">
     <table
+      id="csw-grid"
       class="csw-grid"
-      @input="handleKeyboardEvent($event as any)"
+      @input="handleInputEvent($event as any)"
       @mousedown.left.stop="handleClickEvent($event as EventWithTarget)"
       @mousedown.right="handleRightClick($event as EventWithTarget)"
       @click.stop=""
     >
       <tr v-for="row in cswHeight" :key="row" class="csw-row" :id="`csw-row-${row}`">
-        <td v-for="col in props.cswWidth" :id="`csw-td-${col}-${row}`" :key="`${col}-${row}`">
+        <td v-for="col in cswWidth" :id="`csw-td-${col}-${row}`" :key="`${col}-${row}`">
           <CrosswordAnswerTile
             v-if="isAnswerTile([col, row])"
             :class="`tile answer-tile ${col}-${row}-tile`"
@@ -31,7 +32,7 @@
 
 <script lang="ts" setup>
 import {
-  computed, Ref, ref, reactive,
+  computed, Ref, ref, reactive, onMounted,
 } from 'vue';
 import {
   selectNextNthElement,
@@ -68,6 +69,7 @@ const clueTileCoords = reactive(new Set());
 const isAnswerTile = (coord: Coordinate) => !clueTileCoords.has(coord.toString());
 
 // RENDERING
+
 const props = defineProps({
   cswWidth: Number,
   cswHeight: Number,
@@ -125,10 +127,50 @@ function traverseCswGrid(
 //  }
 // }
 
+// TYPES
+type TileTagName = 'INPUT' | 'TEXTAREA';
+interface CrosswordTileData {
+  value: string;
+  tagName: TileTagName;
+}
+
+interface CrosswordData {
+  width: number;
+  height: number;
+  tiles: Array<CrosswordTileData>;
+}
+const cswGridEl = ref();
+
+onMounted(() => {
+  cswGridEl.value = document.querySelector('#csw-grid');
+});
+
+function saveCrossword() {
+  const tilesList: Array<HTMLElement> = Array.from(
+    cswGridEl.value.querySelectorAll('td > *:first-child'),
+  );
+  let tilesData: Array<CrosswordTileData> = [];
+  for (let i = 0; i < tilesList.length; i += props.cswWidth as number) {
+    tilesData = tilesData.concat(
+      tilesList
+        .slice(i, i + (props.cswWidth as number))
+        .map((el: HTMLElement) => ({
+          value: (el as HTMLInputElement).value,
+          tagName: el.tagName as TileTagName,
+        })),
+    );
+  }
+  const crosswordData: CrosswordData = {
+    width: props.cswWidth as number,
+    height: props.cswHeight as number,
+    tiles: tilesData,
+  };
+  window.localStorage.setItem('crossword', JSON.stringify(crosswordData));
+}
+
 function handleEvents(target: EventTarget) {
   prevSelectedTile.value = selectedTile.value;
   selectedTile.value = target as HTMLInputElement;
-
   // SAME TILE
   if (selectedSameTile.value) {
     traverseCswGrid(
@@ -146,12 +188,11 @@ function handleEvents(target: EventTarget) {
     isHorizontal.value = !isHorizontal.value;
 
     traverseCswGrid(getNextTile.value(selectedTile.value), addStyle, INPUT_TILE_STYLES);
-
     firstWordSearchTile.value = target as HTMLInputElement;
-  } else if (selectedTile.value.classList.contains('selected-to-word-search')) {
     // INSIDE 'SELECTED TO WORD SEARCH CLASS'
+  } else if (selectedTile.value.classList.contains('selected-to-word-search')) {
+    // INSIDE 'SELECTED TO DIRECTION MARKING TILE CLASS'
     if (selectedTile.value.classList.contains('direction-marking-tile')) {
-      // INSIDE 'SELECTED TO DIRECTION MARKING TILE CLASS'
       traverseCswGrid(
         prevSelectedTile.value,
         removeStyle,
@@ -166,10 +207,9 @@ function handleEvents(target: EventTarget) {
         (el) => el === prevSelectedTile.value,
       );
     }
-  } else {
     // OUTSIDE 'SELECTED TO WORD SEARCH CLASS'
+  } else {
     traverseCswGrid(firstWordSearchTile.value, removeStyle, INPUT_TILE_STYLES);
-
     INPUT_TILE_STYLES.map((cls) =>
       traverseCswGrid(selectedTile.value, addStyle, [cls], (el) => el.classList.contains(cls)));
     firstWordSearchTile.value = target as HTMLInputElement;
@@ -185,20 +225,20 @@ function handleClickEvent(e: EventWithTarget) {
   }
 }
 
-function handleKeyboardEvent(e: InputEvent) {
-  if ((e.target as HTMLInputElement).tagName === 'INPUT') {
-    (e.target as HTMLInputElement).value = e.data?.toUpperCase() || '';
-    const nextTile = getNextTile.value(e.target as HTMLInputElement);
+function handleInputEvent(e: InputEvent) {
+  if (e.target instanceof HTMLInputElement) {
+    e.target.value = e.data?.toUpperCase() || '';
+    const nextTile = getNextTile.value(e.target);
     if (nextTile) {
       handleEvents(nextTile);
       nextTile.focus();
     }
   }
+  saveCrossword();
 }
 function handleRightClick(e: EventWithTarget) {
   const coordValue = e.target.getAttribute('coord');
   traverseCswGrid(firstWordSearchTile.value, removeStyle, INPUT_TILE_STYLES);
-
   // MOUNT/UNMOUNT CROSSWORD INPUT TILE
   if (clueTileCoords.has(coordValue)) {
     clueTileCoords.delete(coordValue);
