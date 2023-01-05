@@ -26,7 +26,7 @@
       </tr>
     </table>
     <p></p>
-    <WordList :pattern="regexPattern" />
+    <WordList :filteredWords="filteredWords" />
   </div>
 </template>
 
@@ -43,6 +43,7 @@ import {
 import WordList from '@/components/organisms/WordList.vue';
 import CrosswordAnswerTile from '@/components/atoms/CrosswordAnswerTile.vue';
 import CrosswordClueTile from '@/components/atoms/CrosswordClueTile.vue';
+import RegexPattern from '@/utils/RegexPattern';
 
 type EventWithTarget = MouseEvent & { target: HTMLElement };
 // MAIN DATA
@@ -58,13 +59,12 @@ const getNextTile = computed(() => (isHorizontal.value ? selectNextSibling : sel
 // const getPrevTile = computed(() => (
 //  isHorizontal.value ? selectPrevSibling : selectPrevNthElement));
 
-// const wordSearchTilesIds: Ref<string[]> = ref([]);
-
 const INPUT_TILE_STYLES = ['selected-to-word-search', 'direction-marking-tile'];
 
 // HANDLE CHILD COMP
 
 type Coordinate = [number, number];
+
 const clueTileCoords = reactive(new Set());
 const isAnswerTile = (coord: Coordinate) => !clueTileCoords.has(coord.toString());
 
@@ -89,21 +89,8 @@ function removeStyle(element: HTMLElement, classNames: string[]) {
 }
 
 // WORD SEARCH HANDLERS
-// const charsSequence = ref('');
-const regexPattern: Ref<RegExp> = ref(/.*/);
-
-// function addToSearchPattern(target: HTMLInputElement) {
-//  charsSequence.value += target.value.toLowerCase() || '.';
-// }
-
-// TODO IMPORTANT
-// function applyRegexPattern() {
-//   regexPattern.value = new RegExp(`^${charsSequence.value}$`);
-// }
-
-// function addToWordSearchTilesIds(target: HTMLInputElement) {
-//  // wordSearchTilesIds.value.push(target.id);
-// }
+const regexPattern = reactive(new RegexPattern([]));
+const filteredWords = reactive([]);
 
 // MAIN FUNCTIONS
 function traverseCswGrid(
@@ -118,6 +105,24 @@ function traverseCswGrid(
     callback(target, args);
     target = _getNextTile(target);
   }
+}
+
+function mapCswGrid(
+  startElement: HTMLInputElement | null,
+  callback: (target: HTMLInputElement, arg?: unknown) => string,
+  stopCondition: (arg: HTMLInputElement) => boolean = () => false,
+  _getNextTile: (arg: HTMLInputElement) => HTMLInputElement | null = getNextTile.value,
+) {
+  let target = startElement;
+  console.log(target?.value);
+  const _data: string[] = [];
+  while (target && !stopCondition(target)) {
+    console.log(target);
+    _data.push(callback(target));
+    target = _getNextTile(target);
+  }
+  console.log(_data);
+  return _data;
 }
 
 // REFACTOR!!! DEBUG!!!
@@ -152,12 +157,10 @@ function saveCrossword() {
   let tilesData: Array<CrosswordTileData> = [];
   for (let i = 0; i < tilesList.length; i += props.cswWidth as number) {
     tilesData = tilesData.concat(
-      tilesList
-        .slice(i, i + (props.cswWidth as number))
-        .map((el: HTMLElement) => ({
-          value: (el as HTMLInputElement).value,
-          tagName: el.tagName as TileTagName,
-        })),
+      tilesList.slice(i, i + (props.cswWidth as number)).map((el: HTMLElement) => ({
+        value: (el as HTMLInputElement).value,
+        tagName: el.tagName as TileTagName,
+      })),
     );
   }
   const crosswordData: CrosswordData = {
@@ -188,7 +191,10 @@ function handleEvents(target: EventTarget) {
     isHorizontal.value = !isHorizontal.value;
 
     traverseCswGrid(getNextTile.value(selectedTile.value), addStyle, INPUT_TILE_STYLES);
+
     firstWordSearchTile.value = target as HTMLInputElement;
+    regexPattern.set(mapCswGrid(firstWordSearchTile.value, (el) => el.value || '.', (el) => el.tagName === 'TEXTAREA'));
+
     // INSIDE 'SELECTED TO WORD SEARCH CLASS'
   } else if (selectedTile.value.classList.contains('selected-to-word-search')) {
     // INSIDE 'SELECTED TO DIRECTION MARKING TILE CLASS'
@@ -212,7 +218,9 @@ function handleEvents(target: EventTarget) {
     traverseCswGrid(firstWordSearchTile.value, removeStyle, INPUT_TILE_STYLES);
     INPUT_TILE_STYLES.map((cls) =>
       traverseCswGrid(selectedTile.value, addStyle, [cls], (el) => el.classList.contains(cls)));
+
     firstWordSearchTile.value = target as HTMLInputElement;
+    regexPattern.set(mapCswGrid(firstWordSearchTile.value, (el) => el.value || '.'));
   }
 }
 
