@@ -17,5 +17,16 @@ module.exports = {
     indent: ['error', 2],
     'linebreak-style': 0,
     'no-underscore-dangle': 'off',
+    'trailling-comma': 'off',
+    'implicit-arrow-linebreak': 'off',
+    'operator-linebreak': [
+      'error',
+      'after',
+      {
+        overrides: {
+          ':': 'after',
+        },
+      },
+    ],
   },
 };

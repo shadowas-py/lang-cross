@@ -8,14 +8,14 @@ import { ref } from 'vue';
 const props = defineProps({ inputFields: Array });
 const emit = defineEmits(['onCswGridParams']);
 
-let cswGridParams = ref([]);
+const cswGridParams = ref([]);
 
 const submitData = () => {
   props.inputFields.forEach((element) => {
     cswGridParams.value.push(element.value);
   });
   emit('onCswGridParams', cswGridParams.value);
-  cswGridParams = [];
+  cswGridParams.value = [];
 };
 </script>
 
