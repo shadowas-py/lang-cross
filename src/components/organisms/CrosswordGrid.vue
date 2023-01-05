@@ -44,10 +44,11 @@ import WordList from '@/components/organisms/WordList.vue';
 import CrosswordAnswerTile from '@/components/atoms/CrosswordAnswerTile.vue';
 import CrosswordClueTile from '@/components/atoms/CrosswordClueTile.vue';
 import RegexPattern from '@/utils/RegexPattern';
+import {
+  Coordinate, CrosswordTileData, TileTagName, CrosswordData, EventWithTarget,
+} from '@/types';
 
-type EventWithTarget = MouseEvent & { target: HTMLElement };
 // MAIN DATA
-// simplify this somehow ???
 const selectedTile: Ref<null | HTMLInputElement> = ref(null);
 const prevSelectedTile: Ref<null | HTMLInputElement> = ref(null);
 const selectedSameTile = computed(() => prevSelectedTile.value === selectedTile.value);
@@ -56,20 +57,17 @@ const firstWordSearchTile: Ref<null | HTMLInputElement> = ref(null);
 
 const isHorizontal = ref(true);
 const getNextTile = computed(() => (isHorizontal.value ? selectNextSibling : selectNextNthElement));
-// const getPrevTile = computed(() => (
-//  isHorizontal.value ? selectPrevSibling : selectPrevNthElement));
 
 const INPUT_TILE_STYLES = ['selected-to-word-search', 'direction-marking-tile'];
 
 // HANDLE CHILD COMP
-
-type Coordinate = [number, number];
-
 const clueTileCoords = reactive(new Set());
 const isAnswerTile = (coord: Coordinate) => !clueTileCoords.has(coord.toString());
+// WORD SEARCH HANDLERS
+const regexPattern = reactive(new RegexPattern([]));
+const filteredWords = reactive([]);
 
 // RENDERING
-
 const props = defineProps({
   cswWidth: Number,
   cswHeight: Number,
@@ -87,10 +85,6 @@ function removeStyle(element: HTMLElement, classNames: string[]) {
     element.classList.remove(cls);
   });
 }
-
-// WORD SEARCH HANDLERS
-const regexPattern = reactive(new RegexPattern([]));
-const filteredWords = reactive([]);
 
 // MAIN FUNCTIONS
 function traverseCswGrid(
@@ -132,18 +126,6 @@ function mapCswGrid(
 //  }
 // }
 
-// TYPES
-type TileTagName = 'INPUT' | 'TEXTAREA';
-interface CrosswordTileData {
-  value: string;
-  tagName: TileTagName;
-}
-
-interface CrosswordData {
-  width: number;
-  height: number;
-  tiles: Array<CrosswordTileData>;
-}
 const cswGridEl = ref();
 
 onMounted(() => {
