@@ -26,7 +26,7 @@
       </tr>
     </table>
     <p></p>
-    <WordList :regexPattern="regexPattern" />
+    <WordList :regexPattern="regexPattern.get()" />
   </div>
 </template>
 

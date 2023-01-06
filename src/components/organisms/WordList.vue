@@ -36,18 +36,19 @@ saveDictionary();
 // RENDERING
 const wordList = ref([]);
 
-const props = defineProps({ pattern: RegExp });
+const props = defineProps({ regexPattern: RegExp });
 
 function getWordList() {
   console.log('WL GET_DATA');
-  const res = JSON.parse(window.localStorage.getItem('engDict')).filter((word) => props.pattern.test(word));
+  const res = JSON.parse(window.localStorage.getItem('engDict')).filter((word) => props.regexPattern.test(word));
+  console.log(res, 'WL RES');
   wordList.value = res;
 }
 
 watch(
-  () => props.pattern,
+  () => props.regexPattern,
   () => {
-    console.log('WL pattern CHANGED');
+    console.log('WL pattern CHANGED', props.regexPattern);
     getWordList();
   },
 );
