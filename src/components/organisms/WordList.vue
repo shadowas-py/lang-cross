@@ -17,13 +17,11 @@ import { ref, watch } from 'vue';
 import { ENG_DICTIONARY_URL } from '@/constants';
 
 // HANDLING DICTIONARY
-function saveDictionary(a) {
-  console.log('WL', a);
+function saveDictionary() {
   if (!window.localStorage.getItem('engDict')) {
     fetchDictionary(
       ENG_DICTIONARY_URL,
     ).then((res) => {
-      console.log('Wl SAVE', res);
       if (res) {
         window.localStorage.setItem('engDict', JSON.stringify(res));
       }
@@ -39,23 +37,20 @@ const wordList = ref([]);
 const props = defineProps({ regexPattern: RegExp });
 
 function getWordList() {
-  console.log('WL GET_DATA');
   const res = JSON.parse(window.localStorage.getItem('engDict')).filter((word) => props.regexPattern.test(word));
-  console.log(res, 'WL RES');
+  // console.log(res, 'WL RES');
   wordList.value = res;
 }
 
 watch(
   () => props.regexPattern,
   () => {
-    console.log('WL pattern CHANGED', props.regexPattern);
     getWordList();
   },
 );
 
 // FOR DEBUG
 function clearLocalStorage() {
-  console.log('WL CLEAR');
   window.localStorage.clear();
 }
 </script>

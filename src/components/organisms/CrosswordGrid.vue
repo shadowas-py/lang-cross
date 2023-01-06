@@ -74,13 +74,13 @@ const props = defineProps({
 });
 
 function addStyle(element: HTMLElement, classNames: string[]) {
-  console.log('ADD', classNames, element?.id);
+  // console.log('ADD', classNames, element?.id);
   classNames.forEach((cls) => {
     element.classList.add(cls);
   });
 }
 function removeStyle(element: HTMLElement, classNames: string[]) {
-  console.log('REMOVE', classNames, element?.id);
+  // console.log('REMOVE', classNames, element?.id);
   classNames.forEach((cls) => {
     element.classList.remove(cls);
   });
@@ -108,10 +108,8 @@ function mapCswGrid(
   _getNextTile: (arg: HTMLInputElement) => HTMLInputElement | null = getNextTile.value,
 ) {
   let target = startElement;
-  console.log(target?.value);
   const _data: string[] = [];
   while (target && !stopCondition(target)) {
-    console.log(target);
     _data.push(callback(target));
     target = _getNextTile(target);
   }
@@ -129,13 +127,12 @@ function mapCswGrid(
 const regexPattern = reactive(new RegexPattern([]));
 
 watch([firstWordSearchTile, isHorizontal], () => {
-  console.log('change');
   regexPattern.set(mapCswGrid(firstWordSearchTile.value, (el) => el.value || '.'));
 });
-watch(regexPattern, (n, o) => console.log(n.get(), 'REGEXY', o.get()));
 
-// FETCHING/SAVING DATA
+// SAVING CROSSWORD STATE
 function saveCrossword() {
+  console.log('SAVE CROSSWORD');
   const tilesList: Array<HTMLElement> = Array.from(
     CSW_GRID_ELEMENT.value.querySelectorAll('td > *:first-child'),
   );
