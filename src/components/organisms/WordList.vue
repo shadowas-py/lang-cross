@@ -13,33 +13,33 @@
 
 <script setup>
 import fetchDictionary from '@/utils/fetch';
-import { ref, watch, watchEffect } from 'vue';
+import { ref, watch } from 'vue';
 import { ENG_DICTIONARY_URL } from '@/constants';
 
-// FETCHING DATA
-function saveDictionary() {
+// HANDLING DICTIONARY
+function saveDictionary(a) {
+  console.log('WL', a);
   if (!window.localStorage.getItem('engDict')) {
     fetchDictionary(
       ENG_DICTIONARY_URL,
     ).then((res) => {
-      console.log(res);
+      console.log('Wl SAVE', res);
       if (res) {
         window.localStorage.setItem('engDict', JSON.stringify(res));
       }
-    });
+    }).catch((e) => console.error(e.message));
   }
 }
 
-watchEffect(() => {
-  saveDictionary();
-});
+saveDictionary();
 
-// DISPLAYING WORD-CLUES
+// RENDERING
 const wordList = ref([]);
 
 const props = defineProps({ pattern: RegExp });
 
 function getWordList() {
+  console.log('WL GET_DATA');
   const res = JSON.parse(window.localStorage.getItem('engDict')).filter((word) => props.pattern.test(word));
   wordList.value = res;
 }
@@ -47,12 +47,14 @@ function getWordList() {
 watch(
   () => props.pattern,
   () => {
+    console.log('WL pattern CHANGED');
     getWordList();
   },
 );
 
 // FOR DEBUG
 function clearLocalStorage() {
+  console.log('WL CLEAR');
   window.localStorage.clear();
 }
 </script>
