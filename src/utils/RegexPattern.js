@@ -4,7 +4,7 @@ export default class WordFinder {
   }
 
   get() {
-    return new RegExp(`$${this.stringSequence}^`);
+    return new RegExp(`^${this.stringSequence}$`);
   }
 
   set(charList) {
