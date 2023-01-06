@@ -42,9 +42,8 @@ import WordList from '@/components/organisms/WordList.vue';
 import CrosswordAnswerTile from '@/components/atoms/CrosswordAnswerTile.vue';
 import CrosswordClueTile from '@/components/atoms/CrosswordClueTile.vue';
 import RegexPattern from '@/utils/RegexPattern';
-import {
-  Coordinate, CrosswordTileData, TileTagName, CrosswordData, EventWithTarget,
-} from '@/types';
+import { CrosswordData } from '@/controllers/Crossword';
+import { Coordinate, TileTagName, EventWithTarget } from '@/types';
 
 // MAIN DATA
 const selectedTile: Ref<null | HTMLInputElement> = ref(null);
@@ -136,7 +135,7 @@ function saveCrossword() {
   const tilesList: Array<HTMLElement> = Array.from(
     CSW_GRID_ELEMENT.value.querySelectorAll('td > *:first-child'),
   );
-  let tilesData: Array<CrosswordTileData> = [];
+  let tilesData : any[] = [];
   for (let i = 0; i < tilesList.length; i += props.cswWidth as number) {
     tilesData = tilesData.concat(
       tilesList.slice(i, i + (props.cswWidth as number)).map((el: HTMLElement) => ({
