@@ -26,7 +26,7 @@
       </tr>
     </table>
     <p></p>
-    <WordList :filteredWords="filteredWords" />
+    <WordList :regexPattern="regexPattern" />
   </div>
 </template>
 
@@ -127,7 +127,6 @@ function mapCswGrid(
 
 // WORD SEARCH HANDLERS
 const regexPattern = reactive(new RegexPattern([]));
-const filteredWords = reactive([]);
 
 watch([firstWordSearchTile, isHorizontal], () => {
   console.log('change');
@@ -181,7 +180,6 @@ function handleEvents(target: EventTarget) {
     traverseCswGrid(getNextTile.value(selectedTile.value), addStyle, INPUT_TILE_STYLES);
 
     firstWordSearchTile.value = target as HTMLInputElement;
-    regexPattern.set(mapCswGrid(firstWordSearchTile.value, (el) => el.value || '.', (el) => el.tagName === 'TEXTAREA'));
 
     // INSIDE 'SELECTED TO WORD SEARCH CLASS'
   } else if (selectedTile.value.classList.contains('selected-to-word-search')) {
@@ -210,7 +208,6 @@ function handleEvents(target: EventTarget) {
       traverseCswGrid(selectedTile.value, addStyle, [cls], (el) => el.classList.contains(cls)));
 
     firstWordSearchTile.value = target as HTMLInputElement;
-    regexPattern.set(mapCswGrid(firstWordSearchTile.value, (el) => el.value || '.'));
   }
 }
 
