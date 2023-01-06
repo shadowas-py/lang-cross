@@ -37,8 +37,6 @@ import {
 import {
   selectNextNthElement,
   selectNextSibling,
-  // selectPrevNthElement,
-  // selectPrevSibling,
 } from '@/utils/select';
 import WordList from '@/components/organisms/WordList.vue';
 import CrosswordAnswerTile from '@/components/atoms/CrosswordAnswerTile.vue';
@@ -86,7 +84,7 @@ function removeStyle(element: HTMLElement, classNames: string[]) {
   });
 }
 
-// MAIN FUNCTIONS
+// GRID TRAVERSE
 function traverseCswGrid(
   startElement: HTMLInputElement | null,
   callback: (target: HTMLInputElement, arg: string[]) => void,
@@ -115,7 +113,6 @@ function mapCswGrid(
     _data.push(callback(target));
     target = _getNextTile(target);
   }
-  console.log(_data);
   return _data;
 }
 
@@ -126,15 +123,15 @@ function mapCswGrid(
 //  }
 // }
 
-const cswGridEl = ref();
-
+const CSW_GRID_ELEMENT = ref();
 onMounted(() => {
-  cswGridEl.value = document.querySelector('#csw-grid');
+  CSW_GRID_ELEMENT.value = document.querySelector('#csw-grid');
 });
 
+// FETCHING/SAVING DATA
 function saveCrossword() {
   const tilesList: Array<HTMLElement> = Array.from(
-    cswGridEl.value.querySelectorAll('td > *:first-child'),
+    CSW_GRID_ELEMENT.value.querySelectorAll('td > *:first-child'),
   );
   let tilesData: Array<CrosswordTileData> = [];
   for (let i = 0; i < tilesList.length; i += props.cswWidth as number) {
@@ -153,9 +150,11 @@ function saveCrossword() {
   window.localStorage.setItem('crossword', JSON.stringify(crosswordData));
 }
 
+// EVENT HANDLERS
 function handleEvents(target: EventTarget) {
   prevSelectedTile.value = selectedTile.value;
   selectedTile.value = target as HTMLInputElement;
+
   // SAME TILE
   if (selectedSameTile.value) {
     traverseCswGrid(
@@ -179,6 +178,7 @@ function handleEvents(target: EventTarget) {
 
     // INSIDE 'SELECTED TO WORD SEARCH CLASS'
   } else if (selectedTile.value.classList.contains('selected-to-word-search')) {
+    //
     // INSIDE 'SELECTED TO DIRECTION MARKING TILE CLASS'
     if (selectedTile.value.classList.contains('direction-marking-tile')) {
       traverseCswGrid(
@@ -195,6 +195,7 @@ function handleEvents(target: EventTarget) {
         (el) => el === prevSelectedTile.value,
       );
     }
+    //
     // OUTSIDE 'SELECTED TO WORD SEARCH CLASS'
   } else {
     traverseCswGrid(firstWordSearchTile.value, removeStyle, INPUT_TILE_STYLES);
@@ -226,6 +227,7 @@ function handleInputEvent(e: InputEvent) {
   }
   saveCrossword();
 }
+
 function handleRightClick(e: EventWithTarget) {
   const coordValue = e.target.getAttribute('coord');
   traverseCswGrid(firstWordSearchTile.value, removeStyle, INPUT_TILE_STYLES);
