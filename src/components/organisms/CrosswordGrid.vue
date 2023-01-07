@@ -7,6 +7,7 @@
       @mousedown.left.stop="handleClickEvent($event as EventWithTarget)"
       @mousedown.right="handleRightClick($event as EventWithTarget)"
       @click.stop=""
+      @contextmenu.prevent
     >
       <tr v-for="row in cswHeight" :key="row" class="csw-row" :id="`csw-row-${row}`">
         <td v-for="col in cswWidth" :id="`csw-td-${col}-${row}`" :key="`${col}-${row}`">
@@ -21,6 +22,8 @@
             :class="`tile clue-tile ${col}-${row}-tile`"
             :id="`${col}-${row}-tile)`"
             :coord="[col, row]"
+            :inputCoord='null'
+            :inputOrientation='null'
           />
         </td>
       </tr>
@@ -34,18 +37,20 @@
 import {
   computed, Ref, ref, reactive, onMounted, watch,
 } from 'vue';
-import {
-  selectNextNthElement,
-  selectNextSibling,
-} from '@/utils/select';
+import { selectNextNthElement, selectNextSibling } from '@/utils/select';
 import WordList from '@/components/organisms/WordList.vue';
 import CrosswordAnswerTile from '@/components/atoms/CrosswordAnswerTile.vue';
 import CrosswordClueTile from '@/components/atoms/CrosswordClueTile.vue';
 import RegexPattern from '@/utils/RegexPattern';
-import { CrosswordData } from '@/controllers/Crossword';
-import { Coordinate, TileTagName, EventWithTarget } from '@/types';
+import Crossword from '@/controllers/CrosswordState';
+import { Coordinate, EventWithTarget } from '@/types';
 
 // MAIN DATA
+const props = defineProps({
+  cswWidth: Number,
+  cswHeight: Number,
+});
+
 const selectedTile: Ref<null | HTMLInputElement> = ref(null);
 const prevSelectedTile: Ref<null | HTMLInputElement> = ref(null);
 const selectedSameTile = computed(() => prevSelectedTile.value === selectedTile.value);
@@ -58,8 +63,15 @@ const getNextTile = computed(() => (isHorizontal.value ? selectNextSibling : sel
 const INPUT_TILE_STYLES = ['selected-to-word-search', 'direction-marking-tile'];
 
 const CSW_GRID_ELEMENT = ref();
+const crosswordData = ref();
 onMounted(() => {
   CSW_GRID_ELEMENT.value = document.querySelector('#csw-grid');
+  crosswordData.value = new Crossword(
+    props.cswWidth as number,
+    props.cswWidth as number,
+    CSW_GRID_ELEMENT.value,
+  );
+  crosswordData.value.save();
 });
 
 // HANDLE CHILD COMP
@@ -67,10 +79,6 @@ const clueTileCoords = reactive(new Set());
 const isAnswerTile = (coord: Coordinate) => !clueTileCoords.has(coord.toString());
 
 // RENDERING
-const props = defineProps({
-  cswWidth: Number,
-  cswHeight: Number,
-});
 
 function addStyle(element: HTMLElement, classNames: string[]) {
   // console.log('ADD', classNames, element?.id);
@@ -130,27 +138,6 @@ watch([firstWordSearchTile, isHorizontal], () => {
 });
 
 // SAVING CROSSWORD STATE
-function saveCrossword() {
-  console.log('SAVE CROSSWORD');
-  const tilesList: Array<HTMLElement> = Array.from(
-    CSW_GRID_ELEMENT.value.querySelectorAll('td > *:first-child'),
-  );
-  let tilesData : any[] = [];
-  for (let i = 0; i < tilesList.length; i += props.cswWidth as number) {
-    tilesData = tilesData.concat(
-      tilesList.slice(i, i + (props.cswWidth as number)).map((el: HTMLElement) => ({
-        value: (el as HTMLInputElement).value,
-        tagName: el.tagName as TileTagName,
-      })),
-    );
-  }
-  const crosswordData: CrosswordData = {
-    width: props.cswWidth as number,
-    height: props.cswHeight as number,
-    tiles: tilesData,
-  };
-  window.localStorage.setItem('crossword', JSON.stringify(crosswordData));
-}
 
 // EVENT HANDLERS
 function handleEvents(target: EventTarget) {
@@ -216,7 +203,8 @@ function handleClickEvent(e: EventWithTarget) {
   }
 }
 
-function handleInputEvent(e: InputEvent) {
+function handleInputEvent(e: EventWithTarget & {data:string, target:{value: string}}) {
+  console.log('HANDLE INPUT');
   if (e.target instanceof HTMLInputElement) {
     e.target.value = e.data?.toUpperCase() || '';
     const nextTile = getNextTile.value(e.target);
@@ -225,7 +213,8 @@ function handleInputEvent(e: InputEvent) {
       nextTile.focus();
     }
   }
-  saveCrossword();
+  const coord = e.target?.getAttribute('coord')?.split(',').map(Number);
+  crosswordData.value.update(coord, e.target);
 }
 
 function handleRightClick(e: EventWithTarget) {
@@ -237,6 +226,9 @@ function handleRightClick(e: EventWithTarget) {
   } else {
     clueTileCoords.add(coordValue);
   }
+  const coord = coordValue?.split(',').map(Number);
+  console.log(coord, 'HANDLE', e.target);
+  crosswordData.value.update(coord, e.target);
 }
 </script>
 
