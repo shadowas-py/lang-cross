@@ -1,4 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router';
+import SolveView from '@/views/SolvePage.vue';
 import HomeView from '../views/HomePage.vue';
 
 const routes = [
@@ -6,6 +7,11 @@ const routes = [
     path: '/',
     name: 'home',
     component: HomeView,
+  },
+  {
+    path: '/solve',
+    name: 'solve',
+    component: SolveView,
   },
 ];
 
