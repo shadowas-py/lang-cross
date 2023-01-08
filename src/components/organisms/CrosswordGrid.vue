@@ -74,25 +74,27 @@ onMounted(() => {
   crosswordData.value.save();
 });
 
-// HANDLE CHILD COMP
+// HANDLE REGEX
 const clueTileCoords = reactive(new Set());
 const isAnswerTile = (coord: Coordinate) => !clueTileCoords.has(coord.toString());
-
-// REFACTOR!!! DEBUG!!!
-// function keepFocus() {
-//  if (selectedTile.value) {
-//    selectedTile.value.focus();
-//  }
-// }
+const emits = defineEmits(['regexPatternChange']);
 
 // WORD SEARCH HANDLERS
 const regexPattern = reactive(new RegexPattern([]));
 
 watch([firstWordSearchTile, isHorizontal], () => {
   regexPattern.set(
-    mapCswGrid(firstWordSearchTile.value, (el) => el.value || '.', getNextTile.value),
+    mapCswGrid(firstWordSearchTile.value, (el) => el.value.toLowerCase() || '.', getNextTile.value, (el) => el.tagName !== 'INPUT'),
   );
+  console.log(regexPattern.get(), 'in WATCHER');
+  emits('regexPatternChange', regexPattern.get());
 });
+// REFACTOR!!! DEBUG!!!
+// function keepFocus() {
+//  if (selectedTile.value) {
+//    selectedTile.value.focus();
+//  }
+// }
 
 // SAVING CROSSWORD STATE
 
@@ -160,9 +162,7 @@ function handleEvents(target: EventTarget) {
         getNextTile.value,
         [cls],
         (el) => el.classList.contains(cls),
-
       ));
-
     firstWordSearchTile.value = target as HTMLInputElement;
   }
 }
