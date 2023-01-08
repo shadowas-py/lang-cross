@@ -68,7 +68,7 @@ onMounted(() => {
   CSW_GRID_ELEMENT.value = document.querySelector('#csw-grid');
   crosswordData.value = new Crossword(
     props.cswWidth as number,
-    props.cswWidth as number,
+    props.cswHeight as number,
     CSW_GRID_ELEMENT.value,
   );
   crosswordData.value.save();
