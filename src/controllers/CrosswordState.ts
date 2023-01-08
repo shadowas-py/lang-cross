@@ -38,8 +38,7 @@ export default class CrosswordState {
     this.height = height;
     // Change this if it will be more than one element inside one tile
     const tilesList = Array.from(cswEl.querySelectorAll('td > *:first-child'));
-    const tilesData = {};
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const tilesData: any = {};
     tilesList.forEach((el: any) => {
       const coord = el.getAttribute('coord');
       tilesData[coord] = { tagName: el.tagName, value: el.value };
@@ -48,11 +47,11 @@ export default class CrosswordState {
     this.tiles = tilesData;
   }
 
-  update(coord, target) {
+  update(coord:string, target:HTMLInputElement) {
     // TO REFACTOR
     const { value, tagName } = target;
     this.tiles[coord].value = value;
-    this.tiles[coord].tagName = tagName;
+    (this.tiles[coord].tagName as string) = tagName;
     console.log(this.tiles);
   }
 
