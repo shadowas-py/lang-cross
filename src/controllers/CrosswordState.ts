@@ -1,28 +1,17 @@
 type writingOrientation = 'vertical' | 'horizontal';
-
+type crosswordTileTag = 'INPUT' | 'TEXTAREA'
 type Coordinate = [number, number];
-
 interface clueTile {
   tagName: 'TEXTAREA';
   value: string;
-  inputLocation: Coordinate;
-  inputOrientation: writingOrientation;
+  inputLocation?: Coordinate;
+  inputOrientation?: writingOrientation;
 }
-
 interface inputTile {
   tagName: 'INPUT';
   value: string;
 }
-
 type CrosswordTile = inputTile | clueTile;
-
-// interface CrosswordData {
-//        width: number;
-//        height: number;
-//        tiles: {
-//          [coord: string]:CrosswordTile
-//        }
-//      }
 
 export default class CrosswordState {
   width: number;
@@ -38,25 +27,37 @@ export default class CrosswordState {
     this.height = height;
     // Change this if it will be more than one element inside one tile
     const tilesList = Array.from(cswEl.querySelectorAll('td > *:first-child'));
-    const tilesData: any = {};
-    tilesList.forEach((el: any) => {
-      const coord = el.getAttribute('coord');
-      tilesData[coord] = { tagName: el.tagName, value: el.value };
+    const tilesData: {[coord: string]: CrosswordTile} = {};
+    tilesList.forEach((el: Element) => {
+      const inputEl = el as HTMLInputElement;
+      const coord = inputEl.getAttribute('coord');
+      if (typeof coord === 'string') {
+        tilesData[coord] = {
+          tagName: inputEl.tagName as crosswordTileTag,
+          value: inputEl.value,
+        };
+      } else {
+        console.error('coord cannot be: ', typeof coord);
+      }
     });
-
     this.tiles = tilesData;
   }
 
   update(coord:string, target:HTMLInputElement) {
-    // TO REFACTOR
     const { value, tagName } = target;
     this.tiles[coord].value = value;
     (this.tiles[coord].tagName as string) = tagName;
-    console.log(this.tiles);
   }
 
   save() {
     window.localStorage.setItem('crosswordState', JSON.stringify(this));
-    console.log('crosswordState', JSON.stringify(this.tiles));
   }
 }
+
+// interface CrosswordData {
+//        width: number;
+//        height: number;
+//        tiles: {
+//          [coord: string]:CrosswordTile
+//        }
+//      }

@@ -12,7 +12,7 @@
       <tr v-for="row in cswHeight" :key="row" class="csw-row" :id="`csw-row-${row}`">
         <td v-for="col in cswWidth" :id="`csw-td-${col}-${row}`" :key="`${col}-${row}`">
           <CrosswordAnswerTile
-            v-if="isAnswerTile([col, row])"
+            v-if="isInputTile([col, row])"
             :class="`tile answer-tile ${col}-${row}-tile`"
             :id="`${col}-${row}-tile`"
             :coord="[col, row]"
@@ -50,6 +50,7 @@ const props = defineProps({
   cswWidth: Number,
   cswHeight: Number,
 });
+const emits = defineEmits(['regexPatternChange']);
 
 const selectedTile: Ref<null | HTMLInputElement> = ref(null);
 const prevSelectedTile: Ref<null | HTMLInputElement> = ref(null);
@@ -62,6 +63,7 @@ const getNextTile = computed(() => (isHorizontal.value ? selectNextSibling : sel
 
 const INPUT_TILE_STYLES = ['selected-to-word-search', 'direction-marking-tile'];
 
+// CROSSWORD STATE
 const CSW_GRID_ELEMENT = ref();
 const crosswordData = ref();
 onMounted(() => {
@@ -74,29 +76,23 @@ onMounted(() => {
   crosswordData.value.save();
 });
 
-// HANDLE REGEX
+// HANDLE TILES IDENTITY
 const clueTileCoords = reactive(new Set());
-const isAnswerTile = (coord: Coordinate) => !clueTileCoords.has(coord.toString());
-const emits = defineEmits(['regexPatternChange']);
+const isInputTile = (coord: Coordinate) => !clueTileCoords.has(coord.toString());
 
 // WORD SEARCH HANDLERS
 const regexPattern = reactive(new RegexPattern([]));
-
 watch([firstWordSearchTile, isHorizontal], () => {
   regexPattern.set(
-    mapCswGrid(firstWordSearchTile.value, (el) => el.value.toLowerCase() || '.', getNextTile.value, (el) => el.tagName !== 'INPUT'),
+    mapCswGrid(
+      firstWordSearchTile.value,
+      (el) => el.value.toLowerCase() || '.',
+      getNextTile.value,
+      (el) => el.tagName !== 'INPUT',
+    ),
   );
-  console.log(regexPattern.get(), 'in WATCHER');
   emits('regexPatternChange', regexPattern.get());
 });
-// REFACTOR!!! DEBUG!!!
-// function keepFocus() {
-//  if (selectedTile.value) {
-//    selectedTile.value.focus();
-//  }
-// }
-
-// SAVING CROSSWORD STATE
 
 // EVENT HANDLERS
 function handleEvents(target: EventTarget) {
@@ -156,13 +152,8 @@ function handleEvents(target: EventTarget) {
   } else {
     traverseCswGrid(firstWordSearchTile.value, removeStyle, getNextTile.value, INPUT_TILE_STYLES);
     INPUT_TILE_STYLES.map((cls) =>
-      traverseCswGrid(
-        selectedTile.value,
-        addStyle,
-        getNextTile.value,
-        [cls],
-        (el) => el.classList.contains(cls),
-      ));
+      traverseCswGrid(selectedTile.value, addStyle, getNextTile.value, [cls], (el) =>
+        el.classList.contains(cls)));
     firstWordSearchTile.value = target as HTMLInputElement;
   }
 }
@@ -200,7 +191,7 @@ function handleRightClick(e: EventWithTarget) {
     clueTileCoords.add(coordValue);
   }
   const coord = coordValue?.split(',').map(Number);
-  console.log(coord, 'HANDLE', e.target);
+  // console.log(coord, 'HANDLE', e.target);
   crosswordData.value.update(coord, e.target);
 }
 </script>
@@ -211,7 +202,6 @@ function handleRightClick(e: EventWithTarget) {
 p {
   font-size: 2rem;
 }
-
 .csw-grid-wrapper {
   display: flex;
   flex-wrap: wrap;
@@ -221,14 +211,12 @@ p {
   margin: 0 auto auto;
   border: 0.2rem solid black;
 }
-
 .csw-grid {
   box-sizing: border-box;
   border-collapse: collapse;
   margin: 1rem;
   width: fit-content;
 }
-
 .tile {
   width: 5.6rem;
   height: 5.6rem;
@@ -241,11 +229,10 @@ p {
 .tile:hover {
   background-color: var(--hover-tile);
 }
-/*.tile:focus {
+.tile:focus {
   background-color: var(--selected-tile);
   border: 2px solid var(--selected-tile-border);
-}*/
-
+}
 .answer-tile {
   color: darkblue;
   font-size: 4.6rem;
@@ -264,7 +251,6 @@ p {
 .clue-tile:hover {
   background: darkgreen;
 }
-
 .direction-marking-tile {
   background-color: var(--selected-sibling);
 }
