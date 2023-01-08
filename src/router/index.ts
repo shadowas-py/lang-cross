@@ -1,12 +1,12 @@
 import { createRouter, createWebHistory } from 'vue-router';
-import SolveView from '@/views/SolvePage.vue';
-import HomeView from '../views/HomePage.vue';
+import SolveView from '@/views/SolveView.vue';
+import EditView from '@/views/EditView.vue';
 
 const routes = [
   {
     path: '/',
     name: 'home',
-    component: HomeView,
+    component: EditView,
   },
   {
     path: '/solve',
