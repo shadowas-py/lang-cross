@@ -227,11 +227,11 @@ p {
   cursor: default;
 }
 .tile:hover {
-  background-color: var(--hover-tile);
+  background-color: var(--hover-tile-color);
 }
 .tile:focus {
-  background-color: var(--selected-tile);
-  border: 2px solid var(--selected-tile-border);
+  background-color: var(--selected-tile-color);
+  border: 2px solid var(--selected-tile-border-color);
 }
 .answer-tile {
   color: darkblue;
@@ -252,7 +252,7 @@ p {
   background: darkgreen;
 }
 .direction-marking-tile {
-  background-color: var(--selected-sibling);
+  background-color: var(--selected-tile-secondary-color);
 }
 .selected-to-word-search {
   border: 1px solid blue;
