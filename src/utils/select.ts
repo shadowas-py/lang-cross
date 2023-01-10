@@ -1,9 +1,8 @@
 export function selectNextNthElement(el: HTMLInputElement): HTMLInputElement | null {
   const colNr = Number(el.id.split('-')[0]) - 1;
-  // TO REFACTOR
   return el.parentElement?.parentElement?.nextElementSibling?.children[
     colNr
-  ].firstChild as HTMLInputElement | null;
+  ].firstElementChild as HTMLInputElement | null;
 }
 
 export function selectNextSibling(el: HTMLInputElement): HTMLInputElement | null {

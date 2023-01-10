@@ -13,20 +13,19 @@
         <td v-for="col in cswWidth" :key="`${col}-${row}`">
           <template v-if="isInputTile([col, row])">
             <slot
-            name="answerTile"
-            :slotProps='{class:`answer-tile ${col}-${row}-tile`,
-              id:`${col}-${row}-tile`,
-              coord:[col, row]}'
-
+              name="answerTile"
+              :slotProps="{
+                class: `answer-tile ${col}-${row}-tile`,
+                id: `${col}-${row}-tile`,
+                coord: [col, row],
+              }"
             >
             </slot>
           </template>
           <template v-else>
             <slot
-            name='clueTile'
-            :slotProps='{class:`answer-tile ${col}-${row}-tile`,
-              id:`${col}-${row}-tile`,
-              coord:[col, row]}'
+              name="clueTile"
+              :slotProps="{ class: `answer-tile`, id: `${col}-${row}-tile`, coord: [col, row] }"
             >
             </slot>
           </template>
@@ -42,8 +41,6 @@ import {
   computed, Ref, ref, reactive, onMounted, watch,
 } from 'vue';
 import { selectNextNthElement, selectNextSibling } from '@/utils/select';
-import CrosswordAnswerTile from '@/components/atoms/CrosswordAnswerTile.vue';
-import CrosswordClueTile from '@/components/atoms/CrosswordClueTile.vue';
 import RegexPattern from '@/utils/RegexPattern';
 import Crossword from '@/controllers/CrosswordState';
 import { Coordinate, EventWithTarget } from '@/types';
@@ -201,7 +198,7 @@ function handleRightClick(e: EventWithTarget) {
 }
 </script>
 
-<style >
+<style>
 @import url('https://fonts.googleapis.com/css2?family=Patrick+Hand&display=swap');
 
 p {
@@ -257,7 +254,7 @@ p {
   background: darkgreen;
 }
 .direction-marking-tile {
-  background-color: var(--selected-tile-secondary-color);
+  background-color: var(--next-active-tile-color);
 }
 .selected-to-word-search {
   border: 1px solid blue;
