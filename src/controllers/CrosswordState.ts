@@ -25,9 +25,11 @@ export default class CrosswordState {
   constructor(width: number, height: number, cswEl: HTMLElement) {
     this.width = width;
     this.height = height;
+    // console.log(cswEl, 'cswEl');
     // Change this if it will be more than one element inside one tile
     const tilesList = Array.from(cswEl.querySelectorAll('td > *:first-child'));
     const tilesData: {[coord: string]: CrosswordTile} = {};
+    console.log(tilesData, 'cswEl');
     tilesList.forEach((el: Element) => {
       const inputEl = el as HTMLInputElement;
       const coord = inputEl.getAttribute('coord');
@@ -37,7 +39,7 @@ export default class CrosswordState {
           value: inputEl.value,
         };
       } else {
-        console.error('coord cannot be: ', typeof coord);
+        console.error(coord, ' coord must be string ');
       }
     });
     this.tiles = tilesData;

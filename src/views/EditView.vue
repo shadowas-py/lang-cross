@@ -4,8 +4,22 @@
       <CrosswordGrid
         :cswWidth="cswWidth"
         :cswHeight="cswHeight"
-        @regexPatternChange="setRegexPattern "
-      />
+        @regexPatternChange="setRegexPattern"
+      >
+        <template #answerTile="{ slotProps }">
+          <CrosswordAnswerTile
+            :class="slotProps.class"
+            :id="slotProps.id"
+            :coord="slotProps.coord"
+          />
+        </template>
+        <template #clueTile="{ slotProps }">
+          <CrosswordClueTile
+            :class="slotProps.class"
+            :id="slotProps.id"
+            :coord="slotProps.coord" />
+          </template>
+      </CrosswordGrid>
       <WordList :regexPattern="regexPattern" />
     </template>
     <GridGeneratorForm v-if="!cswGridVisible" @onCswGridParams="generateCswGrid" />
@@ -14,9 +28,11 @@
 
 <script lang="ts" setup>
 import GridGeneratorForm from '@/components/organisms/GridGeneratorForm.vue';
-import CrosswordGrid from '@/components/organisms/CrosswordGrid.vue';
 import WordList from '@/components/organisms/WordList.vue';
 import { ref } from 'vue';
+import CrosswordGrid from '@/components/templates/CrosswordGridTemplate.vue';
+import CrosswordClueTile from '@/components/atoms/CrosswordClueTile.vue';
+import CrosswordAnswerTile from '@/components/atoms/CrosswordAnswerTile.vue';
 
 const cswWidth = ref(15);
 const cswHeight = ref(15);
