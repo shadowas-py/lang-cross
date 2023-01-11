@@ -40,12 +40,12 @@
 import {
   computed, Ref, ref, reactive, onMounted, watch,
 } from 'vue';
-import { selectNextNthElement, selectNextSibling } from '@/utils/select';
+import { selectNextNthElement, selectNextSibling } from '@/utils/crosswordGridSelectors';
 import RegexPattern from '@/utils/RegexPattern';
-import Crossword from '@/controllers/CrosswordState';
+import Crossword from '@/controllers/CrosswordEditMode';
 import { Coordinate, EventWithTarget } from '@/types';
-import { removeStyle, addStyle } from '@/utils/styleHandler';
-import { mapCswGrid, traverseCswGrid } from '@/controllers/CrosswordMethods';
+import { removeStyle, addStyle } from '@/utils/styleHandlers';
+import { mapCswGrid, traverseCswGrid } from '@/utils/crosswordGridIterators';
 
 // MAIN DATA
 const props = defineProps({
@@ -70,7 +70,7 @@ const CSW_GRID_ELEMENT = ref();
 const crosswordData = ref();
 onMounted(() => {
   CSW_GRID_ELEMENT.value = document.querySelector('#csw-grid');
-  crosswordData.value = new Crossword(
+  crosswordData.value = Crossword.fromComponent(
     props.cswWidth as number,
     props.cswHeight as number,
     CSW_GRID_ELEMENT.value,
@@ -80,7 +80,8 @@ onMounted(() => {
 
 // HANDLE TILES IDENTITY
 const clueTileCoords = reactive(new Set());
-const isInputTile = (coord: Coordinate) => !clueTileCoords.has(coord.toString());
+// const isInputTile = (coord: Coordinate) => !clueTileCoords.has(coord.toString());
+const isInputTile = (coord:string) => crosswordData.value.tiles[coord].tagName === 'INPUT';
 
 // WORD SEARCH HANDLERS
 const regexPattern = reactive(new RegexPattern([]));

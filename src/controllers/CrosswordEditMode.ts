@@ -14,18 +14,11 @@ interface inputTile {
 type CrosswordTile = inputTile | clueTile;
 
 export default class CrosswordState {
-  width: number;
-
-  height: number;
-
-  tiles: {
+  // eslint-disable-next-line no-useless-constructor
+  constructor(public width: number, public height: number, public tiles : {
           [coord: string]:CrosswordTile
-        };
-
-  constructor(width: number, height: number, tiles: {[coord: string]:CrosswordTile}) {
-    this.width = width;
-    this.height = height;
-    this.tiles = tiles;
+        }) {
+    console.log(this);
   }
 
   static fromComponent(width: number, height: number, cswEl: HTMLElement) {
@@ -48,9 +41,13 @@ export default class CrosswordState {
   }
 
   update(coord:string, target:HTMLInputElement) {
+    console.log(target.value);
     const { value, tagName } = target;
+    console.log(this.tiles);
+    debugger;
     this.tiles[coord].value = value;
     (this.tiles[coord].tagName as string) = tagName;
+    console.log(this);
   }
 
   save() {

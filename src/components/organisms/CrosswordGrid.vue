@@ -36,14 +36,14 @@
 import {
   computed, Ref, ref, reactive, onMounted, watch,
 } from 'vue';
-import { selectNextNthElement, selectNextSibling } from '@/utils/select';
+import { selectNextNthElement, selectNextSibling } from '@/utils/crosswordGridSelectors';
 import CrosswordAnswerTile from '@/components/atoms/CrosswordAnswerTile.vue';
 import CrosswordClueTile from '@/components/atoms/CrosswordClueTile.vue';
 import RegexPattern from '@/utils/RegexPattern';
-import Crossword from '@/controllers/CrosswordState';
+import Crossword from '@/controllers/CrosswordEditMode';
 import { Coordinate, EventWithTarget } from '@/types';
-import { removeStyle, addStyle } from '@/utils/styleHandler';
-import { mapCswGrid, traverseCswGrid } from '@/controllers/CrosswordMethods';
+import { removeStyle, addStyle } from '@/utils/styleHandlers';
+import { mapCswGrid, traverseCswGrid } from '@/utils/crosswordGridIterators';
 
 // MAIN DATA
 const props = defineProps({

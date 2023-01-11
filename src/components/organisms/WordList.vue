@@ -12,7 +12,7 @@
 </template>
 
 <script setup>
-import fetchDictionary from '@/utils/fetch';
+import fetchDictionary from '@/utils/fetchDictionary';
 import { ref, watch } from 'vue';
 import { ENG_DICTIONARY_URL } from '@/constants';
 
