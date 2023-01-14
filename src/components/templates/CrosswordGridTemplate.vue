@@ -5,17 +5,21 @@
       class="csw-grid"
       @input="handleInputEvent($event as any)"
       @mousedown.left.stop="handleClickEvent($event as EventWithTarget)"
-      @mousedown.right="handleRightClick($event as EventWithTarget)"
+      @mousedown.right="handleRightClick($event.target as HTMLInputElement)"
       @click.stop=""
       @contextmenu.prevent
     >
-      <tr v-for="row in cswHeight" :key="row" class="csw-row" :id="`csw-row-${row}`">
-        <td v-for="col in cswWidth" :key="`${col}-${row}`">
-          <template v-if="isInputTile([col, row])">
+      <tr v-for="row in csw.height" :key="row" class="csw-row" :id="`csw-row-${row}`">
+        <td v-for="col in csw.width" :key="`${col}-${row}`">
+          <!-- TO CHANGE -->
+          <template
+            v-if="
+              csw.getTileAttr(`${col},${row}`, 'tagName') !== 'TEXTAREA'
+            ">
             <slot
-              name="answerTile"
+              name="inputTile"
               :slotProps="{
-                class: `answer-tile ${col}-${row}-tile`,
+                class: `input-tile ${col}-${row}-tile`,
                 id: `${col}-${row}-tile`,
                 coord: [col, row],
               }"
@@ -25,7 +29,7 @@
           <template v-else>
             <slot
               name="clueTile"
-              :slotProps="{ class: `answer-tile`, id: `${col}-${row}-tile`, coord: [col, row] }"
+              :slotProps="{ class: `clue-tile`, id: `${col}-${row}-tile`, coord: [col, row] }"
             >
             </slot>
           </template>
@@ -38,19 +42,24 @@
 
 <script lang="ts" setup>
 import {
-  computed, Ref, ref, reactive, onMounted, watch,
+  computed, Ref, ref, reactive, watch,
 } from 'vue';
 import { selectNextNthElement, selectNextSibling } from '@/utils/crosswordGridSelectors';
 import RegexPattern from '@/utils/RegexPattern';
-import Crossword from '@/controllers/CrosswordEditMode';
-import { Coordinate, EventWithTarget } from '@/types';
+import { EventWithTarget } from '@/types';
 import { removeStyle, addStyle } from '@/utils/styleHandlers';
 import { mapCswGrid, traverseCswGrid } from '@/utils/crosswordGridIterators';
+import CrosswordData, { ICrosswordData, CoordKey } from '@/controllers/CrosswordState';
 
 // MAIN DATA
 const props = defineProps({
-  cswWidth: Number,
-  cswHeight: Number,
+  csw: {
+    type: Object,
+    required: true,
+    width: { type: Number, required: true },
+    height: { type: Number, required: true },
+    tiles: Object,
+  },
 });
 const emits = defineEmits(['regexPatternChange']);
 
@@ -66,22 +75,30 @@ const getNextTile = computed(() => (isHorizontal.value ? selectNextSibling : sel
 const INPUT_TILE_STYLES = ['selected-to-word-search', 'direction-marking-tile'];
 
 // CROSSWORD STATE
-const CSW_GRID_ELEMENT = ref();
-const crosswordData = ref();
-onMounted(() => {
-  CSW_GRID_ELEMENT.value = document.querySelector('#csw-grid');
-  crosswordData.value = Crossword.fromComponent(
-    props.cswWidth as number,
-    props.cswHeight as number,
-    CSW_GRID_ELEMENT.value,
-  );
-  crosswordData.value.save();
-});
+// const CSW_GRID_ELEMENT = ref();
+// const crosswordData = ref();
+// onMounted(() => {
+//  CSW_GRID_ELEMENT.value = document.querySelector('#csw-grid');
+//  crosswordData.value = Crossword.fromComponent(
+//    props.cswWidth as number,
+//    props.cswHeight as number,
+//    CSW_GRID_ELEMENT.value,
+//  );
+//  crosswordData.value.save();
+// });
+
+// INITIALIZING CROSSWORD STATE
+const csw = reactive(new CrosswordData(props.csw as ICrosswordData));
+// if (!props.csw.gridData) {
+//  const crosswordState = reactive(
+//    ,
+//  );
+// } else {
+//  console.log('NO DATA');
+// }
 
 // HANDLE TILES IDENTITY
-const clueTileCoords = reactive(new Set());
-// const isInputTile = (coord: Coordinate) => !clueTileCoords.has(coord.toString());
-const isInputTile = (coord:string) => crosswordData.value.tiles[coord].tagName === 'INPUT';
+// const clueTileCoords = reactive(new Set());
 
 // WORD SEARCH HANDLERS
 const regexPattern = reactive(new RegexPattern([]));
@@ -170,32 +187,32 @@ function handleClickEvent(e: EventWithTarget) {
   }
 }
 
-function handleInputEvent(e: EventWithTarget & { data: string; target: { value: string } }) {
-  console.log('HANDLE INPUT');
-  if (e.target instanceof HTMLInputElement) {
-    e.target.value = e.data?.toUpperCase() || '';
-    const nextTile = getNextTile.value(e.target);
-    if (nextTile) {
-      handleEvents(nextTile);
-      nextTile.focus();
+function handleInputEvent(e: InputEvent) {
+  const { target } = e;
+  if (target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement) {
+    const coord = target.getAttribute('coord') as CoordKey;
+    csw.setTileAttr(coord, 'value', target.value);
+    if (target instanceof HTMLInputElement) {
+      target.value = target.value.toUpperCase();
+      const nextTile = getNextTile.value(target);
+      if (nextTile && nextTile?.tagName === 'INPUT') {
+        handleEvents(nextTile);
+        nextTile.focus();
+      }
     }
   }
-  const coord = e.target?.getAttribute('coord')?.split(',').map(Number);
-  crosswordData.value.update(coord, e.target);
 }
 
-function handleRightClick(e: EventWithTarget) {
-  const coordValue = e.target.getAttribute('coord');
+function handleRightClick(target: HTMLInputElement) {
+  const coord = target.getAttribute('coord') as CoordKey;
   traverseCswGrid(firstWordSearchTile.value, removeStyle, getNextTile.value, INPUT_TILE_STYLES);
   // MOUNT/UNMOUNT CROSSWORD INPUT TILE
-  if (clueTileCoords.has(coordValue)) {
-    clueTileCoords.delete(coordValue);
+  if (csw.getTileAttr(coord, 'tagName') === 'INPUT') {
+    csw.setTileAttr(coord, 'tagName', 'TEXTAREA');
   } else {
-    clueTileCoords.add(coordValue);
+    csw.setTileAttr(coord, 'tagName', 'INPUT');
+    csw.setTileAttr(coord, 'value', '');
   }
-  const coord = coordValue?.split(',').map(Number);
-  // console.log(coord, 'HANDLE', e.target);
-  crosswordData.value.update(coord, e.target);
 }
 </script>
 
@@ -236,7 +253,7 @@ p {
   background-color: var(--selected-tile-color);
   border: 2px solid var(--selected-tile-border-color);
 }
-.answer-tile {
+.input-tile {
   color: darkblue;
   font-size: 4.6rem;
   font-family: 'Patrick Hand', cursive;

@@ -11,9 +11,9 @@
     >
       <tr v-for="row in cswHeight" :key="row" class="csw-row" :id="`csw-row-${row}`">
         <td v-for="col in cswWidth" :id="`csw-td-${col}-${row}`" :key="`${col}-${row}`">
-          <CrosswordAnswerTile
+          <CrosswordInputTile
             v-if="isInputTile([col, row])"
-            :class="`tile answer-tile ${col}-${row}-tile`"
+            :class="`tile input-tile ${col}-${row}-tile`"
             :id="`${col}-${row}-tile`"
             :coord="[col, row]"
           />
@@ -37,13 +37,13 @@ import {
   computed, Ref, ref, reactive, onMounted, watch,
 } from 'vue';
 import { selectNextNthElement, selectNextSibling } from '@/utils/crosswordGridSelectors';
-import CrosswordAnswerTile from '@/components/atoms/CrosswordAnswerTile.vue';
 import CrosswordClueTile from '@/components/atoms/CrosswordClueTile.vue';
 import RegexPattern from '@/utils/RegexPattern';
 import Crossword from '@/controllers/CrosswordEditMode';
 import { Coordinate, EventWithTarget } from '@/types';
 import { removeStyle, addStyle } from '@/utils/styleHandlers';
 import { mapCswGrid, traverseCswGrid } from '@/utils/crosswordGridIterators';
+import CrosswordInputTile from '@/components/atoms/CrosswordInputTile.vue';
 
 // MAIN DATA
 const props = defineProps({
@@ -168,11 +168,11 @@ function handleClickEvent(e: EventWithTarget) {
 }
 
 function handleInputEvent(e: EventWithTarget & { data: string; target: { value: string } }) {
-  console.log('HANDLE INPUT');
   if (e.target instanceof HTMLInputElement) {
     e.target.value = e.data?.toUpperCase() || '';
     const nextTile = getNextTile.value(e.target);
     if (nextTile) {
+      console.log('SELECT NEXT');
       handleEvents(nextTile);
       nextTile.focus();
     }
@@ -233,7 +233,7 @@ p {
   background-color: var(--selected-tile-color);
   border: 2px solid var(--selected-tile-border-color);
 }
-.answer-tile {
+.input-tile {
   color: darkblue;
   font-size: 4.6rem;
   font-family: 'Patrick Hand', cursive;

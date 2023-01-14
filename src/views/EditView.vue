@@ -2,12 +2,11 @@
   <main class="main">
     <template v-if="cswGridVisible">
       <CrosswordGrid
-        :cswWidth="cswWidth"
-        :cswHeight="cswHeight"
+        :csw="{width: cswWidth, height: cswHeight}"
         @regexPatternChange="setRegexPattern"
       >
-        <template #answerTile="{ slotProps }">
-          <CrosswordAnswerTile
+        <template #inputTile="{ slotProps }">
+          <CrosswordInputTile
             :class="slotProps.class"
             :id="slotProps.id"
             :coord="slotProps.coord"
@@ -32,7 +31,7 @@ import WordList from '@/components/organisms/WordList.vue';
 import { ref } from 'vue';
 import CrosswordGrid from '@/components/templates/CrosswordGridTemplate.vue';
 import CrosswordClueTile from '@/components/atoms/CrosswordClueTile.vue';
-import CrosswordAnswerTile from '@/components/atoms/CrosswordAnswerTile.vue';
+import CrosswordInputTile from '@/components/atoms/CrosswordInputTile.vue';
 
 const cswWidth = ref(15);
 const cswHeight = ref(15);
@@ -46,7 +45,6 @@ function setCswGridVisible() {
 
 // HANDLE EMITS
 function setRegexPattern(regex: RegExp) {
-  console.log(regex, 'REGEX');
   regexPattern.value = regex;
 }
 

@@ -1,33 +1,32 @@
 <template>
   <main class="main">
-    <CrosswordGrid
+    <CrosswordGridTemplate
       v-if="isCrosswordData"
-      :cswWidth="cswWidth"
-      :cswHeight="cswHeight"
+      :csw='{width:cswWidth, height:cswHeight, tiles:crosswordState.tiles}'
     >
-      <template #answerTile="{ slotProps }">
-        <CrosswordAnswerTile :class="slotProps.class" :id="slotProps.id" :coord="slotProps.coord"/>
+      <template #inputTile="{ slotProps }">
+        <CrosswordInputTile :class="slotProps.class" :id="slotProps.id" :coord="slotProps.coord"/>
       </template>
       <template #clueTile="{ slotProps }">
         <CrosswordClueTile :class="slotProps.class" :id="slotProps.id" :coord="slotProps.coord" />
       </template>
-    </CrosswordGrid>
+    </CrosswordGridTemplate>
     <div v-else>LOADING...</div>
   </main>
 </template>
 
 <script lang="ts" setup>
-import CrosswordAnswerTile from '@/components/atoms/CrosswordAnswerTile.vue';
 import CrosswordClueTile from '@/components/atoms/CrosswordClueTile.vue';
-import CrosswordGrid from '@/components/organisms/CrosswordGrid.vue';
+import CrosswordGridTemplate from '@/components/templates/CrosswordGridTemplate.vue';
 import { CrosswordData } from '@/controllers/CrosswordEditMode';
 import CrosswordSolveMode from '@/controllers/CrosswordSolveMode';
-import { ref, reactive } from 'vue';
+import { ref } from 'vue';
+import CrosswordInputTile from '@/components/atoms/CrosswordInputTile.vue';
 
 const cswWidth = ref();
 const cswHeight = ref();
 const isCrosswordData = ref(false);
-
+const crosswordState = ref();
 (async function fetchCrossword(
   api = 'http://localhost:8080/lang-cross/crossword.json',
 ): Promise<CrosswordData> {
@@ -43,9 +42,9 @@ const isCrosswordData = ref(false);
     throw error;
   }
 }()).then((data) => {
-  const crosswordState = reactive(new CrosswordSolveMode(data));
-  cswWidth.value = crosswordState.width;
-  cswHeight.value = crosswordState.height;
+  crosswordState.value = new CrosswordSolveMode(data);
+  cswWidth.value = crosswordState.value.width;
+  cswHeight.value = crosswordState.value.height;
   isCrosswordData.value = true;
 });
 </script>
