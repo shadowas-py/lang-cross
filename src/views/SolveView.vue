@@ -1,14 +1,21 @@
 <template>
   <main class="main">
-    <CrosswordGridTemplate
-      v-if="isCrosswordData"
-      :csw='{width:cswWidth, height:cswHeight, tiles:crosswordState.tiles}'
-    >
+    <CrosswordGridTemplate v-if="isCswData" :csw="csw">
       <template #inputTile="{ slotProps }">
-        <CrosswordInputTile :class="slotProps.class" :id="slotProps.id" :coord="slotProps.coord"/>
+        <CrosswordInputTile
+          :class="slotProps.class"
+          :id="slotProps.id"
+          :coord="slotProps.coord"
+          :value="slotProps.value"
+        />
       </template>
       <template #clueTile="{ slotProps }">
-        <CrosswordClueTile :class="slotProps.class" :id="slotProps.id" :coord="slotProps.coord" />
+        <CrosswordClueTile
+          :class="slotProps.class"
+          :id="slotProps.id"
+          :coord="slotProps.coord"
+          :value="slotProps.value"
+        />
       </template>
     </CrosswordGridTemplate>
     <div v-else>LOADING...</div>
@@ -16,20 +23,18 @@
 </template>
 
 <script lang="ts" setup>
-import CrosswordClueTile from '@/components/atoms/CrosswordClueTile.vue';
+import CrosswordState from '@/controllers/CrosswordState';
 import CrosswordGridTemplate from '@/components/templates/CrosswordGridTemplate.vue';
-import { CrosswordData } from '@/controllers/CrosswordEditMode';
-import CrosswordSolveMode from '@/controllers/CrosswordSolveMode';
-import { ref } from 'vue';
+import CrosswordClueTile from '@/components/atoms/CrosswordClueTile.vue';
 import CrosswordInputTile from '@/components/atoms/CrosswordInputTile.vue';
+import { ref } from 'vue';
 
-const cswWidth = ref();
-const cswHeight = ref();
-const isCrosswordData = ref(false);
-const crosswordState = ref();
+const isCswData = ref(false);
+const csw = ref();
+
 (async function fetchCrossword(
   api = 'http://localhost:8080/lang-cross/crossword.json',
-): Promise<CrosswordData> {
+): Promise<CrosswordState> {
   try {
     const response = await fetch(api);
     if (response.status !== 200) {
@@ -42,9 +47,8 @@ const crosswordState = ref();
     throw error;
   }
 }()).then((data) => {
-  crosswordState.value = new CrosswordSolveMode(data);
-  cswWidth.value = crosswordState.value.width;
-  cswHeight.value = crosswordState.value.height;
-  isCrosswordData.value = true;
+  csw.value = new CrosswordState(data);
+  // console.log(csw.value.tiles, ' LOADED');
+  isCswData.value = true;
 });
 </script>

@@ -45,15 +45,6 @@ export default class CrosswordData {
     }
   }
 
-  // updateTile(coord: CoordKey, target: HTMLInputElement | HTMLTextAreaElement) {
-  //  const { value, tagName } = target;
-  //  if (tagName === 'INPUT' || tagName === 'TEXTAREA') {
-  //    this.tiles[coord] = { tagName, value };
-  //  }
-  //  this.tiles[coord].value = value;
-  //  (this.tiles[coord].tagName as string) = tagName;
-  // }
-
   getTileAttr(coord: CoordKey, attribute: keyof CrosswordTile) {
     return this.tiles[coord]?.[attribute];
   }
@@ -64,19 +55,11 @@ export default class CrosswordData {
     value: CrosswordTile[K],
   ): void {
     this.tiles[coord][key] = value;
-    console.log(this.tiles);
   }
 
   getState() {
     return this.tiles;
   }
-  // setTileAttribute(
-  //  coord: CoordKey,
-  //  attribute: keyof CrosswordTile,
-  //  newValue: CrosswordTile<T>,
-  // ) {
-  //  this.tiles[coord][attribute] = newValue;
-  // }
 
   saveLocally() {
     window.localStorage.setItem('crosswordState', JSON.stringify(this));

@@ -12,13 +12,11 @@
       <tr v-for="row in csw.height" :key="row" class="csw-row" :id="`csw-row-${row}`">
         <td v-for="col in csw.width" :key="`${col}-${row}`">
           <!-- TO CHANGE -->
-          <template
-            v-if="
-              csw.getTileAttr(`${col},${row}`, 'tagName') !== 'TEXTAREA'
-            ">
+          <template v-if="csw.getTileAttr(`${col},${row}`, 'tagName') !== 'TEXTAREA'">
             <slot
               name="inputTile"
               :slotProps="{
+                value: csw.getTileAttr(`${col},${row}`, 'value')?.toUpperCase(),
                 class: `input-tile ${col}-${row}-tile`,
                 id: `${col}-${row}-tile`,
                 coord: [col, row],
@@ -29,7 +27,12 @@
           <template v-else>
             <slot
               name="clueTile"
-              :slotProps="{ class: `clue-tile`, id: `${col}-${row}-tile`, coord: [col, row] }"
+              :slotProps="{
+                value: csw.getTileAttr(`${col},${row}`, 'value'),
+                class: `clue-tile`,
+                id: `${col}-${row}-tile`,
+                coord: [col, row],
+              }"
             >
             </slot>
           </template>
