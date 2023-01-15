@@ -1,3 +1,4 @@
+<!--@regexPatternChange="setRegexPattern"-->
 <template>
   <main class="main">
     <template v-if="cswGridVisible">
@@ -28,14 +29,34 @@
 <script lang="ts" setup>
 import GridGeneratorForm from '@/components/organisms/GridGeneratorForm.vue';
 import WordList from '@/components/organisms/WordList.vue';
-import { ref } from 'vue';
+import { ref, reactive } from 'vue';
 import CrosswordGrid from '@/components/templates/CrosswordGridTemplate.vue';
 import CrosswordClueTile from '@/components/atoms/CrosswordClueTile.vue';
 import CrosswordInputTile from '@/components/atoms/CrosswordInputTile.vue';
+import RegexPattern from '@/utils/RegexPattern';
 
 const cswWidth = ref(15);
 const cswHeight = ref(15);
 const cswGridVisible = ref(false);
+
+const csw = ref();
+
+// HANDLE REGEX CLUES
+// const regexPattern = reactive(new RegexPattern([]));
+
+// watch(csw);
+
+// watch([firstWordSearchTile, isHorizontal], () => {
+//  regexPattern.set(
+//    mapCswGrid(
+//      firstWordSearchTile.value,
+//      (el) => el.value.toLowerCase() || '.',
+//      getNextTile.value,
+//      (el) => el.tagName !== 'INPUT',
+//    ),
+//  );
+//  emits('regexPatternChange', regexPattern.get());
+// });
 
 const regexPattern = ref();
 

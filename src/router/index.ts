@@ -4,13 +4,13 @@ import EditView from '@/views/EditView.vue';
 
 const routes = [
   {
-    path: '/',
-    name: 'home',
+    path: '/edit',
+    name: 'editCrossword',
     component: EditView,
   },
   {
     path: '/solve',
-    name: 'solve',
+    name: 'solveCrossword',
     component: SolveView,
   },
 ];
