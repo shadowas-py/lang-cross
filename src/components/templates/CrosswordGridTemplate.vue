@@ -51,7 +51,7 @@ import { selectNextNthElement, selectNextSibling } from '@/utils/crosswordGridSe
 import RegexPattern from '@/utils/RegexPattern';
 import { EventWithTarget } from '@/types';
 import { removeStyle, addStyle } from '@/utils/styleHandlers';
-import { mapCswGrid, traverseCswGridInputs } from '@/utils/crosswordGridIterators';
+import { mapCswGrid, createCswGridIterator } from '@/utils/crosswordGridIterators';
 import CrosswordData, { ICrosswordData, CoordKey } from '@/controllers/CrosswordState';
 
 // MAIN DATA
@@ -82,6 +82,8 @@ const INPUT_TILE_STYLES = ['selected-to-word-search', 'direction-marking-tile'];
 // CROSSWORD STATE
 const csw = reactive(new CrosswordData(props.csw as ICrosswordData));
 
+const traverseCswGrid = computed(() => createCswGridIterator({ getNext: getNextTile.value }));
+
 // WORD SEARCH HANDLERS
 const regexPattern = reactive(new RegexPattern([]));
 
@@ -91,18 +93,15 @@ watch([firstWordSearchTile, isHorizontal], () => {
     mapCswGrid(
       firstWordSearchTile.value,
       (el) => el.value.toLowerCase() || '.',
-      getNextTile.value,
-      (el) => el.tagName !== 'INPUT',
+      { getNext: getNextTile.value },
     ),
   );
-  emits('regexPatternChange', regexPattern.get());
 });
-
+// emits('regexPatternChange', regexPattern.get());
 // EVENT HANDLERS
 function handleEvents(target: HTMLInputElement) {
   prevSelectedTile.value = selectedTile.value;
   selectedTile.value = target;
-
   // SAME TILE
   if (selectedSameTile.value) {
     // BEFORE DIRECTION CHANGE ()
@@ -111,24 +110,22 @@ function handleEvents(target: HTMLInputElement) {
         getNextTile.value(selectedTile.value) :
         firstWordSearchTile.value;
 
-    traverseCswGridInputs(
+    traverseCswGrid.value(
       startElement,
       removeStyle,
-      getNextTile.value,
       INPUT_TILE_STYLES,
-      undefined,
-      (el) => el === selectedTile.value,
+      { omitCondition: (el) => el === selectedTile.value },
     );
 
     isHorizontal.value = !isHorizontal.value;
 
     // AFTER DIRECTION CHANGE ()
     startElement = getNextTile.value(selectedTile.value);
-    traverseCswGridInputs(
+    traverseCswGrid.value(
       startElement,
       addStyle,
-      getNextTile.value,
       INPUT_TILE_STYLES,
+      { getNext: getNextTile.value },
     );
 
     // !!! REGEX View  to => AFTER DIRECTION CHANGE ()
@@ -141,38 +138,39 @@ function handleEvents(target: HTMLInputElement) {
     //
     // INSIDE 'SELECTED TO DIRECTION MARKING TILE CLASS'
     if (selectedTile.value.classList.contains('direction-marking-tile')) {
-      traverseCswGridInputs(
+      // console.log("INSIDE 'SELECTED TO DIRECTION MARKING TILE CLASS");
+      traverseCswGrid.value(
         prevSelectedTile.value,
         removeStyle,
-        getNextTile.value,
         ['direction-marking-tile'],
-        (el) => el === selectedTile.value,
+        { stopCondition: (el) => el === selectedTile.value },
       );
     } else {
-      traverseCswGridInputs(
+      traverseCswGrid.value(
         selectedTile.value,
         addStyle,
-        getNextTile.value,
         ['direction-marking-tile'],
-        (el) => el === prevSelectedTile.value,
+        { stopCondition: (el) => el === prevSelectedTile.value },
       );
     }
     //
     // OUTSIDE 'SELECTED TO WORD SEARCH CLASS'
   } else {
-    traverseCswGridInputs(
+    traverseCswGrid.value(
       firstWordSearchTile.value,
       removeStyle,
-      getNextTile.value,
       INPUT_TILE_STYLES,
+      {},
     );
+    // console.log('SELECTED TILE NEW', INPUT_TILE_STYLES);
     INPUT_TILE_STYLES.map((cls) =>
-      traverseCswGridInputs(
+      traverseCswGrid.value(
         selectedTile.value,
         addStyle,
-        getNextTile.value,
         [cls],
-        (el) => !el || !el.classList.contains(cls),
+        {
+          stopCondition: (el) => el.classList.contains(cls),
+        },
       ));
     firstWordSearchTile.value = target;
   }
@@ -180,7 +178,7 @@ function handleEvents(target: HTMLInputElement) {
 
 function handleClickEvent(e: MouseEvent) {
   if (e.target instanceof HTMLTextAreaElement) {
-    console.log('HANDLE TEXTAREA SELECT');
+    // console.log('HANDLE TEXTAREA SELECT');
   } else if (e.target instanceof HTMLInputElement) {
     e.target.focus();
     handleEvents(e.target);
@@ -205,10 +203,9 @@ function handleInputEvent(e: InputEvent) {
 
 function handleRightClick(target: HTMLInputElement) {
   const coord = target.getAttribute('coord') as CoordKey;
-  traverseCswGridInputs(
+  traverseCswGrid.value(
     firstWordSearchTile.value,
     removeStyle,
-    getNextTile.value,
     INPUT_TILE_STYLES,
   );
   // MOUNT/UNMOUNT CROSSWORD INPUT TILE
