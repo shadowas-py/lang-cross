@@ -105,29 +105,27 @@ function handleEvents(target: HTMLInputElement) {
 
   // SAME TILE
   if (selectedSameTile.value) {
-    // usuwa WSZYSTKIE dodakowe style OD n DO selectedTile
     // BEFORE DIRECTION CHANGE ()
+    let startElement =
+      firstWordSearchTile.value === selectedTile.value ?
+        getNextTile.value(selectedTile.value) :
+        firstWordSearchTile.value;
+
     traverseCswGridInputs(
-      firstWordSearchTile.value,
+      startElement,
       removeStyle,
       getNextTile.value,
       INPUT_TILE_STYLES,
+      undefined,
       (el) => el === selectedTile.value,
-    );
-    // usuwa WSZYSTKIE dodakowe style OD selectedTile DO end
-    traverseCswGridInputs(
-      getNextTile.value(selectedTile.value),
-      removeStyle,
-      getNextTile.value,
-      INPUT_TILE_STYLES,
     );
 
     isHorizontal.value = !isHorizontal.value;
 
-    // dodaje WSZYSTKIE dodakowe style OD selectedTile+1 DO end
     // AFTER DIRECTION CHANGE ()
+    startElement = getNextTile.value(selectedTile.value);
     traverseCswGridInputs(
-      getNextTile.value(selectedTile.value),
+      startElement,
       addStyle,
       getNextTile.value,
       INPUT_TILE_STYLES,
@@ -169,8 +167,13 @@ function handleEvents(target: HTMLInputElement) {
       INPUT_TILE_STYLES,
     );
     INPUT_TILE_STYLES.map((cls) =>
-      traverseCswGridInputs(selectedTile.value, addStyle, getNextTile.value, [cls], (el) =>
-        !el || !el.classList.contains(cls)));
+      traverseCswGridInputs(
+        selectedTile.value,
+        addStyle,
+        getNextTile.value,
+        [cls],
+        (el) => !el || !el.classList.contains(cls),
+      ));
     firstWordSearchTile.value = target;
   }
 }

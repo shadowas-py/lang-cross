@@ -1,45 +1,42 @@
-// export function traverseCswGrid(
-//  startElement: HTMLInputElement | null,
-//  callback: (target: HTMLInputElement, arg: string[]) => void,
-//  getNextEl: (arg: HTMLInputElement) => HTMLInputElement | null,
-//  args: string[],
-//  stopCondition: (arg: HTMLInputElement) => boolean = () => false,
-// ) {
-//  let target = startElement;
-//  while (target && target?.tagName === 'INPUT' && !stopCondition(target)) {
-//    callback(target, args);
-//    target = getNextEl(target);
-//  }
-// }
-
-export function mapCswGrid(
-  startElement: HTMLInputElement | null,
-  callback: (target: HTMLInputElement, arg?: unknown) => string,
-  getNextEl: (arg: HTMLInputElement) => HTMLInputElement | null,
-  stopCondition: (arg: HTMLInputElement) => boolean = () => false,
-) {
-  let nextEl = startElement;
-  const _data: string[] = [];
-  while (nextEl && !stopCondition(nextEl)) {
-    _data.push(callback(nextEl));
-    nextEl = getNextEl(nextEl);
-  }
-  return _data;
+interface ParamsTraverseCswGridInputs {
+  getNext: (arg: HTMLInputElement) => HTMLInputElement | null;
+  runCondition: (arg: HTMLInputElement) => boolean;
+  omitCondition: (arg: HTMLInputElement) => boolean;
 }
+type ParamsMapCswGrid = Omit<ParamsTraverseCswGridInputs, 'omitCondition'>
 
 export function traverseCswGridInputs<T>(
-  startElement: HTMLInputElement|null,
-  callback: (target: HTMLElement, _args: T[]) => void,
-  getNextEl: (arg: HTMLInputElement) => HTMLInputElement | null,
+  startEl: HTMLInputElement | null,
+  callback: (target: HTMLElement, _args?: T[]) => void,
   args: T[],
-  runCondition: (arg?:HTMLInputElement)=>boolean = () => true,
-  cbCondition: (arg?:HTMLInputElement)=>boolean = () => true,
-):void {
-  let target: HTMLInputElement | null = startElement;
-  while (target && target instanceof HTMLInputElement && runCondition(target)) {
-    if (cbCondition(target)) {
-      callback(target, args);
+  self: ParamsTraverseCswGridInputs = {
+    getNext: () => null,
+    runCondition: () => true,
+    omitCondition: () => false,
+  },
+) {
+  let el = startEl;
+  while (el && self.runCondition(el)) {
+    if (!self.omitCondition(el)) {
+      callback(el, args);
     }
-    target = getNextEl(target);
+    el = self.getNext(el);
   }
+}
+
+export function mapCswGrid<T>(
+  startEl: HTMLInputElement | null,
+  callback: (target: HTMLInputElement, arg?: T) => string,
+  self: ParamsMapCswGrid = {
+    getNext: () => null,
+    runCondition: () => true,
+  },
+) {
+  let el = startEl;
+  const mapArr: string[] = [];
+  while (el && self.runCondition(el)) {
+    mapArr.push(callback(el));
+    el = self.getNext(el);
+  }
+  return mapArr;
 }
