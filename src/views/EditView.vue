@@ -29,11 +29,17 @@
 <script lang="ts" setup>
 import GridGeneratorForm from '@/components/organisms/GridGeneratorForm.vue';
 import WordList from '@/components/organisms/WordList.vue';
-import { ref, reactive } from 'vue';
+import {
+  ref, reactive, computed, Ref,
+} from 'vue';
 import CrosswordGrid from '@/components/templates/CrosswordGridTemplate.vue';
 import CrosswordClueTile from '@/components/atoms/CrosswordClueTile.vue';
 import CrosswordInputTile from '@/components/atoms/CrosswordInputTile.vue';
 import RegexPattern from '@/utils/RegexPattern';
+
+import { removeStyle } from '@/utils/styleHandlers';
+import { selectNextSibling, selectNextNthElement } from '@/utils/crosswordGridSelectors';
+import { createCswGridIterator } from '@/utils/crosswordGridIterators';
 
 const cswWidth = ref(15);
 const cswHeight = ref(15);
@@ -74,4 +80,34 @@ function generateCswGrid(val: [number, number]) {
   [cswWidth.value, cswHeight.value] = val;
   setCswGridVisible();
 }
+// setup
+const selectedTile: Ref<null | HTMLInputElement> = ref(null);
+const prevSelectedTile: Ref<null | HTMLInputElement> = ref(null);
+
+// !!! to remove from here
+const firstWordSearchTile: Ref<null | HTMLInputElement> = ref(null);
+
+const isHorizontal = ref(true);
+const getNextTile = computed(() => (isHorizontal.value ? selectNextSibling : selectNextNthElement));
+
+// !!! to rename
+const INPUT_TILE_STYLES = ['selected-to-word-search', 'direction-marking-tile'];
+
+const traverseCswGrid = computed(() => createCswGridIterator({ getNext: getNextTile.value }));
+
+// METHODS
+
+// beforeDirectionChange = [() => {
+//  const startElement =
+//      firstWordSearchTile.value === selectedTile.value ?
+//        getNextTile.value(selectedTile.value) :
+//        firstWordSearchTile.value;
+
+//  traverseCswGrid.value(
+//    startElement,
+//    removeStyle,
+//    INPUT_TILE_STYLES,
+//    { omitCondition: (el) => el === selectedTile.value },
+//  );
+// }];
 </script>
