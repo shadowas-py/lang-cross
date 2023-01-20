@@ -76,7 +76,6 @@ const firstWordSearchTile: Ref<null | HTMLInputElement> = ref(null);
 const isHorizontal = ref(true);
 const getNextTile = computed(() => (isHorizontal.value ? selectNextSibling : selectNextNthElement));
 
-// !!! to rename
 const INPUT_TILE_STYLES = ['selected-to-word-search', 'direction-marking-tile'];
 
 // CROSSWORD STATE
@@ -88,6 +87,10 @@ const traverseCswGrid = computed(() => createCswGridIterator({ getNext: getNextT
 const regexPattern = reactive(new RegexPattern([]));
 
 // HOOKS
+function useCswHook(functions: Array<()=> void>) {
+  functions.forEach((func) => { func(); });
+}
+
 const beforeDirectionChange = [
   () => {
     const startElement =
@@ -97,6 +100,13 @@ const beforeDirectionChange = [
     traverseCswGrid.value(startElement, removeStyle, INPUT_TILE_STYLES, {
       omitCondition: (el) => el === selectedTile.value,
     });
+  },
+  () => {
+    regexPattern.set(
+      mapCswGrid(firstWordSearchTile.value, (el) => el.value.toLowerCase() || '.', {
+        getNext: getNextTile.value,
+      }),
+    );
   },
 ];
 
@@ -112,12 +122,10 @@ const afterDirectionChange = [
 
 const afterTileChange = [
   () => {
-    if (selectedTile.value.classList.contains('selected-to-word-search')) {
+    if (selectedTile.value?.classList.contains('selected-to-word-search')) {
       //
       // INSIDE 'SELECTED TO DIRECTION MARKING TILE CLASS'
-      // JEZELI SELECTED TO WORD SEARCH + DIRECTION MARKING TILE
       if (selectedTile.value.classList.contains('direction-marking-tile')) {
-        // console.log("INSIDE 'SELECTED TO DIRECTION MARKING TILE CLASS");
         traverseCswGrid.value(prevSelectedTile.value, removeStyle, ['direction-marking-tile'], {
           stopCondition: (el) => el === selectedTile.value,
         });
@@ -128,11 +136,9 @@ const afterTileChange = [
         });
       }
       //
-      // OUTSIDE 'SELECTED TO WORD SEARCH CLASS'
-      // DEFAULT
+      // DERAULT OUTSIDE 'SELECTED TO WORD SEARCH CLASS'
     } else {
       traverseCswGrid.value(firstWordSearchTile.value, removeStyle, INPUT_TILE_STYLES, {});
-      // console.log('SELECTED TILE NEW', INPUT_TILE_STYLES);
       INPUT_TILE_STYLES.map((cls) =>
         traverseCswGrid.value(selectedTile.value, addStyle, [cls], {
           stopCondition: (el) => el.classList.contains(cls),
@@ -142,82 +148,21 @@ const afterTileChange = [
   },
 ];
 
-// !!! to simpify, to remove from here
-watch([firstWordSearchTile, isHorizontal], () => {
-  regexPattern.set(
-    mapCswGrid(firstWordSearchTile.value, (el) => el.value.toLowerCase() || '.', {
-      getNext: getNextTile.value,
-    }),
-  );
-});
-// emits('regexPatternChange', regexPattern.get());
 // EVENT HANDLERS
 function handleEvents(target: HTMLInputElement) {
   prevSelectedTile.value = selectedTile.value;
   selectedTile.value = target;
   // SAME TILE
   if (selectedSameTile.value) {
-    // BEFORE DIRECTION CHANGE ()
-    // let startElement =
-    //  firstWordSearchTile.value === selectedTile.value ?
-    //    getNextTile.value(selectedTile.value) :
-    //    firstWordSearchTile.value;
+    if (selectedTile.value) {
+      useCswHook(beforeDirectionChange);
 
-    // traverseCswGrid.value(
-    //  startElement,
-    //  removeStyle,
-    //  INPUT_TILE_STYLES,
-    //  { omitCondition: (el) => el === selectedTile.value },
-    // );
+      isHorizontal.value = !isHorizontal.value;
 
-    isHorizontal.value = !isHorizontal.value;
-
-    // AFTER DIRECTION CHANGE ()
-    // startElement = getNextTile.value(selectedTile.value);
-    // traverseCswGrid.value(
-    //  startElement,
-    //  addStyle,
-    //  INPUT_TILE_STYLES,
-    //  { getNext: getNextTile.value },
-    // );
-
-    // !!! REGEX View  to => AFTER DIRECTION CHANGE ()
-    // firstWordSearchTile.value = target;
-
-    // INSIDE 'SELECTED TO WORD SEARCH CLASS'
-    // customStyling()
-    // !!! to refactor
-
-    // JEZELI SELECTED TO WORD SEARCH
+      useCswHook(afterDirectionChange);
+    }
   } else {
-    // eslint-disable-next-line no-lonely-if
-    // if (selectedTile.value.classList.contains('selected-to-word-search')) {
-    //  //
-    //  // INSIDE 'SELECTED TO DIRECTION MARKING TILE CLASS'
-    //  // JEZELI SELECTED TO WORD SEARCH + DIRECTION MARKING TILE
-    //  if (selectedTile.value.classList.contains('direction-marking-tile')) {
-    //    // console.log("INSIDE 'SELECTED TO DIRECTION MARKING TILE CLASS");
-    //    traverseCswGrid.value(prevSelectedTile.value, removeStyle, ['direction-marking-tile'], {
-    //      stopCondition: (el) => el === selectedTile.value,
-    //    });
-    //    // JEZELI SELECTED TO WORD SEARCH - DIRECTION MARKING TILE
-    //  } else {
-    //    traverseCswGrid.value(selectedTile.value, addStyle, ['direction-marking-tile'], {
-    //      stopCondition: (el) => el === prevSelectedTile.value,
-    //    });
-    //  }
-    //  //
-    //  // OUTSIDE 'SELECTED TO WORD SEARCH CLASS'
-    //  // DEFAULT
-    // } else {
-    //  traverseCswGrid.value(firstWordSearchTile.value, removeStyle, INPUT_TILE_STYLES, {});
-    //  // console.log('SELECTED TILE NEW', INPUT_TILE_STYLES);
-    //  INPUT_TILE_STYLES.map((cls) =>
-    //    traverseCswGrid.value(selectedTile.value, addStyle, [cls], {
-    //      stopCondition: (el) => el.classList.contains(cls),
-    //    }));
-    //  firstWordSearchTile.value = target;
-    // }
+    useCswHook(afterTileChange);
   }
 }
 
