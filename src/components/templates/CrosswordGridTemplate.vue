@@ -63,6 +63,12 @@ const props = defineProps({
     height: { type: Number, required: true },
     tiles: Object,
   },
+  hooks: {
+    type: Object,
+    beforeDirectionChange: Function,
+    afterDirectionChange: Function,
+    afterTileChange: Function,
+  },
 });
 const emits = defineEmits(['regexPatternChange']);
 
@@ -83,70 +89,14 @@ const csw = reactive(new CrosswordData(props.csw as ICrosswordData));
 
 const traverseCswGrid = computed(() => createCswGridIterator({ getNext: getNextTile.value }));
 
-// WORD SEARCH HANDLERS
-const regexPattern = reactive(new RegexPattern([]));
-
 // HOOKS
-function useCswHook(functions: Array<()=> void>) {
-  functions.forEach((func) => { func(); });
+function useCswHook(functions: Array<() => void>|undefined) {
+  if (functions) {
+    functions.forEach((func) => {
+      func();
+    });
+  }
 }
-
-const beforeDirectionChange = [
-  () => {
-    const startElement =
-      firstWordSearchTile.value === selectedTile.value ?
-        getNextTile.value(selectedTile.value) :
-        firstWordSearchTile.value;
-    traverseCswGrid.value(startElement, removeStyle, INPUT_TILE_STYLES, {
-      omitCondition: (el) => el === selectedTile.value,
-    });
-  },
-  () => {
-    regexPattern.set(
-      mapCswGrid(firstWordSearchTile.value, (el) => el.value.toLowerCase() || '.', {
-        getNext: getNextTile.value,
-      }),
-    );
-  },
-];
-
-const afterDirectionChange = [
-  () => {
-    const startElement = getNextTile.value(selectedTile.value);
-    traverseCswGrid.value(startElement, addStyle, INPUT_TILE_STYLES, {
-      getNext: getNextTile.value,
-    });
-    firstWordSearchTile.value = selectedTile.value;
-  },
-];
-
-const afterTileChange = [
-  () => {
-    if (selectedTile.value?.classList.contains('selected-to-word-search')) {
-      //
-      // INSIDE 'SELECTED TO DIRECTION MARKING TILE CLASS'
-      if (selectedTile.value.classList.contains('direction-marking-tile')) {
-        traverseCswGrid.value(prevSelectedTile.value, removeStyle, ['direction-marking-tile'], {
-          stopCondition: (el) => el === selectedTile.value,
-        });
-        // JEZELI SELECTED TO WORD SEARCH - DIRECTION MARKING TILE
-      } else {
-        traverseCswGrid.value(selectedTile.value, addStyle, ['direction-marking-tile'], {
-          stopCondition: (el) => el === prevSelectedTile.value,
-        });
-      }
-      //
-      // DERAULT OUTSIDE 'SELECTED TO WORD SEARCH CLASS'
-    } else {
-      traverseCswGrid.value(firstWordSearchTile.value, removeStyle, INPUT_TILE_STYLES, {});
-      INPUT_TILE_STYLES.map((cls) =>
-        traverseCswGrid.value(selectedTile.value, addStyle, [cls], {
-          stopCondition: (el) => el.classList.contains(cls),
-        }));
-      firstWordSearchTile.value = selectedTile.value;
-    }
-  },
-];
 
 // EVENT HANDLERS
 function handleEvents(target: HTMLInputElement) {
@@ -155,14 +105,14 @@ function handleEvents(target: HTMLInputElement) {
   // SAME TILE
   if (selectedSameTile.value) {
     if (selectedTile.value) {
-      useCswHook(beforeDirectionChange);
+      useCswHook(props.hooks?.beforeDirectionChange);
 
       isHorizontal.value = !isHorizontal.value;
 
-      useCswHook(afterDirectionChange);
+      useCswHook(props.hooks?.beforeDirectionChange);
     }
   } else {
-    useCswHook(afterTileChange);
+    useCswHook(props.hooks?.beforeDirectionChange);
   }
 }
 

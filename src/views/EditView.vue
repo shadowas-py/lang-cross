@@ -4,7 +4,9 @@
     <template v-if="cswGridVisible">
       <CrosswordGrid
         :csw="{width: cswWidth, height: cswHeight}"
+        :hooks='{beforeDirectionChange, afterDirectionChange,afterTileChange}'
         @regexPatternChange="setRegexPattern"
+
       >
         <template #inputTile="{ slotProps }">
           <CrosswordInputTile
@@ -37,9 +39,9 @@ import CrosswordClueTile from '@/components/atoms/CrosswordClueTile.vue';
 import CrosswordInputTile from '@/components/atoms/CrosswordInputTile.vue';
 import RegexPattern from '@/utils/RegexPattern';
 
-import { removeStyle } from '@/utils/styleHandlers';
+import { addStyle, removeStyle } from '@/utils/styleHandlers';
 import { selectNextSibling, selectNextNthElement } from '@/utils/crosswordGridSelectors';
-import { createCswGridIterator } from '@/utils/crosswordGridIterators';
+import { createCswGridIterator, mapCswGrid } from '@/utils/crosswordGridIterators';
 
 const cswWidth = ref(15);
 const cswHeight = ref(15);
@@ -80,6 +82,7 @@ function generateCswGrid(val: [number, number]) {
   [cswWidth.value, cswHeight.value] = val;
   setCswGridVisible();
 }
+
 // setup
 const selectedTile: Ref<null | HTMLInputElement> = ref(null);
 const prevSelectedTile: Ref<null | HTMLInputElement> = ref(null);
@@ -95,19 +98,61 @@ const INPUT_TILE_STYLES = ['selected-to-word-search', 'direction-marking-tile'];
 
 const traverseCswGrid = computed(() => createCswGridIterator({ getNext: getNextTile.value }));
 
-// METHODS
+// HOOKS METHODS
+const beforeDirectionChange = [
+  () => {
+    const startElement =
+      firstWordSearchTile.value === selectedTile.value ?
+        getNextTile.value(selectedTile.value) :
+        firstWordSearchTile.value;
+    traverseCswGrid.value(startElement, removeStyle, INPUT_TILE_STYLES, {
+      omitCondition: (el) => el === selectedTile.value,
+    });
+  },
+  () => {
+    regexPattern.value.set(
+      mapCswGrid(firstWordSearchTile.value, (el) => el.value.toLowerCase() || '.', {
+        getNext: getNextTile.value,
+      }),
+    );
+  },
+];
 
-// beforeDirectionChange = [() => {
-//  const startElement =
-//      firstWordSearchTile.value === selectedTile.value ?
-//        getNextTile.value(selectedTile.value) :
-//        firstWordSearchTile.value;
+const afterDirectionChange = [
+  () => {
+    const startElement = getNextTile.value(selectedTile.value);
+    traverseCswGrid.value(startElement, addStyle, INPUT_TILE_STYLES, {
+      getNext: getNextTile.value,
+    });
+    firstWordSearchTile.value = selectedTile.value;
+  },
+];
 
-//  traverseCswGrid.value(
-//    startElement,
-//    removeStyle,
-//    INPUT_TILE_STYLES,
-//    { omitCondition: (el) => el === selectedTile.value },
-//  );
-// }];
+const afterTileChange = [
+  () => {
+    if (selectedTile.value?.classList.contains('selected-to-word-search')) {
+      //
+      // INSIDE 'SELECTED TO DIRECTION MARKING TILE CLASS'
+      if (selectedTile.value.classList.contains('direction-marking-tile')) {
+        traverseCswGrid.value(prevSelectedTile.value, removeStyle, ['direction-marking-tile'], {
+          stopCondition: (el) => el === selectedTile.value,
+        });
+        // JEZELI SELECTED TO WORD SEARCH - DIRECTION MARKING TILE
+      } else {
+        traverseCswGrid.value(selectedTile.value, addStyle, ['direction-marking-tile'], {
+          stopCondition: (el) => el === prevSelectedTile.value,
+        });
+      }
+      //
+      // DERAULT OUTSIDE 'SELECTED TO WORD SEARCH CLASS'
+    } else {
+      traverseCswGrid.value(firstWordSearchTile.value, removeStyle, INPUT_TILE_STYLES, {});
+      INPUT_TILE_STYLES.map((cls) =>
+        traverseCswGrid.value(selectedTile.value, addStyle, [cls], {
+          stopCondition: (el) => el.classList.contains(cls),
+        }));
+      firstWordSearchTile.value = selectedTile.value;
+    }
+  },
+];
 </script>
