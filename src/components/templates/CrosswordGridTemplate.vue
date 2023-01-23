@@ -12,7 +12,7 @@
       <tr v-for="row in csw.height" :key="row" class="csw-row" :id="`csw-row-${row}`">
         <td v-for="col in csw.width" :key="`${col}-${row}`">
           <!-- TO CHANGE -->
-          <template v-if="csw.getTileAttr(`${col},${row}`, 'tagName') !== 'TEXTAREA'">
+          <template v-if="csw.getTileAttr(`${col},${row}`, 'tileType') === 'INPUT'">
             <slot
               name="inputTile"
               :slotProps="{
@@ -44,15 +44,11 @@
 </template>
 
 <script lang="ts" setup>
-import {
-  computed, Ref, ref, reactive, watch,
-} from 'vue';
-import { selectNextNthElement, selectNextSibling } from '@/utils/crosswordGridSelectors';
-import RegexPattern from '@/utils/RegexPattern';
+import { reactive, ref } from 'vue';
 import { EventWithTarget } from '@/types';
-import { removeStyle, addStyle } from '@/utils/styleHandlers';
-import { mapCswGrid, createCswGridIterator } from '@/utils/crosswordGridIterators';
-import CrosswordData, { ICrosswordData, CoordKey } from '@/controllers/CrosswordState';
+import CrosswordData, { ICrosswordData, CoordKey, CrosswordTile } from '@/controllers/CrosswordState';
+import { storeToRefs } from 'pinia';
+import { useCrosswordStore } from '@/stores/crosswordStore';
 
 // MAIN DATA
 const props = defineProps({
@@ -65,32 +61,24 @@ const props = defineProps({
   },
   hooks: {
     type: Object,
-    beforeDirectionChange: Function,
-    afterDirectionChange: Function,
-    afterTileChange: Function,
+    beforeDirectionChange: Array,
+    afterDirectionChange: Array,
+    afterTileChange: Array,
+    afterRightClick: Array,
   },
+  editMode: Boolean,
 });
-const emits = defineEmits(['regexPatternChange']);
-
-const selectedTile: Ref<null | HTMLInputElement> = ref(null);
-const prevSelectedTile: Ref<null | HTMLInputElement> = ref(null);
-const selectedSameTile = computed(() => prevSelectedTile.value === selectedTile.value);
-
-// !!! to remove from here
-const firstWordSearchTile: Ref<null | HTMLInputElement> = ref(null);
-
-const isHorizontal = ref(true);
-const getNextTile = computed(() => (isHorizontal.value ? selectNextSibling : selectNextNthElement));
-
-const INPUT_TILE_STYLES = ['selected-to-word-search', 'direction-marking-tile'];
+const store = useCrosswordStore();
+const {
+  selectedTile, prevSelectedTile, isSelectedSameTile, isHorizontal, getNextTile,
+} = storeToRefs(store);
 
 // CROSSWORD STATE
 const csw = reactive(new CrosswordData(props.csw as ICrosswordData));
-
-const traverseCswGrid = computed(() => createCswGridIterator({ getNext: getNextTile.value }));
+const isEditMode = ref();
 
 // HOOKS
-function useCswHook(functions: Array<() => void>|undefined) {
+function useCswHook(functions: Array<() => void> | undefined) {
   if (functions) {
     functions.forEach((func) => {
       func();
@@ -102,23 +90,20 @@ function useCswHook(functions: Array<() => void>|undefined) {
 function handleEvents(target: HTMLInputElement) {
   prevSelectedTile.value = selectedTile.value;
   selectedTile.value = target;
-  // SAME TILE
-  if (selectedSameTile.value) {
+  if (isSelectedSameTile.value) {
     if (selectedTile.value) {
       useCswHook(props.hooks?.beforeDirectionChange);
-
       isHorizontal.value = !isHorizontal.value;
-
-      useCswHook(props.hooks?.beforeDirectionChange);
+      useCswHook(props.hooks?.afterDirectionChange);
     }
   } else {
-    useCswHook(props.hooks?.beforeDirectionChange);
+    useCswHook(props.hooks?.afterTileChange);
   }
 }
 
 function handleClickEvent(e: MouseEvent) {
   if (e.target instanceof HTMLTextAreaElement) {
-    // console.log('HANDLE TEXTAREA SELECT');
+    console.log('HANDLE TEXTAREA SELECT');
   } else if (e.target instanceof HTMLInputElement) {
     e.target.focus();
     handleEvents(e.target);
@@ -142,14 +127,11 @@ function handleInputEvent(e: InputEvent) {
 }
 
 function handleRightClick(target: HTMLInputElement) {
-  const coord = target.getAttribute('coord') as CoordKey;
-  traverseCswGrid.value(firstWordSearchTile.value, removeStyle, INPUT_TILE_STYLES);
+  useCswHook(props.hooks?.afterRightClick);
   // MOUNT/UNMOUNT CROSSWORD INPUT TILE
-  if (csw.getTileAttr(coord, 'tagName') === 'INPUT') {
-    csw.setTileAttr(coord, 'tagName', 'TEXTAREA');
-  } else {
-    csw.setTileAttr(coord, 'tagName', 'INPUT');
-    csw.setTileAttr(coord, 'value', '');
+  if (isEditMode.value) {
+    const coord = target.getAttribute('coord') as CoordKey;
+    csw.toogleTileType(coord);
   }
 }
 </script>

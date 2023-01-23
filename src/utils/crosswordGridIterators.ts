@@ -4,21 +4,18 @@ interface ParamsTraverseCswGridInputs {
   omitCondition?: (arg: HTMLInputElement) => boolean;
 }
 
-export function createCswGridIterator({
-  getNext = () => null,
-}: ParamsTraverseCswGridInputs) {
+export function createCswGridIterator({ getNext = () => null }: ParamsTraverseCswGridInputs) {
   return function traverseCswGridInputs<T>(
     startEl: HTMLInputElement | null,
     callback: (target: HTMLElement, _args: T[]) => void,
     args: T[],
-    {
-      omitCondition,
-      stopCondition,
-    }: ParamsTraverseCswGridInputs = {},
+    { omitCondition, stopCondition }: ParamsTraverseCswGridInputs = {},
   ) {
     // console.log('IN ITERATOR', callback.name, getNext.name, stopCondition);
     let el = startEl;
+    console.log(callback.name, getNext.name);
     while (el && !stopCondition?.(el)) {
+      // console.log(el,'EL')
       if (!omitCondition?.(el)) {
         callback(el, args);
       }
@@ -31,13 +28,14 @@ type ParamsMapCswGrid = Omit<ParamsTraverseCswGridInputs, 'omitCondition'>;
 export function mapCswGrid<T>(
   startEl: HTMLInputElement | null,
   callback: (target: HTMLInputElement, arg?: T) => string,
-  self: ParamsMapCswGrid,
+  getNext: (el:HTMLInputElement) => HTMLInputElement | null,
+  { stopCondition }: ParamsMapCswGrid = {},
 ) {
   let el = startEl;
   const mapArr: string[] = [];
-  while (el && !self.stopCondition?.(el)) {
+  while (el && !stopCondition?.(el)) {
     mapArr.push(callback(el));
-    el = self.getNext?.(el) || null;
+    el = getNext(el) || null;
   }
   return mapArr;
 }

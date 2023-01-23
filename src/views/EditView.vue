@@ -3,10 +3,9 @@
   <main class="main">
     <template v-if="cswGridVisible">
       <CrosswordGrid
-        :csw="{width: cswWidth, height: cswHeight}"
-        :hooks='{beforeDirectionChange, afterDirectionChange,afterTileChange}'
-        @regexPatternChange="setRegexPattern"
-
+        :csw="{ width: cswWidth, height: cswHeight }"
+        :hooks="{ beforeDirectionChange, afterDirectionChange, afterTileChange, afterRightClick }"
+        :editMode="true"
       >
         <template #inputTile="{ slotProps }">
           <CrosswordInputTile
@@ -16,13 +15,10 @@
           />
         </template>
         <template #clueTile="{ slotProps }">
-          <CrosswordClueTile
-            :class="slotProps.class"
-            :id="slotProps.id"
-            :coord="slotProps.coord" />
-          </template>
+          <CrosswordClueTile :class="slotProps.class" :id="slotProps.id" :coord="slotProps.coord" />
+        </template>
       </CrosswordGrid>
-      <WordList :regexPattern="regexPattern" />
+      <WordList :regexPattern="regexPattern.get()" />
     </template>
     <GridGeneratorForm v-if="!cswGridVisible" @onCswGridParams="generateCswGrid" />
   </main>
@@ -32,7 +28,7 @@
 import GridGeneratorForm from '@/components/organisms/GridGeneratorForm.vue';
 import WordList from '@/components/organisms/WordList.vue';
 import {
-  ref, reactive, computed, Ref,
+  ref, computed, Ref, watch, reactive,
 } from 'vue';
 import CrosswordGrid from '@/components/templates/CrosswordGridTemplate.vue';
 import CrosswordClueTile from '@/components/atoms/CrosswordClueTile.vue';
@@ -40,41 +36,36 @@ import CrosswordInputTile from '@/components/atoms/CrosswordInputTile.vue';
 import RegexPattern from '@/utils/RegexPattern';
 
 import { addStyle, removeStyle } from '@/utils/styleHandlers';
-import { selectNextSibling, selectNextNthElement } from '@/utils/crosswordGridSelectors';
 import { createCswGridIterator, mapCswGrid } from '@/utils/crosswordGridIterators';
+import { useCrosswordStore } from '@/stores/crosswordStore';
+import { storeToRefs } from 'pinia';
+
+const cswStore = useCrosswordStore();
+const {
+  selectedTile, prevSelectedTile, getNextTile, isHorizontal,
+} = storeToRefs(cswStore);
 
 const cswWidth = ref(15);
 const cswHeight = ref(15);
 const cswGridVisible = ref(false);
 
-const csw = ref();
-
 // HANDLE REGEX CLUES
-// const regexPattern = reactive(new RegexPattern([]));
+const firstWordSearchTile: Ref<null | HTMLInputElement> = ref(null);
+const regexPattern = reactive(new RegexPattern([]));
 
-// watch(csw);
-
-// watch([firstWordSearchTile, isHorizontal], () => {
-//  regexPattern.set(
-//    mapCswGrid(
-//      firstWordSearchTile.value,
-//      (el) => el.value.toLowerCase() || '.',
-//      getNextTile.value,
-//      (el) => el.tagName !== 'INPUT',
-//    ),
-//  );
-//  emits('regexPatternChange', regexPattern.get());
-// });
-
-const regexPattern = ref();
+watch([firstWordSearchTile, isHorizontal], () => {
+  regexPattern.set(
+    mapCswGrid(
+      firstWordSearchTile.value,
+      (el) => el.value.toLowerCase() || '.',
+      getNextTile.value,
+      { stopCondition: (el) => el.tagName !== 'INPUT' },
+    ),
+  );
+});
 
 function setCswGridVisible() {
   cswGridVisible.value = true;
-}
-
-// HANDLE EMITS
-function setRegexPattern(regex: RegExp) {
-  regexPattern.value = regex;
 }
 
 // GRID GENERATOR FORM HANDLER
@@ -83,17 +74,6 @@ function generateCswGrid(val: [number, number]) {
   setCswGridVisible();
 }
 
-// setup
-const selectedTile: Ref<null | HTMLInputElement> = ref(null);
-const prevSelectedTile: Ref<null | HTMLInputElement> = ref(null);
-
-// !!! to remove from here
-const firstWordSearchTile: Ref<null | HTMLInputElement> = ref(null);
-
-const isHorizontal = ref(true);
-const getNextTile = computed(() => (isHorizontal.value ? selectNextSibling : selectNextNthElement));
-
-// !!! to rename
 const INPUT_TILE_STYLES = ['selected-to-word-search', 'direction-marking-tile'];
 
 const traverseCswGrid = computed(() => createCswGridIterator({ getNext: getNextTile.value }));
@@ -109,12 +89,10 @@ const beforeDirectionChange = [
       omitCondition: (el) => el === selectedTile.value,
     });
   },
+];
+const afterRightClick = [
   () => {
-    regexPattern.value.set(
-      mapCswGrid(firstWordSearchTile.value, (el) => el.value.toLowerCase() || '.', {
-        getNext: getNextTile.value,
-      }),
-    );
+    traverseCswGrid.value(firstWordSearchTile.value, removeStyle, INPUT_TILE_STYLES);
   },
 ];
 

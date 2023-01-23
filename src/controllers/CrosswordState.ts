@@ -1,19 +1,21 @@
 type writingOrientation = 'vertical' | 'horizontal';
-type crosswordTileTag = 'INPUT' | 'TEXTAREA';
+export type crosswordTileTag = 'INPUT' | 'TEXTAREA';
 type Coordinate = [number, number];
 export type CoordKey = `${number},${number}`;
 interface clueTile {
+  tileType : 'CLUE';
   tagName: 'TEXTAREA';
   value: string;
   inputLocation?: Coordinate;
   inputOrientation?: writingOrientation;
 }
 interface inputTile {
+  tileType : 'INPUT';
   tagName: 'INPUT';
   value: string;
 }
 
-type CrosswordTile = inputTile | clueTile;
+export type CrosswordTile = inputTile | clueTile;
 export interface ICrosswordData {
   width: number;
   height: number;
@@ -39,7 +41,7 @@ export default class CrosswordData {
       this.tiles = {};
       for (let x = 1; x <= width; x += 1) {
         for (let y = 1; y <= height; y += 1) {
-          this.tiles[`${x},${y}`] = { value: '', tagName: 'INPUT' };
+          this.tiles[`${x},${y}`] = { value: '', tagName: 'INPUT', tileType: 'INPUT' };
         }
       }
     }
@@ -59,6 +61,15 @@ export default class CrosswordData {
 
   getState() {
     return this.tiles;
+  }
+
+  toogleTileType(coord: CoordKey) {
+    if (this.getTileAttr(coord, 'tileType') === 'INPUT') {
+      this.setTileAttr(coord, 'tileType', 'CLUE');
+    } else {
+      this.setTileAttr(coord, 'tileType', 'INPUT');
+      this.setTileAttr(coord, 'value', '');
+    }
   }
 
   saveLocally() {
