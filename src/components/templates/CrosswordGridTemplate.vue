@@ -11,7 +11,6 @@
     >
       <tr v-for="row in csw.height" :key="row" class="csw-row" :id="`csw-row-${row}`">
         <td v-for="col in csw.width" :key="`${col}-${row}`">
-          <!-- TO CHANGE -->
           <template v-if="csw.getTileAttr(`${col},${row}`, 'tileType') === 'INPUT'">
             <slot
               name="inputTile"
@@ -46,7 +45,7 @@
 <script lang="ts" setup>
 import { reactive, ref } from 'vue';
 import { EventWithTarget } from '@/types';
-import CrosswordData, { ICrosswordData, CoordKey, CrosswordTile } from '@/controllers/CrosswordState';
+import CrosswordData, { ICrosswordData, CoordKey } from '@/controllers/CrosswordState';
 import { storeToRefs } from 'pinia';
 import { useCrosswordStore } from '@/stores/crosswordStore';
 
@@ -112,14 +111,17 @@ function handleClickEvent(e: MouseEvent) {
 
 function handleInputEvent(e: InputEvent) {
   const { target } = e;
-  if (target instanceof HTMLTextAreaElement || target instanceof HTMLTextAreaElement) {
+  if (target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement) {
+    console.log('should focus 2');
     const coord = target.getAttribute('coord') as CoordKey;
     csw.setTileAttr(coord, 'value', target.value);
     if (target instanceof HTMLInputElement) {
       target.value = target.value.toUpperCase();
       const nextTile = getNextTile.value(target);
+      console.log('should focus 1');
       if (nextTile && nextTile?.tagName === 'INPUT') {
         handleEvents(nextTile);
+        console.log('should focus');
         nextTile.focus();
       }
     }
@@ -129,7 +131,8 @@ function handleInputEvent(e: InputEvent) {
 function handleRightClick(target: HTMLInputElement) {
   useCswHook(props.hooks?.afterRightClick);
   // MOUNT/UNMOUNT CROSSWORD INPUT TILE
-  if (isEditMode.value) {
+  console.log(props.editMode);
+  if (props.editMode) {
     const coord = target.getAttribute('coord') as CoordKey;
     csw.toogleTileType(coord);
   }
