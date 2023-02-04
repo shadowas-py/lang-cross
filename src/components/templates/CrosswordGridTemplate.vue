@@ -10,7 +10,7 @@
       @contextmenu.prevent
     >
       <tr v-for="row in csw.height" :key="row" class="csw-row" :id="`csw-row-${row}`">
-        <td v-for="col in csw.width" :key="`${col}-${row}`">
+        <td v-for="col in csw.width" :key="`${col}-${row}`" class="tile-data">
           <template v-if="csw.getTileAttr(`${col},${row}`, 'tileType') === 'INPUT'">
             <slot
               name="inputTile"
@@ -169,9 +169,9 @@ p {
   caret-color: black;
   cursor: default;
 }
-.tile:hover {
+/* .tile:hover {
   background-color: var(--hover-tile-color);
-}
+} */
 .tile:focus {
   background-color: var(--selected-tile-color);
   border: 2px solid var(--selected-tile-border-color);
@@ -182,18 +182,20 @@ p {
   font-family: 'Patrick Hand', cursive;
 }
 .clue-tile {
+  display: table-cell;
+  vertical-align: middle;
   font-size: 12px;
-  font-family: Arial, Helvetica, sans-serif;
-  background: black;
-  color: white;
-  display: block;
+  font-family: monospace;
+  background: silver;
+  color: black;
+  /* display: block; */
   resize: none;
   overflow: hidden;
   letter-spacing: 0;
 }
-.clue-tile:hover {
+/* .clue-tile:hover {
   background: darkgreen;
-}
+} */
 .direction-marking-tile {
   background-color: var(--next-active-tile-color);
 }
