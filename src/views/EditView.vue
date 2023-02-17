@@ -6,6 +6,7 @@
         :csw="{ width: cswWidth, height: cswHeight }"
         :hooks="{ beforeDirectionChange, afterDirectionChange, afterTileChange, afterRightClick }"
         :editMode="true"
+        @click.right="handleCrosswordEvents"
       >
         <template #inputTile="{ slotProps }">
           <CrosswordInputTile
@@ -16,12 +17,27 @@
         </template>
         <template #clueTile="{ slotProps }">
           <CrosswordClueTile :class="slotProps.class" :id="slotProps.id" :coord="slotProps.coord" />
-          <svg class="csw-arrow--right" width="56" height="56" viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg">
-<path d="M27.9124 10L10.8305 5.36199e-07L45 5.36199e-07L27.9124 10Z"/>
-</svg>
-<svg class="csw-arrow--down" width="56" height="56" viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg">
-<path d="M27.9124 10L10.8305 5.36199e-07L45 5.36199e-07L27.9124 10Z"/>
-</svg>
+          <CrosswordArrow v-for="arrow in cswArrows" :key="arrow" :data="arrow"/>
+          <!-- <svg
+            class="csw-arrow--right"
+            width="56"
+            height="56"
+            viewBox="0 0 56 56"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path d="M27.9124 10L10.8305 5.36199e-07L45 5.36199e-07L27.9124 10Z" />
+          </svg>
+          <svg
+            class="csw-arrow--down"
+            width="56"
+            height="56"
+            viewBox="0 0 56 56"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path d="M27.9124 10L10.8305 5.36199e-07L45 5.36199e-07L27.9124 10Z" />
+          </svg> -->
         </template>
       </CrosswordGrid>
       <WordList :regexPattern="regexPattern.get()" />
@@ -45,6 +61,12 @@ import { addStyle, removeStyle } from '@/utils/styleHandlers';
 import { createCswGridIterator, mapCswGrid } from '@/utils/crosswordGridIterators';
 import { useCrosswordStore } from '@/stores/crosswordStore';
 import { storeToRefs } from 'pinia';
+import {
+  selectNextNthElement,
+  selectNextSibling,
+  selectPrevNthElement,
+  selectPrevSibling,
+} from '@/utils/crosswordGridSelectors';
 
 const cswStore = useCrosswordStore();
 const {
@@ -140,10 +162,30 @@ const afterTileChange = [
   },
 ];
 
+const cswArrows: Array<HTMLElement | null> = reactive([]);
+const areDefaultArrows = ref(false);
+// HANDLE ARROWS
+function handleCrosswordEvents(e: Event) {
+  if (e.target instanceof HTMLTextAreaElement) {
+    areDefaultArrows.value = !areDefaultArrows.value;
+    const downArrow = areDefaultArrows.value ?
+      selectNextNthElement(selectNextNthElement(e.target)) :
+      selectNextSibling(selectNextSibling(e.target));
+    const rightArrow = areDefaultArrows.value ?
+      selectNextSibling(selectNextSibling(e.target)) :
+      selectNextSibling(selectNextNthElement(e.target));
+    const upArrow = areDefaultArrows.value ?
+      null :
+      selectPrevNthElement(selectNextSibling(e.target));
+    const leftArrow = areDefaultArrows.value ?
+      null :
+      selectPrevSibling(selectNextNthElement(e.target));
+    cswArrows.push(downArrow, rightArrow, upArrow, leftArrow);
+  }
+}
 </script>
 
 <style>
-
 .tile-data {
   position: relative;
 }
@@ -181,5 +223,4 @@ const afterTileChange = [
   transform: translate(-50%, 5%) scale(1.1);
   transition: 0.2s linear all;
 }
-
 </style>

@@ -6,7 +6,6 @@
       @input="handleInputEvent($event as any)"
       @mousedown.left.stop="handleClickEvent($event as EventWithTarget)"
       @mousedown.right="handleRightClick($event.target as HTMLInputElement)"
-      @click.stop=""
       @contextmenu.prevent
     >
       <tr v-for="row in csw.height" :key="row" class="csw-row" :id="`csw-row-${row}`">
@@ -112,16 +111,13 @@ function handleClickEvent(e: MouseEvent) {
 function handleInputEvent(e: InputEvent) {
   const { target } = e;
   if (target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement) {
-    console.log('should focus 2');
     const coord = target.getAttribute('coord') as CoordKey;
     csw.setTileAttr(coord, 'value', target.value);
     if (target instanceof HTMLInputElement) {
       target.value = target.value.toUpperCase();
       const nextTile = getNextTile.value(target);
-      console.log('should focus 1');
       if (nextTile && nextTile?.tagName === 'INPUT') {
         handleEvents(nextTile);
-        console.log('should focus');
         nextTile.focus();
       }
     }
@@ -131,7 +127,7 @@ function handleInputEvent(e: InputEvent) {
 function handleRightClick(target: HTMLInputElement) {
   useCswHook(props.hooks?.afterRightClick);
   // MOUNT/UNMOUNT CROSSWORD INPUT TILE
-  console.log(props.editMode);
+  // console.log(props.editMode);
   if (props.editMode) {
     const coord = target.getAttribute('coord') as CoordKey;
     csw.toogleTileType(coord);
