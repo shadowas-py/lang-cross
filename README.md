@@ -1,3 +1,6 @@
+Live version
+https://shadowas-py.github.io/lang-cross/
+
 # lang-cross
 
 ## Project setup
