@@ -1,3 +1,4 @@
+<!-- eslint-disable vuejs-accessibility/click-events-have-key-events -->
 <template>
   <div class="csw-grid-wrapper">
     <table
@@ -5,10 +6,10 @@
       class="csw-grid"
       @input="handleInputEvent($event as any)"
       @mousedown.left.stop="handleClickEvent($event as EventWithTarget)"
-      @mousedown.right="handleRightClick($event.target as HTMLInputElement)"
-      @click.stop=""
+      @mousedown.right="handleRightClick($event)"
       @contextmenu.prevent
     >
+      <!--@click.stop=""-->
       <tr v-for="row in csw.height" :key="row" class="csw-row" :id="`csw-row-${row}`">
         <td v-for="col in csw.width" :key="`${col}-${row}`" class="tile-data">
           <template v-if="csw.getTileAttr(`${col},${row}`, 'tileType') === 'INPUT'">
@@ -43,7 +44,7 @@
 </template>
 
 <script lang="ts" setup>
-import { reactive, ref } from 'vue';
+import { reactive } from 'vue';
 import { EventWithTarget } from '@/types';
 import CrosswordData, { ICrosswordData, CoordKey } from '@/controllers/CrosswordState';
 import { storeToRefs } from 'pinia';
@@ -60,6 +61,7 @@ const props = defineProps({
   },
   hooks: {
     type: Object,
+    required: true,
     beforeDirectionChange: Array,
     afterDirectionChange: Array,
     afterTileChange: Array,
@@ -70,11 +72,12 @@ const props = defineProps({
 const store = useCrosswordStore();
 const {
   selectedTile, prevSelectedTile, isSelectedSameTile, isHorizontal, getNextTile,
-} = storeToRefs(store);
+} =
+  storeToRefs(store);
 
 // CROSSWORD STATE
 const csw = reactive(new CrosswordData(props.csw as ICrosswordData));
-const isEditMode = ref();
+// const isEditMode = ref();
 
 // HOOKS
 function useCswHook(functions: Array<() => void> | undefined) {
@@ -87,6 +90,7 @@ function useCswHook(functions: Array<() => void> | undefined) {
 
 // EVENT HANDLERS
 function handleEvents(target: HTMLInputElement) {
+  // console.log('EVENT');
   prevSelectedTile.value = selectedTile.value;
   selectedTile.value = target;
   if (isSelectedSameTile.value) {
@@ -112,31 +116,38 @@ function handleClickEvent(e: MouseEvent) {
 function handleInputEvent(e: InputEvent) {
   const { target } = e;
   if (target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement) {
-    console.log('should focus 2');
+    // console.log('should focus 2');
     const coord = target.getAttribute('coord') as CoordKey;
     csw.setTileAttr(coord, 'value', target.value);
     if (target instanceof HTMLInputElement) {
       target.value = target.value.toUpperCase();
       const nextTile = getNextTile.value(target);
-      console.log('should focus 1');
+      // console.log('should focus 1');
       if (nextTile && nextTile?.tagName === 'INPUT') {
         handleEvents(nextTile);
-        console.log('should focus');
+        // console.log('should focus');
         nextTile.focus();
       }
     }
   }
 }
 
-function handleRightClick(target: HTMLInputElement) {
-  useCswHook(props.hooks?.afterRightClick);
-  // MOUNT/UNMOUNT CROSSWORD INPUT TILE
-  console.log(props.editMode);
-  if (props.editMode) {
-    const coord = target.getAttribute('coord') as CoordKey;
-    csw.toogleTileType(coord);
+function handleRightClick(e:MouseEvent):void {
+  console.log('RIGHT CLICK EVENT', e.target);
+  const target = e.target as Element;
+  if (target) {
+    useCswHook(props.hooks.afterRightClick);
+    // MOUNT/UNMOUNT CROSSWORD INPUT TILE
+    console.log(props.editMode);
+    if (props.editMode) {
+      const coord = target.getAttribute('coord');
+      if (coord) {
+        csw.toogleTileType(coord as CoordKey);
+      }
+    }
   }
 }
+
 </script>
 
 <style>
