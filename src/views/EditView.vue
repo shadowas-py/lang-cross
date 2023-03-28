@@ -1,3 +1,4 @@
+<!-- eslint-disable vuejs-accessibility/click-events-have-key-events -->
 <!--@regexPatternChange="setRegexPattern"-->
 <template>
   <main class="main">
@@ -15,13 +16,36 @@
           />
         </template>
         <template #clueTile="{ slotProps }">
-          <CrosswordClueTile :class="slotProps.class" :id="slotProps.id" :coord="slotProps.coord" />
-          <svg class="csw-arrow--right" width="56" height="56" viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg">
-<path d="M27.9124 10L10.8305 5.36199e-07L45 5.36199e-07L27.9124 10Z"/>
-</svg>
-<svg class="csw-arrow--down" width="56" height="56" viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg">
-<path d="M27.9124 10L10.8305 5.36199e-07L45 5.36199e-07L27.9124 10Z"/>
-</svg>
+          <CrosswordClueTile
+            :class="slotProps.class"
+            :id="slotProps.id"
+            :coord="slotProps.coord"
+          />
+          <svg
+            class="csw-arrow-container"
+            width="56"
+            height="56"
+            viewBox="0 0 56 56"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M27.9124 10L10.8305 5.36199e-07L45 5.36199e-07L27.9124 10Z"
+              class="csw-arrow--right"
+              @click.left.stop="attachArrow"
+              @click.right.stop="attachArrow"
+            />
+          </svg>
+          <svg
+            class="csw-arrow--down"
+            width="56"
+            height="56"
+            viewBox="0 0 56 56"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path d="M27.9124 10L10.8305 5.36199e-07L45 5.36199e-07L27.9124 10Z" />
+          </svg>
         </template>
       </CrosswordGrid>
       <WordList :regexPattern="regexPattern.get()" />
@@ -139,13 +163,27 @@ const afterTileChange = [
     }
   },
 ];
-
+function attachArrow(e: any) {
+  console.log('ATTACHING EVENT', e.target);
+  e.stopPropagation();
+  e.target.classList.add('csw-arrow--attached');
+}
 </script>
 
 <style>
-
 .tile-data {
   position: relative;
+}
+.csw-arrow-container {
+  position: absolute;
+  z-index: 1;
+  fill: silver;
+}
+.csw-arrow--right {
+  transform: translate(+10%, 100%) rotate(-90deg);
+}
+.csw-arrow--attached {
+  fill: black;
 }
 
 .csw-arrow--down {
@@ -157,22 +195,22 @@ const afterTileChange = [
   fill: silver;
 }
 
-.csw-arrow--right {
+/*.csw-arrow--right {
   position: absolute;
   top: 50%;
   left: 100%;
   transform: translate(8%, -50%) rotate(-90deg);
   z-index: 1;
   fill: silver;
-}
-.csw-arrow--right:hover {
+}*/
+/*.csw-arrow--right:hover {
   cursor: pointer;
   top: 50%;
   left: 100%;
   fill: black;
   transform: translate(5%, -50%) rotate(-90deg) scale(1.1);
   transition: 0.2s linear all;
-}
+}*/
 .csw-arrow--down:hover {
   cursor: pointer;
   top: 100%;
@@ -181,5 +219,4 @@ const afterTileChange = [
   transform: translate(-50%, 5%) scale(1.1);
   transition: 0.2s linear all;
 }
-
 </style>
