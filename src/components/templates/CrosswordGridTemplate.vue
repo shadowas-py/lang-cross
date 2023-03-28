@@ -6,7 +6,7 @@
       class="csw-grid"
       @input="handleInputEvent($event as any)"
       @mousedown.left.stop="handleClickEvent($event as EventWithTarget)"
-      @mousedown.right="handleRightClick($event)"
+      @mousedown.right.stop="handleRightClick($event)"
       @contextmenu.prevent
     >
       <!--@click.stop=""-->
@@ -105,6 +105,7 @@ function handleEvents(target: HTMLInputElement) {
 }
 
 function handleClickEvent(e: MouseEvent) {
+  console.log('HANDLE CLICK EVENT', e.target);
   if (e.target instanceof HTMLTextAreaElement) {
     console.log('HANDLE TEXTAREA SELECT');
   } else if (e.target instanceof HTMLInputElement) {

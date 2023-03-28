@@ -32,8 +32,10 @@
             <path
               d="M27.9124 10L10.8305 5.36199e-07L45 5.36199e-07L27.9124 10Z"
               class="csw-arrow--right"
-              @click.left.stop="attachArrow"
-              @click.right.stop="attachArrow"
+              @click.stop.left="attachArrow"
+              @click.stop.right="attachArrow"
+              @mousedown.stop
+              @mouseup.stop
             />
           </svg>
           <svg
@@ -164,8 +166,8 @@ const afterTileChange = [
   },
 ];
 function attachArrow(e: any) {
+  // e.stopPropagation();
   console.log('ATTACHING EVENT', e.target);
-  e.stopPropagation();
   e.target.classList.add('csw-arrow--attached');
 }
 </script>

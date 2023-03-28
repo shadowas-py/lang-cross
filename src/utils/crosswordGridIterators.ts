@@ -13,7 +13,7 @@ export function createCswGridIterator({ getNext = () => null }: ParamsTraverseCs
   ) {
     // console.log('IN ITERATOR', callback.name, getNext.name, stopCondition);
     let el = startEl;
-    console.log(callback.name, getNext.name);
+    // console.log(callback.name, getNext.name);
     while (el && !stopCondition?.(el)) {
       // console.log(el,'EL')
       if (!omitCondition?.(el)) {
